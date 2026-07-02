@@ -21,7 +21,21 @@
 
   const state = { role:"Geschäftsführung", standort:"Alle Standorte", leadView:"kanban", inboxSel:0, sideOpen:false, trainerAtt:null, trainerSkills:[],
     courseFilter:"Alle", kioskLast:null, vw:{step:0,kunde:null,standort:null,tarif:null,laufzeit:null,sepa:false},
-    supFilter:"Alle", supSel:"S1" };
+    supFilter:"Alle", supSel:"S1", sort:{} };
+
+  // --- client-side sortable tables ---
+  function sortRows(id, rows, cols){
+    const s = state.sort[id]; if(!s) return rows;
+    const g = cols[s.col].get;
+    return rows.slice().sort((a,b)=>{ const av=g(a), bv=g(b);
+      return (typeof av==='number' && typeof bv==='number' ? av-bv : String(av).localeCompare(String(bv),'de'))*s.dir; });
+  }
+  function sortHead(id, cols){
+    const s = state.sort[id]||{};
+    return '<tr>'+cols.map((c,i)=>{ const on=s.col===i, arr=on?(s.dir>0?' ▲':' ▼'):'';
+      return c.get ? `<th style="cursor:pointer;user-select:none" data-action="crm-sort" data-id="${id}" data-col="${i}" aria-sort="${on?(s.dir>0?'ascending':'descending'):'none'}">${c.label}${arr}</th>`
+                   : `<th>${c.label}</th>`; }).join('')+'</tr>';
+  }
 
   /* ---------------- shell ---------------- */
   function shell(content, active){
@@ -30,36 +44,41 @@
     const I = window.ICON || (()=>'');
     const openMsgs = D.crm.inbox.filter(m=>m.status!=='Beantwortet').length;
     const nav = [
-      ['#/crm/dashboard','home','Dashboard','Dashboard'],
-      ['#/crm/leads','target','Leads & Probetraining','Leads'],
-      ['#/crm/mitglieder','users','Mitglieder & Familien','Mitglieder'],
-      ['#/crm/retention','activity','Retention','Mitglieder'],
-      ['#/crm/upsell','trending','Upsell-Chancen','Mitglieder'],
-      ['#/crm/team','shield','Trainer & Team','Verträge'],
-      ['#/crm/zeiten','clock','Arbeitszeiten','Verträge'],
-      ['#/crm/kurse','calendar','Kurse & Stundenplan','Kurse'],
-      ['#/crm/auslastung','trending','Auslastung','Auslastung'],
-      ['#/crm/checkins','clock','Check-ins','Check-ins'],
-      ['#/crm/kiosk','monitor','Kiosk Check-in','Check-ins'],
-      ['#/crm/support','headset','Support-Center','Kommunikation'],
-      ['#/crm/kommunikation','mail','Kommunikation','Kommunikation'],
-      ['#/crm/aufgaben','file','Aufgaben','Kommunikation'],
-      ['#/crm/feedback','message','Feedback & Puls','Kommunikation'],
-      ['#/crm/vertraege','file','Verträge','Verträge'],
-      ['#/crm/zahlungen','euro','Zahlungen','Zahlungen'],
-      ['#/crm/automationen','zap','Automationen','Automationen'],
-      ['#/crm/reports','bars','Reports','Reports'],
-      ['#/crm/entscheidungen','file','Entscheidungen','Reports'],
-      ['#/crm/launch','zap','Launch-Cockpit','Reports'],
-      ['#/crm/rollen','shield','Rollen & Rechte','Rollen/Rechte'],
+      ['#/crm/dashboard','home','Dashboard','Dashboard','Überblick'],
+      ['#/crm/leads','target','Leads & Probetraining','Leads','Vertrieb'],
+      ['#/crm/upsell','trending','Upsell-Chancen','Mitglieder','Vertrieb'],
+      ['#/crm/launch','zap','Launch-Cockpit','Reports','Vertrieb'],
+      ['#/crm/mitglieder','users','Mitglieder & Familien','Mitglieder','Mitglieder'],
+      ['#/crm/retention','activity','Retention','Mitglieder','Mitglieder'],
+      ['#/crm/kurse','calendar','Kurse & Stundenplan','Kurse','Mitglieder'],
+      ['#/crm/auslastung','trending','Auslastung','Auslastung','Mitglieder'],
+      ['#/crm/checkins','clock','Check-ins','Check-ins','Mitglieder'],
+      ['#/crm/kiosk','monitor','Kiosk Check-in','Check-ins','Mitglieder'],
+      ['#/crm/support','headset','Support-Center','Kommunikation','Kommunikation'],
+      ['#/crm/kommunikation','mail','Kommunikation','Kommunikation','Kommunikation'],
+      ['#/crm/aufgaben','file','Aufgaben','Kommunikation','Kommunikation'],
+      ['#/crm/feedback','message','Feedback & Puls','Kommunikation','Kommunikation'],
+      ['#/crm/team','shield','Trainer & Team','Verträge','Team'],
+      ['#/crm/zeiten','clock','Arbeitszeiten','Verträge','Team'],
+      ['#/crm/vertraege','file','Verträge','Verträge','Finanzen'],
+      ['#/crm/zahlungen','euro','Zahlungen','Zahlungen','Finanzen'],
+      ['#/crm/automationen','zap','Automationen','Automationen','Steuerung'],
+      ['#/crm/reports','bars','Reports','Reports','Steuerung'],
+      ['#/crm/entscheidungen','file','Entscheidungen','Reports','Steuerung'],
+      ['#/crm/rollen','shield','Rollen & Rechte','Rollen/Rechte','Steuerung'],
     ].filter(x => can(x[3]));
+    let lastG='';
+    const navHtml = nav.map(([h,i,l,,g])=>{
+      const head = g!==lastG ? `<div class="crm-navsec">${g}</div>` : ''; lastG=g;
+      return head + `<a href="${h}" class="${active===h?'active':''}"${active===h?' aria-current="page"':''}><span class="ci">${I(i)}</span>${l}</a>`;
+    }).join('');
     return `<div class="crm">
       <aside class="crm-side ${state.sideOpen?'open':''}">
         <div class="brand"><span class="slash sm"><i></i><i></i></span><span class="badge">NFT</span>
           <b style="font-family:var(--ff-head);letter-spacing:1px;font-size:20px">CRM</b></div>
-        <nav class="crm-nav" aria-label="CRM-Navigation">${nav.map(([h,i,l])=>`<a href="${h}" class="${active===h?'active':''}"${active===h?' aria-current="page"':''}><span class="ci">${I(i)}</span>${l}</a>`).join('')}</nav>
+        <nav class="crm-nav" aria-label="CRM-Navigation">${navHtml}</nav>
         <a href="#/trainer" class="crm-nav" style="color:var(--muted);padding:10px 12px;font-size:13px;display:flex;align-items:center;gap:10px"><span class="ci">${I('activity')}</span>Trainer-Ansicht →</a>
-        <div class="role-note">Angemeldet als<br><b style="color:#fff">${state.role}</b><br><a href="#/crm" style="color:var(--red)">Rolle wechseln →</a></div>
+        <div class="role-note">Angemeldet als<br><b style="color:#fff">${state.role}</b><br><a href="#/crm" style="color:var(--red-ink)">Rolle wechseln →</a></div>
       </aside>
       <div class="crm-main">
         <div class="crm-top">
@@ -103,8 +122,8 @@
     const feed = byLoc(C().checkins).slice(0,5).map(c=>`<tr><td>${c.time}</td><td><b>${c.person}</b></td><td>${c.course}</td><td>${c.loc}</td>
       <td><span class="badge ${c.status==='Check-out'?'b-gray':'b-green'}">${c.status}</span></td></tr>`).join('');
     const tasks = [
-      ['🎯 18 neue Leads beantworten','#/crm/leads'],
-      ['💶 5 Rücklastschriften bearbeiten','#/crm/zahlungen'],
+      [`🎯 ${byLoc(C().leads).filter(l=>l.stage==='Neu').length} neue Leads beantworten`,'#/crm/leads'],
+      [`💶 ${C().paysummary.rueck} Rücklastschriften bearbeiten`,'#/crm/zahlungen'],
       ['✉️ 13 KI-Entwürfe prüfen','#/crm/kommunikation'],
       ['📝 8 Verträge offen','#/crm/vertraege'],
     ];
@@ -116,7 +135,7 @@
       </div>
       <div class="kpi-grid">${kpis}</div>
       <div class="split" style="grid-template-columns:1.4fr 1fr">
-        <div class="panel"><div class="panel-h"><b>Heute im Studio</b><a href="#/crm/checkins" style="color:var(--red);font-size:14px;font-weight:600">Live-Monitor →</a></div>
+        <div class="panel"><div class="panel-h"><b>Heute im Studio</b><a href="#/crm/checkins" style="color:var(--red-ink);font-size:14px;font-weight:600">Live-Monitor →</a></div>
           <table class="tbl"><thead><tr><th>Zeit</th><th>Person</th><th>Kurs</th><th>Standort</th><th>Status</th></tr></thead><tbody>${feed}</tbody></table></div>
         <div class="panel"><div class="panel-h"><b>Zu erledigen</b></div>
           ${tasks.map(([t,h])=>`<a class="list-item" href="${h}"><div class="li-main"><b>${t}</b></div><span class="muted">›</span></a>`).join('')}</div>
@@ -157,8 +176,13 @@
             <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">${ageBadge(l.ageMin)}${srcBadge(l.src)}${l.noshow?'<span class="badge b-amber">No-Show</span>':''}</div></a>`).join('') || '<div class="muted" style="font-size:12px;padding:6px">—</div>'}</div>`;
       }).join('')}</div>`;
     } else {
-      body = `<div class="panel"><table class="tbl"><thead><tr><th>Lead</th><th>Wartet seit</th><th>Quelle</th><th>Standort</th><th>Interesse</th><th>Status</th><th>Nächste Aktion</th></tr></thead><tbody>
-        ${byLoc(C().leads).map(l=>`<tr onclick="location.hash='#/crm/leads/${l.id}'"><td><a href="#/crm/leads/${l.id}"><b>${l.name}</b></a></td><td>${ageBadge(l.ageMin)}</td><td>${srcBadge(l.src)}</td><td>${l.loc}</td><td>${l.interest}</td><td><span class="badge b-gray">${l.stage}</span></td><td>${l.action}</td></tr>`).join('')}
+      const cols=[
+        {label:'Lead',get:l=>l.name},{label:'Wartet seit',get:l=>l.ageMin===undefined?1e9:l.ageMin},
+        {label:'Quelle',get:l=>l.src||''},{label:'Standort',get:l=>l.loc},{label:'Interesse',get:l=>l.interest},
+        {label:'Status',get:l=>C().pipeline.indexOf(l.stage)},{label:'Nächste Aktion'}
+      ];
+      body = `<div class="panel"><table class="tbl"><thead>${sortHead('leads', cols)}</thead><tbody>
+        ${sortRows('leads', byLoc(C().leads), cols).map(l=>`<tr onclick="location.hash='#/crm/leads/${l.id}'"><td><a href="#/crm/leads/${l.id}"><b>${l.name}</b></a></td><td>${ageBadge(l.ageMin)}</td><td>${srcBadge(l.src)}</td><td>${l.loc}</td><td>${l.interest}</td><td><span class="badge b-gray">${l.stage}</span></td><td>${l.action}</td></tr>`).join('')}
       </tbody></table></div>`;
     }
     return shell(`
@@ -214,14 +238,19 @@
 
   /* ---------------- members / family ---------------- */
   function members(){
-    const rows = byLoc(C().members).map(m=>{ const p=payBadge(m.pay), r=riskBadge(m.risk);
+    const cols=[
+      {label:'Name',get:m=>m.name},{label:'Typ',get:m=>m.who},{label:'Standort',get:m=>m.loc},
+      {label:'Vertrag',get:m=>m.contract},{label:'Zahlung',get:m=>({bezahlt:0,offen:1,rueck:2}[m.pay])},
+      {label:'Aktivität',get:m=>m.act},{label:'Retention',get:m=>({gruen:0,gelb:1,rot:2}[m.risk])}
+    ];
+    const rows = sortRows('members', byLoc(C().members), cols).map(m=>{ const p=payBadge(m.pay), r=riskBadge(m.risk);
       return `<tr onclick="location.hash='#/crm/familie/${m.fam}'"><td><a href="#/crm/familie/${m.fam}"><b>${m.name}</b></a></td><td>${m.who}</td><td>${m.loc}</td>
         <td><span class="badge b-gray">${m.contract}</span></td><td><span class="badge ${p[0]}">${p[1]}</span></td><td>${m.act}</td>
         <td><span class="badge ${r[0]}">${r[1]}</span></td></tr>`; }).join('');
     return shell(`
       <h1 class="crm-h">Mitglieder & Familien</h1>
-      <div class="crm-sub">Demo-Auszug: ${byLoc(C().members).length} Einträge · ${state.standort} · Franchise gesamt: ${C().fact.mitglieder.toLocaleString("de-DE")} aktive Mitglieder · Zeile öffnet Profil</div>
-      <div class="panel"><table class="tbl"><thead><tr><th>Name</th><th>Typ</th><th>Standort</th><th>Vertrag</th><th>Zahlung</th><th>Aktivität</th><th>Retention</th></tr></thead><tbody>${rows}</tbody></table></div>`,'#/crm/mitglieder');
+      <div class="crm-sub">Demo-Auszug: ${byLoc(C().members).length} Einträge · ${state.standort} · Franchise gesamt: ${C().fact.mitglieder.toLocaleString("de-DE")} aktive Mitglieder · Spalte klicken = sortieren, Zeile öffnet Profil</div>
+      <div class="panel"><table class="tbl"><thead>${sortHead('members', cols)}</thead><tbody>${rows}</tbody></table></div>`,'#/crm/mitglieder');
   }
 
   function family(id){
@@ -290,7 +319,7 @@
       <a class="backlink" href="#/crm/kurse">← Kurse</a>
       <h1 class="crm-h">${c.name}</h1>
       <div class="crm-sub">${c.loc} · ${c.day} ${c.time} · Trainer ${c.trainer} · ${c.booked}/${c.cap} · ${occ(c.occ)}</div>
-      ${c.occ==='voll'?`<div class="notice">⚠️ Kurs fast voll. <a href="#/crm/auslastung" style="color:var(--red);font-weight:600">Alternative Slots vorschlagen →</a></div>`:''}
+      ${c.occ==='voll'?`<div class="notice">⚠️ Kurs fast voll. <a href="#/crm/auslastung" style="color:var(--red-ink);font-weight:600">Alternative Slots vorschlagen →</a></div>`:''}
       <div class="panel"><div class="panel-h"><b>Teilnehmer</b><button class="btn btn-dark btn-sm" data-action="crm-toast" data-msg="Nachricht an Teilnehmer (Demo)">Nachricht an alle</button></div>
         ${parts.map(([n,b,s])=>`<div class="list-item"><span class="li-ico">${s}</span><div class="li-main"><b>${n}</b><small>${b}</small></div></div>`).join('')}
       </div>`,'#/crm/kurse');
@@ -736,9 +765,9 @@
       <div class="split">
         <div class="panel"><div class="panel-h"><b>Kiosk-Stimmung · Woche</b><span class="muted" style="font-size:12px">Smiley-Terminal am Ausgang</span></div>
           <div class="heat"><table><thead><tr><th></th>${f.kioskHeat.days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>${heat}</tbody></table></div>
-          <div class="notice" style="margin:12px 0 0">Di 17–18 Uhr fällt ab — korreliert mit der Überfüllung. <a href="#/crm/auslastung" style="color:var(--red);font-weight:600">Slot entzerren →</a></div>
+          <div class="notice" style="margin:12px 0 0">Di 17–18 Uhr fällt ab — korreliert mit der Überfüllung. <a href="#/crm/auslastung" style="color:var(--red-ink);font-weight:600">Slot entzerren →</a></div>
         </div>
-        <div class="panel"><div class="panel-h"><b>Feature-Voting (live)</b><a href="#/app/mitbestimmen" style="color:var(--red);font-size:13px;font-weight:600">In der App ansehen →</a></div>
+        <div class="panel"><div class="panel-h"><b>Feature-Voting (live)</b><a href="#/app/mitbestimmen" style="color:var(--red-ink);font-size:13px;font-weight:600">In der App ansehen →</a></div>
           ${D.feedback.roadmap.map(r=>`<div class="list-item"><div class="li-main"><b>${r.title}</b><small>${r.votes} Stimmen</small></div></div>`).join('')}
           <div class="panel-h" style="margin-top:14px"><b>„Getan"-Feed</b><button class="btn btn-dark btn-sm" data-action="crm-toast" data-msg="Eintrag hinzufügen (Demo)">+ Eintrag</button></div>
           ${D.feedback.done.slice(0,2).map(d=>`<div class="list-item"><span class="li-ico">✅</span><div class="li-main"><b>${d.what}</b><small>${d.when} · ${d.src}</small></div></div>`).join('')}
@@ -833,12 +862,12 @@
           ${kids.map(k=>`<div class="list-item"><span class="li-ico">🥋</span><div class="li-main"><b>${k.name}, ${k.age} · ${k.belt}</b><small>${k.program} · ${k.freq}${k.buddy?' · Buddy: '+k.buddy:''}</small></div><span class="badge b-green">aktiv</span></div>`).join('')}
           <div class="list-item"><span class="li-ico">🏦</span><div class="li-main"><b>SEPA aktiv</b><small>nächste Abbuchung 01.08.</small></div></div>
         </div>
-        <div class="panel"><div class="panel-h"><b>Zahlungen</b><a href="#/crm/zahlungen" style="color:var(--red);font-size:12px;font-weight:600">alle →</a></div>
+        <div class="panel"><div class="panel-h"><b>Zahlungen</b><a href="#/crm/zahlungen" style="color:var(--red-ink);font-size:12px;font-weight:600">alle →</a></div>
           ${pays.slice(0,3).map(p=>{const pb=payBadge(p.status);return `<div class="list-item"><div class="li-main"><b>${p.who}</b><small>${p.amount}</small></div><span class="badge ${pb[0]}">${pb[1]}</span></div>`;}).join('')||'<p class="muted" style="font-size:13px">Keine offenen Posten.</p>'}
           <div class="panel-h" style="margin-top:12px"><b>Letzte Nachrichten</b></div>
           ${msgs.map(m=>`<div class="list-item"><span class="li-ico">${m.ico}</span><div class="li-main"><b>${m.title}</b><small>${m.time}</small></div></div>`).join('')}
         </div>
-        <div class="panel"><div class="panel-h"><b>Offene Aufgaben</b><a href="#/crm/aufgaben" style="color:var(--red);font-size:12px;font-weight:600">Board →</a></div>
+        <div class="panel"><div class="panel-h"><b>Offene Aufgaben</b><a href="#/crm/aufgaben" style="color:var(--red-ink);font-size:12px;font-weight:600">Board →</a></div>
           ${openTasks.map(t=>`<div class="list-item"><span class="li-ico">${t.late?'🔴':'📋'}</span><div class="li-main"><b>${t.t}</b><small>${t.src} · ${t.sla}</small></div></div>`).join('')}
           <div class="panel-h" style="margin-top:12px"><b>Quick-Actions</b></div>
           <div style="display:flex;flex-direction:column;gap:8px">
@@ -1115,6 +1144,7 @@
     const a = el.dataset.action;
     if(a==='crm-role'){ state.role = el.dataset.r; location.hash = (el.dataset.r==='Trainer') ? '#/trainer' : '#/crm/dashboard'; return; }
     if(a==='crm-leadview'){ state.leadView = el.dataset.v; window.__render && window.__render(); return; }
+    if(a==='crm-sort'){ const id=el.dataset.id, col=+el.dataset.col; const s=state.sort[id]; state.sort[id]=(s&&s.col===col)?{col,dir:-s.dir}:{col,dir:1}; window.__render && window.__render(); return; }
     if(a==='crm-inbox'){ state.inboxSel = +el.dataset.i; window.__render && window.__render(); return; }
     if(a==='crm-menu'){ state.sideOpen = !state.sideOpen; window.__render && window.__render(); return; }
     if(a==='crm-toast'){ (window.__toast || alert)(el.dataset.msg||'Demo'); return; }

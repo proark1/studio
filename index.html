@@ -4,22 +4,76 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0c0c0e" />
-  <title>NFT Gym — Prototyp</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <title>NFT Gym — Kampfsport für die ganze Familie | 10 Standorte in NRW & München</title>
+  <meta name="description" content="Kickboxen, Boxen, MMA & BJJ für Kinder ab 3, Jugendliche und Erwachsene. Kostenloses Probetraining online buchen, ruhige Trainingszeiten sehen, Fortschritt in der App verfolgen. 10 Standorte in NRW & München." />
+  <meta name="keywords" content="Kampfsport, Kickboxen, Boxen, MMA, BJJ, Kinder, Probetraining, Krefeld, Köln, München, Mönchengladbach" />
+  <meta name="robots" content="index, follow" />
+  <meta name="author" content="NFT Gym" />
+  <link rel="canonical" href="https://nft-gym.de/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="NFT Gym" />
+  <meta property="og:locale" content="de_DE" />
+  <meta property="og:title" content="NFT Gym — Kampfsport für die ganze Familie" />
+  <meta property="og:description" content="Kostenloses Probetraining online buchen, ruhige Zeiten sehen, Fortschritt in der App verfolgen. Kickboxen, Boxen, MMA & BJJ für Kinder ab 3, Jugendliche & Erwachsene." />
+  <meta property="og:url" content="https://nft-gym.de/" />
+  <meta property="og:image" content="https://nft-gym.de/assets/icons/icon-512.png" />
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="NFT Gym — Kampfsport für die ganze Familie" />
+  <meta name="twitter:description" content="Kostenloses Probetraining online buchen, ruhige Zeiten sehen, Fortschritt in der App verfolgen." />
+  <meta name="twitter:image" content="https://nft-gym.de/assets/icons/icon-512.png" />
+
+  <!-- PWA / iOS -->
+  <meta name="application-name" content="NFT Gym" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="NFT Gym" />
+
+  <link rel="stylesheet" href="assets/css/fonts.css?v=17" />
   <link rel="stylesheet" href="assets/css/app.css?v=17" />
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="assets/icon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon-180.png" />
+
+  <!-- Structured data: brand + search (per-location & FAQ injected by app.js) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://nft-gym.de/#org",
+        "name": "NFT Gym",
+        "alternateName": "National Fighting Team",
+        "url": "https://nft-gym.de/",
+        "logo": "https://nft-gym.de/assets/icons/icon-512.png",
+        "description": "Kampfsport-Franchise für Kinder ab 3, Jugendliche und Erwachsene mit 10 Standorten in NRW und München.",
+        "sport": ["Kickboxing", "Boxing", "Mixed Martial Arts", "Brazilian Jiu-Jitsu", "Wrestling"]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://nft-gym.de/#website",
+        "url": "https://nft-gym.de/",
+        "name": "NFT Gym",
+        "publisher": { "@id": "https://nft-gym.de/#org" },
+        "inLanguage": "de-DE"
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <div class="demo-ribbon">PROTOTYP · Klickbarer Mockup · Demo-Daten
     <button id="tour-btn" type="button">▶ Demo-Tour</button></div>
   <div id="app"></div>
   <div id="live-region" role="status" aria-live="polite" class="sr-only"></div>
-  <script src="assets/js/data.js?v=16"></script>
-  <script src="assets/js/crm.js?v=16"></script>
+  <script src="assets/js/data.js?v=17"></script>
+  <script src="assets/js/crm.js?v=17"></script>
   <script src="assets/js/admin.js?v=17"></script>
   <script src="assets/js/app.js?v=17"></script>
 </body>

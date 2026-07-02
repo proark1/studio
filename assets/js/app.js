@@ -52,6 +52,24 @@
       to_app:"Zur Mitglieder-App", bot_btn:"Fragen?",
       tab_home:"Home", tab_courses:"Kurse", tab_occ:"Auslastung", tab_msgs:"Nachrichten", tab_account:"Konto",
       today:"Heute", welcome:"Willkommen zurück", lang_label:"Sprache",
+      nav_prices:"Preise", tab_progress:"Fortschritt",
+      tb_members:"Mitglieder", tb_locations:"Standorte", tb_rating:"Google-Bewertung",
+      safe_k:"Sicher aufgehoben", safe_t:"Vertrauen, das Eltern spüren",
+      safe1_t:"Geprüfte Trainer", safe1_d:"Lizenz, Erste-Hilfe & erweitertes Führungszeugnis — Pflicht für jeden Kinderkurs.",
+      safe2_t:"Kleine Gruppen", safe2_d:"Altersgerechte Gruppen mit genug Aufmerksamkeit für jedes Kind.",
+      safe3_t:"Check-in/out-Push", safe3_d:"Du bekommst eine Nachricht, sobald dein Kind ankommt und wieder geht.",
+      safe4_t:"Ohne Risiko starten", safe4_d:"Kostenloses Probetraining, faire Verträge, jederzeit online kündbar.",
+      price_k:"Faire Preise", price_t:"Transparente Tarife", price_note:"Geschwister- & Family-Rabatte · Probetraining immer kostenlos",
+      price_kids:"Kinder", price_ad:"Erwachsene", price_fam:"Family", price_mo:"/ Monat", price_cta:"Alle Tarife ansehen",
+      pk1:"Alle Kids-Kurse", pk2:"Fortschritt in der App", pk3:"Check-in/out-Push",
+      pa1:"Kickboxen, Boxen, MMA & BJJ", pa2:"Ruhige Zeiten in der App", pa3:"Faire, kurze Verträge",
+      pf1:"Zwei oder mehr Kinder", pf2:"Bester Preis pro Kind", pf3:"Eine Rechnung, eine App",
+      obj_k:"Häufige Fragen", obj_t:"Ist das was für uns?",
+      obj1_q:"Ist mein Kind zu klein?", obj1_a:"Wir starten ab 3 Jahren — spielerisch, mit viel Bewegung und klaren Regeln.",
+      obj2_q:"Ich bin totaler Anfänger.", obj2_a:"Die meisten sind es. Du startest in einer Einsteigergruppe in deinem Tempo.",
+      obj3_q:"Ist Kampfsport nicht gefährlich?", obj3_a:"Sicherheit zuerst: kontrollierte Technik, Schutzausrüstung, kein Zwang zum Sparring.",
+      obj_cta:"Alle Fragen ansehen",
+      reassure_free:"100 % kostenlos & unverbindlich — keine Kündigung nötig",
       partialNote:"" },
     tr:{ name:"Türkçe",
       nav_home:"Ana Sayfa", nav_loc:"Şubeler", nav_kids:"Çocuklar", nav_adults:"Yetişkinler", nav_finder:"Kurs Bul", nav_faq:"SSS",
@@ -63,6 +81,24 @@
       to_app:"Üye Uygulaması", bot_btn:"Sorular?",
       tab_home:"Ana Sayfa", tab_courses:"Dersler", tab_occ:"Doluluk", tab_msgs:"Mesajlar", tab_account:"Hesap",
       today:"Bugün", welcome:"Tekrar hoş geldin", lang_label:"Dil",
+      nav_prices:"Fiyatlar", tab_progress:"Gelişim",
+      tb_members:"Üye", tb_locations:"Şube", tb_rating:"Google puanı",
+      safe_k:"Güvende", safe_t:"Ebeveynlerin hissettiği güven",
+      safe1_t:"Denetimli antrenörler", safe1_d:"Lisans, ilk yardım ve genişletilmiş sabıka kaydı — her çocuk kursu için zorunlu.",
+      safe2_t:"Küçük gruplar", safe2_d:"Her çocuğa yeterli ilgiyi gösteren yaşa uygun gruplar.",
+      safe3_t:"Giriş/çıkış bildirimi", safe3_d:"Çocuğunuz geldiğinde ve ayrıldığında anında bildirim alırsınız.",
+      safe4_t:"Risksiz başlayın", safe4_d:"Ücretsiz deneme dersi, adil sözleşmeler, istediğiniz zaman online iptal.",
+      price_k:"Adil fiyatlar", price_t:"Şeffaf tarifeler", price_note:"Kardeş ve aile indirimleri · deneme dersi her zaman ücretsiz",
+      price_kids:"Çocuklar", price_ad:"Yetişkinler", price_fam:"Aile", price_mo:"/ ay", price_cta:"Tüm tarifeleri gör",
+      pk1:"Tüm çocuk kursları", pk2:"Uygulamada gelişim", pk3:"Giriş/çıkış bildirimi",
+      pa1:"Kickboks, boks, MMA ve BJJ", pa2:"Uygulamada sakin saatler", pa3:"Adil, kısa sözleşmeler",
+      pf1:"İki veya daha fazla çocuk", pf2:"Çocuk başına en iyi fiyat", pf3:"Tek fatura, tek uygulama",
+      obj_k:"Sık sorulanlar", obj_t:"Bize uygun mu?",
+      obj1_q:"Çocuğum çok mu küçük?", obj1_a:"3 yaşından itibaren başlıyoruz — oyunla, bol hareketle ve net kurallarla.",
+      obj2_q:"Ben tam bir acemiyim.", obj2_a:"Çoğu kişi öyle. Kendi temponuzda bir başlangıç grubunda başlarsınız.",
+      obj3_q:"Dövüş sporu tehlikeli değil mi?", obj3_a:"Önce güvenlik: kontrollü teknik, koruyucu ekipman, zorunlu olmayan sparring.",
+      obj_cta:"Tüm soruları gör",
+      reassure_free:"%100 ücretsiz ve taahhütsüz — iptal gerekmez",
       partialNote:"🌐 Demo: Ana alanlar Türkçe — tam çeviri V1 ile geliyor. Sorularınız için WhatsApp üzerinden Türkçe destek veriyoruz." },
     ar:{ name:"العربية",
       nav_home:"الرئيسية", nav_loc:"الفروع", nav_kids:"الأطفال", nav_adults:"البالغون", nav_finder:"ابحث عن كورس", nav_faq:"الأسئلة",
@@ -74,6 +110,24 @@
       to_app:"تطبيق الأعضاء", bot_btn:"أسئلة؟",
       tab_home:"الرئيسية", tab_courses:"الحصص", tab_occ:"الازدحام", tab_msgs:"الرسائل", tab_account:"حسابي",
       today:"اليوم", welcome:"أهلاً بعودتك", lang_label:"اللغة",
+      nav_prices:"الأسعار", tab_progress:"التقدّم",
+      tb_members:"عضو", tb_locations:"فرع", tb_rating:"تقييم جوجل",
+      safe_k:"في أمان", safe_t:"ثقة يشعر بها الأهل",
+      safe1_t:"مدرّبون معتمدون", safe1_d:"رخصة وإسعافات أولية وشهادة حسن سيرة موسّعة — إلزامية لكل صفوف الأطفال.",
+      safe2_t:"مجموعات صغيرة", safe2_d:"مجموعات مناسبة للعمر باهتمام كافٍ لكل طفل.",
+      safe3_t:"إشعار الدخول/الخروج", safe3_d:"تصلك رسالة فور وصول طفلك ومغادرته.",
+      safe4_t:"ابدأ بلا مخاطرة", safe4_d:"حصة تجريبية مجانية، عقود عادلة، وإلغاء أونلاين في أي وقت.",
+      price_k:"أسعار عادلة", price_t:"باقات شفافة", price_note:"خصومات الإخوة والعائلة · الحصة التجريبية مجانية دائماً",
+      price_kids:"الأطفال", price_ad:"البالغون", price_fam:"العائلة", price_mo:"/ شهرياً", price_cta:"عرض كل الباقات",
+      pk1:"كل حصص الأطفال", pk2:"التقدّم في التطبيق", pk3:"إشعار الدخول/الخروج",
+      pa1:"كيك بوكسينغ، ملاكمة، MMA وBJJ", pa2:"الأوقات الهادئة في التطبيق", pa3:"عقود عادلة وقصيرة",
+      pf1:"طفلان أو أكثر", pf2:"أفضل سعر لكل طفل", pf3:"فاتورة واحدة وتطبيق واحد",
+      obj_k:"أسئلة شائعة", obj_t:"هل يناسبنا؟",
+      obj1_q:"هل طفلي صغير جداً؟", obj1_a:"نبدأ من عمر 3 سنوات — باللعب والكثير من الحركة وقواعد واضحة.",
+      obj2_q:"أنا مبتدئ تماماً.", obj2_a:"معظم الناس كذلك. تبدأ في مجموعة للمبتدئين وبإيقاعك الخاص.",
+      obj3_q:"أليست رياضة القتال خطيرة؟", obj3_a:"السلامة أولاً: تقنية مضبوطة، معدات واقية، ولا إجبار على السبارينغ.",
+      obj_cta:"عرض كل الأسئلة",
+      reassure_free:"مجاني 100% وبدون التزام — لا حاجة لأي إلغاء",
       partialNote:"🌐 نسخة تجريبية: الأقسام الأساسية بالعربية — الترجمة الكاملة في الإصدار الأول. ندعمكم بالعربية عبر واتساب." },
   };
   let lang = 'de';
@@ -156,13 +210,15 @@
      <span style="display:flex;flex-direction:column;line-height:1"><span>GYM</span><small>NATIONAL FIGHTING TEAM</small></span></a>`;
 
   function siteShell(content, active){
-    const link = (h,t)=>`<a href="${h}" class="${active===h?'active':''}">${t}</a>`;
+    const link = (h,tx)=>`<a href="${h}" class="${active===h?'active':''}">${tx}</a>`;
+    const H1 = {'#/kursfinder':'Kursfinder','#/probetraining':'Probetraining','#/preise':'Preise & Tarife','#/faq':'Häufige Fragen','#/events':'Events & Camps','#/shop':'Pro-Shop','#/empfehlen':'Freund werben','#/gutscheine':'Geschenk-Gutscheine','#/camp':'Feriencamp','#/kuendigen':'Vertrag kündigen','#/login':'Mitglieder-Login','#/impressum':'Impressum','#/datenschutz':'Datenschutz','#/agb':'AGB'};
+    const srH1 = H1[active] ? `<h1 class="sr-only">${H1[active]} — NFT Gym</h1>` : '';
     return `<div class="site">
       <div class="nav"><div class="container nav-inner">
         ${logo}
         <div class="nav-links">
           ${link('#/',t('nav_home'))} ${link('#/standorte',t('nav_loc'))} ${link('#/kinder',t('nav_kids'))}
-          ${link('#/erwachsene',t('nav_adults'))} ${link('#/kursfinder',t('nav_finder'))} ${link('#/faq',t('nav_faq'))}
+          ${link('#/erwachsene',t('nav_adults'))} ${link('#/preise',t('nav_prices'))} ${link('#/kursfinder',t('nav_finder'))} ${link('#/faq',t('nav_faq'))}
         </div>
         <div class="nav-cta">
           ${langSelect('')}
@@ -174,12 +230,12 @@
       ${langNote()}
       ${menuOpen?`<div class="mnav" role="dialog" aria-label="Menü">
         <a href="#/">Home</a><a href="#/standorte">Standorte</a><a href="#/kinder">Kinder</a>
-        <a href="#/erwachsene">Erwachsene</a><a href="#/kursfinder">Kursfinder</a><a href="#/events">Events</a>
+        <a href="#/erwachsene">Erwachsene</a><a href="#/preise">Preise</a><a href="#/kursfinder">Kursfinder</a><a href="#/events">Events</a>
         <a href="#/shop">Shop</a><a href="#/faq">FAQ</a>
         <div class="mnav-cta"><a class="btn btn-primary btn-block" href="#/probetraining">Probetraining buchen</a>
         <a class="btn btn-dark btn-block" href="#/login">Login</a></div>
       </div>`:''}
-      <main id="main">${content}</main>
+      <main id="main">${srH1}${content}</main>
       ${siteFooter()}
     </div>
     <button class="launch-app" data-action="goapp"><span class="slash sm"><i></i><i></i></span> ${t('to_app')}</button>
@@ -205,11 +261,12 @@
         <div><h4>${t('f_training')}</h4>
           <a href="#/kinder">Kinder</a><a href="#/erwachsene">Erwachsene</a><a href="#/kursfinder">Kursfinder</a><a href="#/standorte">Standorte</a><a href="#/events">Events & Camps</a><a href="#/camp">Feriencamp</a><a href="#/shop">Pro-Shop</a><a href="#/gutscheine">Gutscheine</a></div>
         <div><h4>${t('f_service')}</h4>
-          <a href="#/probetraining">Probetraining</a><a href="#/faq">FAQ</a><a href="#/empfehlen">Freund werben</a><a href="#/app">Mitglieder-Login</a><a href="#/crm">Team-Login (CRM)</a><a href="#/admin">Bild-Studio (Admin)</a><a href="#/kuendigen">Vertrag kündigen</a></div>
+          <a href="#/probetraining">Probetraining</a><a href="#/preise">Preise</a><a href="#/faq">FAQ</a><a href="#/empfehlen">Freund werben</a><a href="#/app">Mitglieder-Login</a><a href="#/kuendigen">Vertrag kündigen</a></div>
         <div><h4>${t('f_legal')}</h4>
           <a href="#/kuendigen">Kündigung</a><a href="#/impressum">Impressum</a><a href="#/datenschutz">Datenschutz</a><a href="#/agb">AGB</a></div>
       </div>
-      <p class="muted" style="margin-top:34px;font-size:13px">© 2026 NFT Gym — Prototyp mit Demo-Daten. Kein echter Vertragsabschluss.</p>
+      <p class="muted" style="margin-top:34px;font-size:13px">© 2026 NFT Gym — Prototyp mit Demo-Daten. Kein echter Vertragsabschluss.
+        <span style="opacity:.55"> · Intern: <a href="#/crm" style="display:inline;text-decoration:underline">Team-CRM</a> · <a href="#/admin" style="display:inline;text-decoration:underline">Bild-Studio</a></span></p>
     </div></footer>`;
   }
 
@@ -236,6 +293,12 @@
             <a class="btn btn-ghost" href="#/kursfinder">${t('cta_plan')}</a>
           </div>
         </div></div>
+        <div class="trust-band">
+          <div class="ti"><b>${(D.crm&&D.crm.fact?D.crm.fact.mitglieder:2410).toLocaleString('de-DE')}+</b><small>${t('tb_members')}</small></div>
+          <div class="ti"><b>${D.locations.length}</b><small>${t('tb_locations')}</small></div>
+          <div class="ti"><b><span class="stars">★★★★★</span> 4,9</b><small>312 ${t('tb_rating')}</small></div>
+          <div class="ti"><b>ab 3 J.</b><small>${t('nav_kids')}</small></div>
+        </div>
       </div>
 
       <div class="section"><div class="container">
@@ -245,6 +308,13 @@
           <a class="btn btn-dark btn-sm" href="#/kursfinder">Kursfinder starten</a>
         </div>
         <div class="grid g-3">${sportCards}</div>
+      </div></div>
+
+      <div class="section"><div class="container">
+        <div class="section-head"><div><div class="kicker"><span class="slash sm"><i></i><i></i></span> ${t('safe_k')}</div><h2>${t('safe_t')}</h2></div></div>
+        <div class="grid g-4 safe-grid">
+          ${[['🛡️','safe1'],['👥','safe2'],['🔔','safe3'],['✅','safe4']].map(([ic,k])=>`<div class="card"><div class="ico">${ic}</div><h3>${t(k+'_t')}</h3><p class="muted" style="margin:0">${t(k+'_d')}</p></div>`).join('')}
+        </div>
       </div></div>
 
       <div class="section" style="background:var(--bg-elev)"><div class="container">
@@ -257,12 +327,37 @@
       </div></div>
 
       <div class="section"><div class="container">
+        <div class="section-head"><div><div class="kicker"><span class="slash sm"><i></i><i></i></span> ${t('price_k')}</div>
+          <h2>${t('price_t')}</h2><p>${t('price_note')}</p></div>
+          <a class="btn btn-dark btn-sm" href="#/preise">${t('price_cta')}</a></div>
+        <div class="grid g-3">
+          <div class="card price-card"><span class="tag ghost">${t('price_kids')}</span><div class="amt">49 €<small> ${t('price_mo')}</small></div><ul><li>${t('pk1')}</li><li>${t('pk2')}</li><li>${t('pk3')}</li></ul><a class="btn btn-dark btn-block" href="#/probetraining" style="margin-top:16px">${t('cta_free')}</a></div>
+          <div class="card price-card feat"><span class="tag">${t('price_fam')}</span><div class="amt">119 €<small> ${t('price_mo')}</small></div><ul><li>${t('pf1')}</li><li>${t('pf2')}</li><li>${t('pf3')}</li></ul><a class="btn btn-primary btn-block" href="#/probetraining" style="margin-top:16px">${t('cta_free')}</a></div>
+          <div class="card price-card"><span class="tag ghost">${t('price_ad')}</span><div class="amt">59 €<small> ${t('price_mo')}</small></div><ul><li>${t('pa1')}</li><li>${t('pa2')}</li><li>${t('pa3')}</li></ul><a class="btn btn-dark btn-block" href="#/probetraining" style="margin-top:16px">${t('cta_free')}</a></div>
+        </div>
+      </div></div>
+
+      <div class="section" style="background:var(--bg-elev)"><div class="container obj" style="max-width:860px">
+        <div class="center" style="margin-bottom:24px"><div class="kicker" style="justify-content:center"><span class="slash sm"><i></i><i></i></span> ${t('obj_k')}</div><h2>${t('obj_t')}</h2></div>
+        <div class="grid g-3">
+          ${['obj1','obj2','obj3'].map(k=>`<div class="card"><h3 style="font-size:17px;text-transform:none;letter-spacing:0">${t(k+'_q')}</h3><p class="muted" style="margin:8px 0 0;font-size:14px">${t(k+'_a')}</p></div>`).join('')}
+        </div>
+        <div class="center" style="margin-top:20px"><a class="btn btn-dark btn-sm" href="#/faq">${t('obj_cta')}</a></div>
+      </div></div>
+
+      <div class="section"><div class="container">
         <div class="section-head"><div>
           <div class="kicker"><span class="slash sm"><i></i><i></i></span> 10 Standorte</div>
           <h2>Finde dein Studio</h2></div>
           <a class="btn btn-dark btn-sm" href="#/standorte">Alle Standorte</a>
         </div>
         <div class="grid g-3">${locTeaser}</div>
+      </div></div>
+
+      <div class="section"><div class="container">
+        <div class="section-head"><div><div class="kicker"><span class="slash sm"><i></i><i></i></span> Bewertungen</div><h2>Das sagen Familien</h2></div>
+          <a class="btn btn-dark btn-sm" href="#/empfehlen">Mehr Stimmen</a></div>
+        <div class="grid g-3">${D.testimonials.map(tt=>`<div class="card"><div class="stars" style="margin-bottom:8px">${'★'.repeat(tt.stars)}</div><p style="margin:0 0 12px">„${tt.text}"</p><b>${tt.name}</b><br><small class="muted">${tt.kid}</small></div>`).join('')}</div>
       </div></div>
 
       <div class="section"><div class="container">
@@ -438,7 +533,8 @@
       <div class="choices">${D.locations.map(l=>`<button type="button" class="chip ${sel(l.id,wiz.loc)}" data-action="w-set" data-k="loc" data-v="${l.id}">${l.city}</button>`).join('')}</div>`;
     } else if(s===3){ const slots=[["Mi · 16:00 · Kids 6–9","ruhig"],["Fr · 15:30 · Kids BJJ","ruhig"],["Di · 17:00 · Kids 6–9","voll"]];
       inner=`<label class="field-lbl">Wähle einen Termin</label>
-      <div style="display:flex;flex-direction:column;gap:10px">${slots.map(([t,o])=>`<button type="button" class="chip ${sel(t,wiz.slot)}" data-action="w-set" data-k="slot" data-v="${t}" style="justify-content:space-between;display:flex;border-radius:12px">${t} ${occPill(o)}</button>`).join('')}</div>`;
+      <div style="display:flex;flex-direction:column;gap:10px">${slots.map(([t,o])=>`<button type="button" class="chip ${sel(t,wiz.slot)}" data-action="w-set" data-k="slot" data-v="${t}" style="justify-content:space-between;display:flex;border-radius:12px">${t} ${occPill(o)}</button>`).join('')}</div>
+      <p class="muted" style="font-size:13px;margin-top:12px">⚡ Beliebte Zeiten — diese Woche nur noch wenige Plätze frei.</p>`;
     } else if(s===4){ inner=`
       <div class="field"><label for="w-name">Name</label><input id="w-name" data-action="w-input" data-k="name" value="${wiz.name}" placeholder="Vor- und Nachname" autocomplete="name"></div>
       <div class="field"><label for="w-email">E-Mail</label><input id="w-email" type="email" data-action="w-input" data-k="email" value="${wiz.email}" placeholder="name@mail.de" autocomplete="email"></div>
@@ -457,6 +553,7 @@
           ${s<4?`<button class="btn btn-primary btn-block" data-action="w-next" ${canNext?'':'disabled aria-disabled="true"'}>Weiter</button>`
                 :`<button class="btn btn-primary btn-block" data-action="w-finish">Probetraining buchen</button>`}
         </div>
+        <p class="reassure">🔒 ${t('reassure_free')}</p>
       </div>
       <style>.field-lbl{display:block;font-weight:600;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;font-size:13px}</style>
     </div></div>`,'#/probetraining');
@@ -545,10 +642,28 @@
     return siteShell(`<div class="section" style="padding-top:36px"><div class="container" style="max-width:760px">
       <div class="center" style="margin-bottom:26px"><div class="kicker" style="justify-content:center"><span class="slash sm"><i></i><i></i></span> FAQ</div><h2>Häufige Fragen</h2></div>
       ${D.faq.map((f,i)=>`<button type="button" class="card" style="margin-bottom:12px;display:block;width:100%" data-action="faq" data-i="${i}" aria-expanded="${faqOpen===i}">
-        <div style="display:flex;justify-content:space-between;align-items:center"><h3 style="font-size:18px;text-transform:none;letter-spacing:0">${f.q}</h3><span style="color:var(--red);font-size:22px" aria-hidden="true">${faqOpen===i?'−':'+'}</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center"><h3 style="font-size:18px;text-transform:none;letter-spacing:0">${f.q}</h3><span style="color:var(--red-ink);font-size:22px" aria-hidden="true">${faqOpen===i?'−':'+'}</span></div>
         ${faqOpen===i?`<p class="muted" style="margin:12px 0 0">${f.a}</p>`:''}
       </button>`).join('')}
     </div></div>`,'#/faq');
+  }
+
+  function preise(){
+    const card=(feat,name,price,items,cta)=>`<div class="card price-card ${feat?'feat':''}">
+      <span class="tag ${feat?'':'ghost'}">${name}</span><div class="amt">${price}<small> ${t('price_mo')}</small></div>
+      <ul>${items.map(k=>`<li>${t(k)}</li>`).join('')}</ul>
+      <a class="btn ${cta} btn-block" href="#/probetraining" style="margin-top:18px">${t('cta_free')}</a></div>`;
+    return siteShell(`<div class="section" style="padding-top:36px"><div class="container">
+      <div class="center" style="margin-bottom:8px"><div class="kicker" style="justify-content:center"><span class="slash sm"><i></i><i></i></span> ${t('price_k')}</div>
+        <h2>${t('price_t')}</h2><p class="muted" style="max-width:520px;margin:8px auto 0">${t('price_note')}</p></div>
+      <div class="grid g-3" style="margin-top:30px">
+        ${card(false,t('price_kids'),'49 €',['pk1','pk2','pk3'],'btn-dark')}
+        ${card(true,t('price_fam'),'119 €',['pf1','pf2','pf3'],'btn-primary')}
+        ${card(false,t('price_ad'),'59 €',['pa1','pa2','pa3'],'btn-dark')}
+      </div>
+      <div class="notice" style="margin-top:24px">${t('reassure_free')} · Preise inkl. MwSt. (Demo-Werte) — endgültige Tarife je Standort im Anmeldeprozess.</div>
+      <div class="center" style="margin-top:16px"><a class="btn btn-dark" href="#/faq">${t('obj_cta')}</a></div>
+    </div></div>`,'#/preise');
   }
 
   /* ===========================================================
@@ -570,11 +685,15 @@
       </div>
       <main class="app-body">${langNote()}${content}</main>
       <nav class="tabbar" aria-label="Hauptnavigation">
-        ${tb('#/app','home',t('tab_home'))} ${tb('#/app/kurse','calendar',t('tab_courses'))} ${tb('#/app/auslastung','chart',t('tab_occ'))}
+        ${tb('#/app','home',t('tab_home'))} ${tb('#/app/kurse','calendar',t('tab_courses'))} ${tb('#/app/fortschritt','trending',t('tab_progress'))}
         ${tb('#/app/nachrichten','message',t('tab_msgs'))} ${tb('#/app/konto','user',t('tab_account'))}
       </nav>
     </div>`;
   }
+
+  // Kind-Umschalter (nur bei mehreren Kindern)
+  const kidSwitch = (current, base) => D.kids.length < 2 ? '' :
+    `<div class="choices" style="margin-bottom:14px">${D.kids.map(k=>`<a class="chip ${k.name===current?'sel':''}" href="${base}/${k.name}">${k.name}</a>`).join('')}</div>`;
 
   function appHome(){
     const sessions = D.kids.map(k=>{
@@ -589,13 +708,10 @@
               :`<button class="btn btn-dark" data-action="toast" data-msg="Umbuchen (Demo)">Umbuchen</button>
                 <button class="btn btn-dark" data-action="app-sick" data-kid="${k.name}">🤒 Krankmelden</button>`}
       </div></div>`; }).join('');
-    const openTasks = [
-      {i:"💶",t:"Zahlung offen: Sara (49 €)",h:"#/app/zahlungen"},
-      {i:"📝",t:"Prüfungsgebühr Emir bestätigen",h:"#/app/zahlungen"},
-    ];
+    const openTasks = D.payments.filter(p=>p.status==='offen').map(p=>({i:"💶",t:`Offen: ${p.who.split(' · ')[0]} · ${p.amount}`,h:"#/app/zahlungen"}));
     const ms = D.milestone;
-    const msCard = (ms && !ms.claimed) ? `<div class="app-card" style="border-color:#f5c518;background:linear-gradient(135deg,rgba(245,197,24,.08),var(--surface))">
-      <div style="display:flex;gap:12px;align-items:center"><div class="thumb" style="background:rgba(245,197,24,.15);color:#f5c518;font-size:26px">🎉</div>
+    const msCard = (ms && !ms.claimed) ? `<div class="app-card" style="border-color:var(--gold);background:linear-gradient(135deg,rgba(245,197,24,.08),var(--surface))">
+      <div style="display:flex;gap:12px;align-items:center"><div class="thumb" style="background:var(--gold-050);color:var(--gold);font-size:26px">🎉</div>
         <div class="meta" style="flex:1"><b>${ms.kid} hat sein ${ms.label} geschafft!</b><small>Ein echter Meilenstein — feiert ihn zusammen.</small></div></div>
       <div class="rowbtns"><button class="btn btn-primary" data-action="milestone-claim">Urkunde teilen</button>
         <button class="btn btn-dark" data-action="toast" data-msg="Im Studio wird heute gratuliert 🎉">Trainer weiß Bescheid</button></div></div>` : '';
@@ -638,8 +754,8 @@
       <div class="rowbtns"><button class="btn btn-primary" data-action="trans-confirm">Platz im Kennenlern-Training bestätigen</button>
         <a class="btn btn-dark" href="#/app/nachrichten/1">Fragen?</a></div></div>` : '';
     const bk = D.kids.find(k=>k.bday);
-    const bdayCard = bk ? `<div class="app-card" style="border-color:#f5c518">
-      <div style="display:flex;gap:12px;align-items:center"><div class="thumb" style="background:rgba(245,197,24,.15);font-size:24px">🎂</div>
+    const bdayCard = bk ? `<div class="app-card" style="border-color:var(--gold)">
+      <div style="display:flex;gap:12px;align-items:center"><div class="thumb" style="background:var(--gold-050);font-size:24px">🎂</div>
         <div class="meta" style="flex:1"><b>${bk.name} hat ${bk.bday} Geburtstag!</b><small>Im Training gratulieren wir natürlich — und der Geburtstag lässt sich bei uns feiern 🎉</small></div></div>
       <div class="rowbtns"><a class="btn btn-primary" href="#/events">Kampfsport-Party anfragen</a>
         <button class="btn btn-dark" data-action="toast" data-msg="Trainer Lena weiß Bescheid 🎂">Nur gratulieren</button></div></div>` : '';
@@ -647,37 +763,41 @@
       <div style="display:flex;gap:12px;align-items:center"><div class="thumb" style="background:rgba(39,194,102,.15);font-size:24px">💛</div>
         <div class="meta" style="flex:1"><b>Gute Besserung von Trainer ${D.kids[0].trainer} &amp; dem ganzen Team!</b><small>Kein Stress — wenn Emir wieder fit ist, ist Mittwoch 16:00 ein sanfter Wiedereinstieg (ruhige Gruppe).</small></div></div>
       <div class="rowbtns"><button class="btn btn-dark" data-action="toast" data-msg="Comeback-Slot vorgemerkt 💪">Comeback-Slot vormerken</button></div></div>` : '';
+    const alerts = [bdayCard, careCard, transCard, ferienBanner, msCard, examCard, offerCard, wrCard].filter(Boolean).join('');
     return appShell(`
       <h1 class="app-h">${t('today')}</h1>
-      ${pulseCard}
-      ${bdayCard}${careCard}${transCard}
-      ${ferienBanner}${msCard}${examCard}${offerCard}${wrCard}
+      <div class="app-sec">Nächstes Training</div>
       ${sessions}
-      ${campCard}
+      ${pulseCard}
+      ${alerts ? `<div class="app-sec">Wichtig für dich</div>${alerts}` : ''}
+      <div class="app-sec">Standort &amp; Zeiten</div>
       <div class="live">
         <div class="top"><b>NFT ${D.parent.location} · jetzt</b><span class="occ occ-normal"><span class="dot"></span>Normal · 14/20</span></div>
         <div class="bar"><span style="width:70%"></span></div>
-        <p class="muted" style="margin:10px 0 0;font-size:13px">In 30 Min. startet der Kids-Kurs — dann wird es voller. <a href="#/app/auslastung" style="color:var(--red);font-weight:600">Ruhige Zeiten →</a></p>
+        <p class="muted" style="margin:10px 0 0;font-size:13px">In 30 Min. startet der Kids-Kurs — dann wird es voller. <a href="#/app/auslastung" class="red-ink" style="font-weight:600">Ruhige Zeiten →</a></p>
       </div>
+      ${campCard}
+      <div class="app-sec">Fortschritt &amp; Momente</div>
       <div class="app-card accent" style="display:flex;gap:12px;align-items:center">
-        <div class="thumb" style="background:rgba(245,197,24,.15);color:#f5c518;font-size:24px">🏅</div>
-        <div class="meta" style="flex:1"><b>Emir · ${D.kids[0].streak}-Wochen-Serie 🔥</b><small>${D.kids[0].stripes} von ${D.kids[0].stripesMax} Stripes bis zum nächsten Abzeichen</small></div>
-        <a class="btn btn-dark btn-sm" href="#/app/erfolge/Emir">Erfolge</a>
+        <div class="thumb" style="background:var(--gold-050);color:var(--gold);font-size:24px">🏅</div>
+        <div class="meta" style="flex:1"><b>${D.kids[0].name} · ${D.kids[0].streak}-Wochen-Serie 🔥</b><small>${D.kids[0].stripes} von ${D.kids[0].stripesMax} Stripes bis zum nächsten Abzeichen</small></div>
+        <a class="btn btn-dark btn-sm" href="#/app/erfolge/${D.kids[0].name}">Erfolge</a>
       </div>
       <a class="app-card" href="#/app/momente" style="display:flex;gap:12px;align-items:center">
         <div class="thumb" style="font-size:24px">📸</div>
         <div class="meta" style="flex:1"><b>${D.moments.filter(m=>m.kid==='Emir').length} neue Trainingsmomente</b><small>Neue Fotos & Videos von Emir</small></div>
         <span class="muted">›</span>
       </a>
-      <a class="app-card" href="#/app/onboarding" style="display:flex;gap:12px;align-items:center">
-        <div class="thumb" style="font-size:24px">🚀</div>
+      ${openTasks.length ? `<div class="app-sec">Offen</div>
+      <div class="app-card">${openTasks.map(o=>`<a class="list-item" href="${o.h}"><span class="li-ico">${o.i}</span><div class="li-main"><b>${o.t}</b></div><span class="muted">›</span></a>`).join('')}</div>` : ''}
+      <div class="app-sec">Nachrichten</div>
+      <div class="app-card"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:18px">Aktuelles</b><a href="#/app/nachrichten" class="red-ink" style="font-weight:600;font-size:14px">Alle</a></div>
+        ${D.messages.slice(0,2).map(m=>`<a class="list-item" href="#/app/nachrichten"><span class="li-ico">${m.ico}</span><div class="li-main"><b>${m.title}</b><small>${m.from} · ${m.time}</small></div>${m.unread?'<span class="unread"></span>':''}</a>`).join('')}</div>
+      <a class="app-card" href="#/app/onboarding" style="display:flex;gap:12px;align-items:center;opacity:.9">
+        <div class="thumb" style="font-size:22px">🚀</div>
         <div class="meta" style="flex:1"><b>Deine ersten 30 Tage</b><small>Onboarding-Fortschritt ansehen</small></div>
         <span class="muted">›</span>
       </a>
-      <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:18px">Offene Aufgaben</b>
-        <div style="margin-top:6px">${openTasks.map(o=>`<a class="list-item" href="${o.h}"><span class="li-ico">${o.i}</span><div class="li-main"><b>${o.t}</b></div><span class="muted">›</span></a>`).join('')}</div></div>
-      <div class="app-card"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:18px">Nachrichten</b><a href="#/app/nachrichten" style="color:var(--red);font-weight:600;font-size:14px">Alle</a></div>
-        ${D.messages.slice(0,2).map(m=>`<a class="list-item" href="#/app/nachrichten"><span class="li-ico">${m.ico}</span><div class="li-main"><b>${m.title}</b><small>${m.from} · ${m.time}</small></div>${m.unread?'<span class="unread"></span>':''}</a>`).join('')}</div>
     `,'#/app');
   }
 
@@ -729,13 +849,14 @@
       </div>
       <div class="rec"><div class="ri">✨</div><div><b>Empfehlung für Emir</b><p class="muted" style="margin:4px 0 0;font-size:14px">Mittwoch 16:00 ist diese Woche <b style="color:#fff">35 % ruhiger</b> als Dienstag 17:00 — kleinere Gruppe, mehr Aufmerksamkeit vom Trainer. Passt zu deinem Abholfenster.</p>
         <button class="btn btn-primary btn-sm" style="margin-top:12px" data-action="toast" data-msg="Auf Mi 16:00 umgebucht (Demo)">Auf Mi 16:00 umbuchen</button></div></div>
-    `,'#/app/auslastung');
+    `,'#/app');
   }
 
   function appKind(name){
     const k = D.kids.find(x=>x.name===name) || D.kids[0];
     return appShell(`
       <a class="backlink" href="#/app">← Home</a>
+      ${kidSwitch(k.name,'#/app/kind')}
       <div class="app-card accent">
         <div class="session"><div class="thumb" style="background:${k.beltColor}22;color:${k.beltColor}">🥋</div>
           <div class="meta"><b>${k.name}, ${k.age} Jahre</b><small>${k.program} · Trainer ${k.trainer}</small>
@@ -760,15 +881,16 @@
     `,'#/app');
   }
 
-  function appFortschritt(){
-    const k = D.kids[0];
+  function appFortschritt(name){
+    const k = D.kids.find(x=>x.name===name) || D.kids[0];
     const belts = k.belts.map((b,i)=>`<div class="belt-step ${i<k.beltIdx?'done':''} ${i===k.beltIdx?'cur':''}">
       <div class="bdot"></div><div><b>${b}</b><small>${i<k.beltIdx?'geschafft':i===k.beltIdx?'aktuell':'nächstes Ziel'}</small></div></div>`).join('');
     const skills = k.skills.map(s=>`<div class="skill"><div class="sr"><span>${s.n}</span><span class="muted">${s.v}%</span></div><div class="st"><span style="width:${s.v}%"></span></div></div>`).join('');
     const wr = (D.weeklyReports||[]).find(r=>r.kid===k.name && r.status==='freigegeben');
     return appShell(`
-      <a class="backlink" href="#/app/kind/Emir">← ${k.name}</a>
+      <a class="backlink" href="#/app/kind/${k.name}">← ${k.name}</a>
       <h1 class="app-h">Fortschritt · ${k.name}</h1>
+      ${kidSwitch(k.name,'#/app/fortschritt')}
       ${wr?`<div class="app-card" style="border-color:var(--red)"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">📋 Wochenreport</b>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0">${wr.tags.map(t=>`<span class="badge b-gray" style="text-transform:none;letter-spacing:0">${t}</span>`).join('')}</div>
         <p class="muted" style="margin:0;font-size:14px">${wr.text}</p>
@@ -782,13 +904,13 @@
         <div class="belt-path" style="margin-top:8px">${belts}</div></div>
       <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Skills</b>
         <div style="margin-top:12px">${skills}</div></div>
-      <div class="app-card"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Abzeichen</b><a href="#/app/erfolge/${k.name}" style="color:var(--red);font-weight:600;font-size:14px">Alle</a></div>
+      <div class="app-card"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Abzeichen</b><a href="#/app/erfolge/${k.name}" style="color:var(--red-ink);font-weight:600;font-size:14px">Alle</a></div>
         <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">${k.badges.slice(0,5).map(b=>`<div style="text-align:center;width:58px;opacity:${b.got?1:.32}"><div style="font-size:28px">${b.i}</div><div style="font-size:10px;color:var(--muted);line-height:1.15;margin-top:3px">${b.n}</div></div>`).join('')}</div></div>
       <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Trainer-Feedback</b>
         ${(k.feedbackLog && k.feedbackLog.length)
           ? k.feedbackLog.slice().reverse().map(f=>`<div class="bubble" style="margin-top:10px">${f.text?f.text+'<br>':''}${(f.skills&&f.skills.length)?`<small class="muted">Heute geübt: ${f.skills.join(', ')}</small><br>`:''}<small class="muted">— Trainer ${k.trainer} · ${f.time}</small></div>`).join('')
           : `<p class="muted" style="margin:10px 0 0;font-size:14px">„${k.name} war heute sehr konzentriert und hat seine Kombinationen sauberer ausgeführt. Nächster Fokus: Deckung nach dem Angriff." <br><small>— Trainer ${k.trainer}</small></p>`}</div>
-    `,'#/app');
+    `,'#/app/fortschritt');
   }
 
   function appErfolge(name){
@@ -800,6 +922,7 @@
     return appShell(`
       <a class="backlink" href="#/app/kind/${k.name}">← ${k.name}</a>
       <h1 class="app-h">Erfolge · ${k.name}</h1>
+      ${kidSwitch(k.name,'#/app/erfolge')}
       <div class="app-card accent" style="text-align:center">
         <div style="font-size:42px">${(sickset[k.name]||ferienOn)?'❄️':'🔥'}</div>
         <b style="font-size:19px">${k.streak}-Wochen-Serie${(sickset[k.name]||ferienOn)?' · eingefroren':''}</b>
@@ -873,8 +996,8 @@
           <a class="btn btn-dark" href="#/kuendigen">Kündigen</a>
         </div>
       </div>
-      <div class="app-card" style="border-color:#f5c518">
-        <div style="display:flex;gap:12px;align-items:center"><div class="thumb" style="background:rgba(245,197,24,.15);color:#f5c518;font-size:24px">🛡️</div>
+      <div class="app-card" style="border-color:var(--gold)">
+        <div style="display:flex;gap:12px;align-items:center"><div class="thumb" style="background:var(--gold-050);color:var(--gold);font-size:24px">🛡️</div>
           <div class="meta" style="flex:1"><b>Mitglied seit ${D.loyalty.since} — danke für eure Treue!</b>
           <small>Ab ${D.loyalty.flexAb} ist dein Vertrag automatisch monatlich kündbar (§ 309 BGB). Als Dankeschön wartet dann: ${D.loyalty.offer}.</small></div></div>
       </div>
@@ -947,6 +1070,13 @@
         <a class="list-item" href="#/app/community"><span class="li-ico">🎉</span><div class="li-main"><b>Events, Shop & Videos</b><small>Turniere, Pro-Shop, Technik-Videos, Party</small></div><span class="muted">›</span></a>
         <a class="list-item" href="#/app/onboarding"><span class="li-ico">🚀</span><div class="li-main"><b>Meine ersten 30 Tage</b><small>Onboarding-Fortschritt</small></div><span class="muted">›</span></a>
       </div>
+      <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Rechtliches</b>
+        <div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:12px">
+          <a href="#/impressum" class="red-ink" style="font-weight:600;font-size:14px">Impressum</a>
+          <a href="#/datenschutz" class="red-ink" style="font-weight:600;font-size:14px">Datenschutz</a>
+          <a href="#/agb" class="red-ink" style="font-weight:600;font-size:14px">AGB</a>
+          <a href="#/kuendigen" class="red-ink" style="font-weight:600;font-size:14px">Vertrag kündigen</a>
+        </div></div>
       <a class="btn btn-dark btn-block" href="#/" style="margin-bottom:10px">Zur Website</a>
       <button class="btn btn-danger btn-block" data-action="logout">Abmelden</button>
     `,'#/app/konto');
@@ -992,7 +1122,7 @@
         <button class="btn btn-primary btn-block" data-action="toast" data-msg="Einladung gesendet (Demo)">Einladung senden</button>
       </div>
       <div class="section-head"><div><div class="kicker"><span class="slash sm"><i></i><i></i></span> Bewertungen</div><h2>Das sagen Familien</h2></div></div>
-      <div class="grid g-3">${D.testimonials.map(t=>`<div class="card"><div style="color:#f5c518;margin-bottom:8px;letter-spacing:2px">${'★'.repeat(t.stars)}</div>
+      <div class="grid g-3">${D.testimonials.map(t=>`<div class="card"><div style="color:var(--gold);margin-bottom:8px;letter-spacing:2px">${'★'.repeat(t.stars)}</div>
         <p style="margin:0 0 12px">„${t.text}"</p><b>${t.name}</b><br><small class="muted">${t.kid}</small></div>`).join('')}</div>
     </div></div>`,'#/empfehlen');
   }
@@ -1067,7 +1197,7 @@
       <button class="btn btn-primary btn-block" data-action="login">Anmelden</button>
       <div style="display:flex;justify-content:space-between;margin-top:14px;font-size:14px">
         <a href="#/kuendigen" class="muted" style="text-decoration:underline">Passwort vergessen?</a>
-        <a href="#/probetraining" style="color:var(--red);font-weight:600">Noch kein Mitglied?</a>
+        <a href="#/probetraining" style="color:var(--red-ink);font-weight:600">Noch kein Mitglied?</a>
       </div>
       <p class="muted" style="font-size:12px;margin-top:14px">Demo — Zugangsdaten sind vorausgefüllt.</p>
     </div></div>`,'#/login');
@@ -1278,6 +1408,35 @@
   /* ===========================================================
      ROUTER
      =========================================================== */
+  function pageTitle(seg){
+    const sfx = ' — NFT Gym';
+    if(seg[0]==='app') return 'Mitglieder-App'+sfx;
+    if(seg[0]==='crm') return 'CRM'+sfx;
+    if(seg[0]==='trainer') return 'Trainer'+sfx;
+    if(seg[0]==='admin') return 'Bild-Studio'+sfx;
+    if(seg[0]==='standort'){ const l=D.locations.find(x=>x.id===seg[1]); return 'NFT Gym '+(l?l.city:'Standort')+' — Kampfsport'; }
+    const M = { '':'NFT Gym — Kampfsport für die ganze Familie | 10 Standorte in NRW & München',
+      standorte:'Standorte', kinder:'Kampfsport für Kinder ab 3', erwachsene:'Kampfsport für Erwachsene',
+      kursfinder:'Kursfinder', preise:'Preise & Tarife', probetraining:'Kostenloses Probetraining buchen',
+      faq:'Häufige Fragen', events:'Events & Camps', camp:'Feriencamp', gutscheine:'Geschenk-Gutscheine',
+      empfehlen:'Freund werben', shop:'Pro-Shop', kuendigen:'Vertrag kündigen', login:'Mitglieder-Login',
+      impressum:'Impressum', datenschutz:'Datenschutz', agb:'AGB', 'erstes-training':'Dein erstes Training' };
+    const key = seg[0]||'';
+    if(key==='') return M[''];
+    return (M[key]!==undefined ? M[key] : 'Seite nicht gefunden')+sfx;
+  }
+  function injectJsonLd(){
+    try{
+      const loc = D.locations.map(l=>({ "@type":"SportsActivityLocation","@id":"https://nft-gym.de/standort/"+l.id,
+        name:"NFT Gym "+l.city, parentOrganization:{"@id":"https://nft-gym.de/#org"},
+        address:{"@type":"PostalAddress",streetAddress:l.addr.split(',')[0],addressLocality:l.city,addressCountry:"DE"},
+        openingHours:l.hours, sport:l.top }));
+      const faq = { "@type":"FAQPage", mainEntity:D.faq.map(f=>({ "@type":"Question", name:f.q, acceptedAnswer:{"@type":"Answer",text:f.a} })) };
+      const s = document.createElement('script'); s.type='application/ld+json';
+      s.textContent = JSON.stringify({ "@context":"https://schema.org", "@graph":[...loc, faq] });
+      document.head.appendChild(s);
+    }catch(e){}
+  }
   function render(){
     const raw = (location.hash||'#/').replace(/^#/,'');
     const seg = raw.split('/').filter(Boolean); // e.g. ['app','kind','Emir']
@@ -1287,7 +1446,7 @@
       else if(seg[1]==='kurse') html=appKurse();
       else if(seg[1]==='auslastung') html=appAuslastung();
       else if(seg[1]==='kind') html=appKind(decodeURIComponent(seg[2]||'Emir'));
-      else if(seg[1]==='fortschritt') html=appFortschritt();
+      else if(seg[1]==='fortschritt') html=appFortschritt(decodeURIComponent(seg[2]||D.kids[0].name));
       else if(seg[1]==='nachrichten') html = seg[2]!==undefined ? appNachricht(+seg[2]) : appNachrichten();
       else if(seg[1]==='warenkorb') html=appWarenkorb();
       else if(seg[1]==='zahlungen') html=appZahlungen();
@@ -1314,6 +1473,7 @@
       else if(r==='kinder') html=landing('kinder');
       else if(r==='erwachsene') html=landing('erwachsene');
       else if(r==='kursfinder') html=kursfinder();
+      else if(r==='preise') html=preise();
       else if(r==='probetraining') html = seg[1]==='bestaetigung'?bestaetigung():probetraining();
       else if(r==='kuendigen') html=kuendigen();
       else if(r==='faq') html=faqPage();
@@ -1328,6 +1488,7 @@
       else html=notFoundSite();
     }
     app.innerHTML=html;
+    document.title = pageTitle(seg);
     window.scrollTo(0,0);
   }
 
@@ -1457,6 +1618,7 @@
   window.__render = render;
   window.__toast = toast;
   applyLangAttrs();
+  injectJsonLd();
   window.addEventListener('hashchange', ()=>{
     menuOpen=false;
     if(prevHash.startsWith('#/probetraining/bestaetigung') && !location.hash.startsWith('#/probetraining')){

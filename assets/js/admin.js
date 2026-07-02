@@ -216,7 +216,7 @@
       <div class="adm-size">${sizes}</div>
       <div class="field" style="margin:12px 0 10px"><label for="prompt-${s.id}">Prompt</label>
         <textarea id="prompt-${s.id}" rows="3" data-admin="adm-prompt" data-id="${s.id}">${st.prompts[s.id]}</textarea></div>
-      ${st.err[s.id]?`<p style="color:var(--red);font-size:13px;margin:0 0 10px">⚠ ${st.err[s.id]}</p>`:''}
+      ${st.err[s.id]?`<p style="color:var(--red-ink);font-size:13px;margin:0 0 10px">⚠ ${st.err[s.id]}</p>`:''}
       <div class="rowbtns" style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-primary btn-sm" data-admin="adm-generate" data-id="${s.id}" ${busy||st.busyAll?'disabled':''}>${busy?'⏳ Generiere…':'✨ Generieren'}</button>
         ${(st.raw[s.id]||over)?`<button class="btn btn-dark btn-sm" data-admin="adm-recompress" data-id="${s.id}" ${busy?'disabled':''}>Neu komprimieren</button>`:''}
