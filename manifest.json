@@ -1,0 +1,13 @@
+{
+  "name": "NFT Gym",
+  "short_name": "NFT Gym",
+  "description": "Kampfsport für die ganze Familie — Kurse, Fortschritt, Check-in & mehr",
+  "start_url": "./index.html#/app",
+  "display": "standalone",
+  "background_color": "#0c0c0e",
+  "theme_color": "#0c0c0e",
+  "lang": "de",
+  "icons": [
+    { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

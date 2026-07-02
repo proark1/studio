@@ -47,6 +47,10 @@
   let ferienOn = false;
   let pulseVoted = 0;
   const docsDone = {};
+  let ptSel = { trainer:null, slot:null, booked:false };
+  let faqChat = [];
+  let voucherCode = null;
+  let campBooked = false;
   let finder = { who:null, age:null, goal:null, loc:null, shy:false, searched:false };
   let wiz = { step:0, who:null, age:null, loc:null, goal:null, slot:null, name:"", email:"" };
   let consent = { fotoEmir:true, fotoSara:false, marketing:true, whatsapp:false };
@@ -126,7 +130,7 @@
           <div class="slash" style="margin-top:8px"><i></i><i></i></div>
         </div>
         <div><h4>Training</h4>
-          <a href="#/kinder">Kinder</a><a href="#/erwachsene">Erwachsene</a><a href="#/kursfinder">Kursfinder</a><a href="#/standorte">Standorte</a><a href="#/events">Events & Camps</a><a href="#/shop">Pro-Shop</a></div>
+          <a href="#/kinder">Kinder</a><a href="#/erwachsene">Erwachsene</a><a href="#/kursfinder">Kursfinder</a><a href="#/standorte">Standorte</a><a href="#/events">Events & Camps</a><a href="#/camp">Feriencamp</a><a href="#/shop">Pro-Shop</a><a href="#/gutscheine">Gutscheine</a></div>
         <div><h4>Service</h4>
           <a href="#/probetraining">Probetraining</a><a href="#/faq">FAQ</a><a href="#/empfehlen">Freund werben</a><a href="#/app">Mitglieder-Login</a><a href="#/crm">Team-Login (CRM)</a><a href="#/kuendigen">Vertrag kündigen</a></div>
         <div><h4>Rechtliches</h4>
@@ -809,6 +813,7 @@
         </div>`).join('')}
       </div>
       <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Community & Mehr</b>
+        <a class="list-item" href="#/app/hilfe"><span class="li-ico">🤖</span><div class="li-main"><b>Hilfe & Fragen</b><small>Sofort-Antworten · oder Mensch</small></div><span class="muted">›</span></a>
         <a class="list-item" href="#/app/mitbestimmen"><span class="li-ico">🗳️</span><div class="li-main"><b>Mitbestimmen</b><small>Feature-Voting · Ihr habt gesagt → getan</small></div><span class="muted">›</span></a>
         <a class="list-item" href="#/app/community"><span class="li-ico">🎉</span><div class="li-main"><b>Events, Shop & Videos</b><small>Turniere, Pro-Shop, Technik-Videos, Party</small></div><span class="muted">›</span></a>
         <a class="list-item" href="#/app/onboarding"><span class="li-ico">🚀</span><div class="li-main"><b>Meine ersten 30 Tage</b><small>Onboarding-Fortschritt</small></div><span class="muted">›</span></a>
@@ -830,7 +835,9 @@
         <p class="muted" style="margin:0 0 4px">📅 ${e.date} · 📍 ${e.loc}</p>
         <p class="muted" style="margin:0 0 14px">${e.desc}</p>
         <div style="display:flex;justify-content:space-between;align-items:center"><b>${e.price}</b>
-          <button class="btn btn-primary btn-sm" data-action="toast" data-msg="Anmeldung gestartet (Demo)">Anmelden</button></div>
+          ${e.id==='feriencamp'
+            ? `<a class="btn btn-primary btn-sm" href="#/camp">Jetzt buchen</a>`
+            : `<button class="btn btn-primary btn-sm" data-action="toast" data-msg="Anmeldung gestartet (Demo)">Anmelden</button>`}</div>
       </div>`).join('')}</div></div></div>`,'#/events');
   }
   function shopPage(){
@@ -880,6 +887,8 @@
           <div class="li-main"><b>${e.title}</b><small>${e.date} · ${e.price}</small></div>
           <button class="btn btn-dark btn-sm" data-action="toast" data-msg="Angemeldet (Demo)">Anmelden</button></div>`).join('')}
       </div>
+      <a class="app-card" href="#/app/pt" style="display:flex;gap:12px;align-items:center"><div class="thumb" style="font-size:22px">🧑‍🏫</div><div class="meta" style="flex:1"><b>Personal Training</b><small>1:1 mit deinem Coach — ab 49 €</small></div><span class="muted">›</span></a>
+      <a class="app-card" href="#/gutscheine" style="display:flex;gap:12px;align-items:center"><div class="thumb" style="font-size:22px">🎁</div><div class="meta" style="flex:1"><b>Geschenk-Gutscheine</b><small>Von Oma & Opa: Kampfsport-Zeit schenken</small></div><span class="muted">›</span></a>
       <a class="app-card" href="#/app/shop" style="display:flex;gap:12px;align-items:center"><div class="thumb" style="font-size:22px">🛒</div><div class="meta" style="flex:1"><b>Pro-Shop</b><small>Gi, Handschuhe & mehr</small></div><span class="muted">›</span></a>
       <a class="app-card" href="#/app/videos" style="display:flex;gap:12px;align-items:center"><div class="thumb" style="font-size:22px">🎬</div><div class="meta" style="flex:1"><b>Technik-Videos</b><small>Üben zuhause nach Gürtel</small></div><span class="muted">›</span></a>
       <div class="app-card" style="display:flex;gap:12px;align-items:center"><div class="thumb" style="font-size:22px">🎂</div><div class="meta" style="flex:1"><b>Geburtstag im Studio feiern</b><small>2 Std. Action mit Trainer</small></div>
@@ -1013,6 +1022,99 @@
     `,'#/app/konto');
   }
 
+  /* ---------- Paket D: Camp, Gutscheine, PT, FAQ-Bot ---------- */
+  function campPage(){
+    const c = D.camp; const pct = Math.round(c.taken/c.spots*100);
+    return siteShell(`<div class="section" style="padding-top:36px"><div class="container" style="max-width:720px">
+      <div class="kicker"><span class="slash sm"><i></i><i></i></span> Feriencamp · auch für Nicht-Mitglieder</div>
+      <h2>${c.title}</h2>
+      <p class="muted" style="margin-top:6px">📅 ${c.dates} · 📍 NFT ${c.loc} · 👧 ${c.ages}</p>
+      ${campBooked ? `
+        <div class="card center" style="margin-top:20px;border-color:var(--green)">
+          <div style="font-size:48px">⛺</div>
+          <h2 style="color:var(--green);font-size:28px;margin:8px 0">Platz reserviert!</h2>
+          <p class="muted">Frühbucher-Preis ${c.priceEarly} gesichert. Bestätigung & Packliste kommen per E-Mail (Demo).</p>
+          <a class="btn btn-primary btn-block" href="#/app" style="margin-top:12px">Zur App</a>
+        </div>` : `
+        <div class="card" style="margin-top:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <b>${c.taken} von ${c.spots} Plätzen vergeben</b><span class="badge b-amber">nur noch ${c.spots-c.taken} frei</span></div>
+          <div class="bar"><span style="width:${pct}%"></span></div>
+          <div style="display:flex;gap:16px;align-items:baseline;margin:18px 0 6px">
+            <b style="font-family:var(--ff-head);font-size:34px;color:var(--red)">${c.priceEarly}</b>
+            <s class="muted">${c.priceNormal}</s>
+            <span class="badge">Frühbucher bis ${c.earlyUntil}</span></div>
+          <ul style="margin:14px 0;padding-left:20px;color:var(--text-dim)">${c.program.map(p=>`<li style="margin-bottom:6px">${p}</li>`).join('')}</ul>
+          <div class="field"><label for="camp-kid">Name des Kindes</label><input id="camp-kid" placeholder="Vor- und Nachname"></div>
+          <div class="field"><label for="camp-mail">E-Mail</label><input id="camp-mail" type="email" placeholder="name@mail.de"></div>
+          <button class="btn btn-primary btn-block" data-action="camp-book">Platz zum Frühbucher-Preis sichern</button>
+          <p class="muted" style="font-size:12px;margin-top:10px">Demo — keine echte Buchung. Nicht-Mitglieder werden automatisch als Lead angelegt (Camp = Funnel).</p>
+        </div>`}
+    </div></div>`,'#/events');
+  }
+  function gutscheinePage(){
+    return siteShell(`<div class="section" style="padding-top:36px"><div class="container">
+      <div class="center" style="margin-bottom:26px"><div class="kicker" style="justify-content:center"><span class="slash sm"><i></i><i></i></span> Geschenk-Gutscheine</div>
+        <h2>Verschenke Stärke</h2><p class="muted" style="max-width:460px;margin:8px auto 0">Das Lieblingsgeschenk von Großeltern: Kampfsport-Zeit statt Spielzeug.</p></div>
+      ${voucherCode ? `
+        <div class="card center" style="max-width:520px;margin:0 auto;border-color:var(--green)">
+          <div style="font-size:44px">🎁</div>
+          <h2 style="font-size:26px;margin:8px 0">Gutschein erstellt!</h2>
+          <div style="font-family:var(--ff-head);font-size:32px;letter-spacing:4px;background:var(--surface-2);border:1px dashed var(--red);border-radius:12px;padding:14px;margin:14px 0">${voucherCode}</div>
+          <p class="muted">Als PDF gestaltet zum Ausdrucken oder direkt per E-Mail verschenken (Demo).</p>
+          <div style="display:flex;gap:10px;margin-top:12px">
+            <button class="btn btn-dark btn-block" data-action="toast" data-msg="PDF heruntergeladen (Demo)">Als PDF</button>
+            <button class="btn btn-primary btn-block" data-action="toast" data-msg="Per E-Mail versendet (Demo)">Per E-Mail</button></div>
+        </div>` : `
+        <div class="grid g-3">${D.vouchers.map(v=>`<div class="card hover center">
+          <div style="font-size:44px">${v.ico}</div>
+          <h3 style="margin:10px 0 4px;font-size:20px;text-transform:none;letter-spacing:0">${v.name}</h3>
+          <p class="muted" style="margin:0 0 12px">${v.desc}</p>
+          <b style="font-size:22px">${v.price}</b><br>
+          <button class="btn btn-primary btn-sm" style="margin-top:12px" data-action="voucher-buy" data-id="${v.id}">Verschenken</button>
+        </div>`).join('')}</div>`}
+    </div></div>`,'#/gutscheine');
+  }
+  function appPT(){
+    return appShell(`
+      <a class="backlink" href="#/app/community">← Mehr</a>
+      <h1 class="app-h">Personal Training</h1>
+      ${ptSel.booked ? `
+        <div class="app-card center" style="border-color:var(--green);padding:28px">
+          <div style="font-size:44px">🥊</div>
+          <b style="font-size:18px">Gebucht: ${ptSel.trainer} · ${ptSel.slot}</b>
+          <p class="muted" style="margin:8px 0 0">Zahlung bequem über deinen SEPA-Vertrag. Absagen bis 24 h vorher kostenlos.</p>
+          <button class="btn btn-dark btn-block" style="margin-top:14px" data-action="app-pt-reset">Weitere Stunde buchen</button>
+        </div>` : `
+        <div class="notice">1:1-Training mit deinem Lieblingscoach — Technik-Feinschliff, Prüfungs-Vorbereitung oder einfach mehr Tempo.</div>
+        ${D.pt.map(t=>`<div class="app-card">
+          <div class="session"><div class="thumb">🧑‍🏫</div>
+            <div class="meta"><b>${t.name}</b><small>${t.spec} · ${t.price}</small></div></div>
+          <div class="choices" style="margin-top:12px">
+            ${t.slots.map(s=>`<button type="button" class="chip ${ptSel.trainer===t.name&&ptSel.slot===s?'sel':''}" data-action="app-pt-slot" data-t="${t.name}" data-s="${s}">${s}</button>`).join('')}
+          </div>
+        </div>`).join('')}
+        <button class="btn btn-primary btn-block" data-action="app-pt-book" ${ptSel.slot?'':'disabled aria-disabled="true"'}>${ptSel.slot?`${ptSel.trainer} · ${ptSel.slot} buchen`:'Erst Termin wählen'}</button>`}
+    `,'#/app/konto');
+  }
+  function appHilfe(){
+    return appShell(`
+      <h1 class="app-h">Hilfe & Fragen</h1>
+      <div class="app-card">
+        <div class="msg" style="border-bottom:0;padding-bottom:0"><div class="m-av">🤖</div><div class="m-b">
+          <b>NFT-Assistent</b><p>Hallo ${D.parent.first}! Ich beantworte die häufigsten Fragen sofort — für alles andere hole ich einen Menschen dazu. Was möchtest du wissen?</p></div></div>
+        ${faqChat.map(i=>`
+          <div class="bubble me" style="margin-top:10px">${D.faqBot[i].q}</div>
+          <div class="bubble">${D.faqBot[i].a}</div>`).join('')}
+      </div>
+      <div class="choices" style="margin-bottom:14px">
+        ${D.faqBot.map((f,i)=>faqChat.includes(i)?'':`<button type="button" class="chip" data-action="faq-ask" data-i="${i}">${f.q}</button>`).join('')}
+      </div>
+      <a class="btn btn-dark btn-block" href="#/app/nachrichten/1">💬 Lieber mit einem Menschen sprechen</a>
+      <p class="muted" style="font-size:12px;margin-top:8px">Der Assistent spricht nur mit Eltern/Erwachsenen — nie mit Kindern. Sensible Themen gehen immer an das Team.</p>
+    `,'#/app/konto');
+  }
+
   /* ===========================================================
      ROUTER
      =========================================================== */
@@ -1037,6 +1139,8 @@
       else if(seg[1]==='videos') html=appVideos();
       else if(seg[1]==='onboarding') html=appOnboarding();
       else if(seg[1]==='mitbestimmen') html=appMitbestimmen();
+      else if(seg[1]==='pt') html=appPT();
+      else if(seg[1]==='hilfe') html=appHilfe();
       else html=appNotFound();
     } else if(seg[0]==='crm' || seg[0]==='trainer'){
       html = window.CRM ? window.CRM.route(seg) : home();
@@ -1056,6 +1160,8 @@
       else if(r==='empfehlen') html=empfehlenPage();
       else if(r==='impressum'||r==='datenschutz'||r==='agb') html=legalPage(r);
       else if(r==='login') html=loginPage();
+      else if(r==='camp') html=campPage();
+      else if(r==='gutscheine') html=gutscheinePage();
       else html=notFoundSite();
     }
     app.innerHTML=html;
@@ -1108,6 +1214,12 @@
     if(a==='app-pulse'){ pulseVoted=+el.dataset.v; if(D.crm&&D.crm.feedback) D.crm.feedback.pulse.n++; toast('Danke für dein Feedback! 🙏'); render(); return; }
     if(a==='app-vote'){ const r=D.feedback.roadmap.find(x=>x.id===el.dataset.id); if(r&&!r.voted){ r.voted=true; r.votes++; toast('Stimme gezählt ✓'); } render(); return; }
     if(a==='app-doc'){ docsDone[el.dataset.id]=true; toast('PDF erstellt — in deinen Downloads (Demo)'); render(); return; }
+    if(a==='app-pt-slot'){ ptSel={trainer:el.dataset.t, slot:el.dataset.s, booked:false}; render(); return; }
+    if(a==='app-pt-book'){ if(ptSel.slot){ ptSel.booked=true; toast('Personal Training gebucht ✓'); render(); } return; }
+    if(a==='app-pt-reset'){ ptSel={trainer:null,slot:null,booked:false}; render(); return; }
+    if(a==='faq-ask'){ faqChat.push(+el.dataset.i); render(); return; }
+    if(a==='voucher-buy'){ voucherCode='NFT-GIFT-'+['XK42','MB77','RZ19'][cart.length%3]; toast('Gutschein erstellt 🎁'); render(); return; }
+    if(a==='camp-book'){ campBooked=true; toast('Platz reserviert — Frühbucher-Preis gesichert ⛺'); render(); return; }
   });
 
   // live-update select for finder / wizard inputs
@@ -1128,6 +1240,46 @@
     }
     const el=e.target.closest('[data-action="w-input"]'); if(!el) return;
     wiz[el.dataset.k]=el.value;
+  });
+
+  /* ===========================================================
+     GEFÜHRTE DEMO-TOUR (Overlay außerhalb von #app)
+     =========================================================== */
+  const TOUR = [
+    { h:'#/', t:'Die neue Website', d:'Probetraining, Kursfinder, Auslastung — alles digital, alles in 60 Sekunden buchbar.' },
+    { h:'#/kursfinder', t:'Geführter Kursfinder', d:'Wer? Alter? Ziel? — inkl. „Schüchternes Kind"-Modus, der ruhige Kurse empfiehlt.' },
+    { h:'#/app', t:'Die Eltern-App', d:'Trainings-Puls, Check-in-Push, Meilensteine — Eltern sehen jederzeit, dass es ihrem Kind gut geht.' },
+    { h:'#/app/auslastung', t:'Auslastungs-Heatmap', d:'Wann ist es voll, wann ruhig? Die App empfiehlt den besten Slot fürs Kind.' },
+    { h:'#/app/mitbestimmen', t:'Feedback & Mitbestimmen', d:'Familien voten über neue Features — und sehen: „Ihr habt gesagt → wir haben es getan."' },
+    { h:'#/crm/dashboard', t:'Das CRM-Cockpit', d:'Morgen-Briefing, KPIs, verpasste Anrufe — der Tag steuert sich von selbst.' },
+    { h:'#/crm/leads/L1', t:'KI mit Freigabe', d:'Die KI schreibt Antwortentwürfe, der Mitarbeiter bestätigt nur — Human-in-the-Loop.' },
+    { h:'#/crm/retention', t:'Retention-Inbox', d:'Kündigungsrisiken erkennen und handeln, bevor gekündigt wird.' },
+    { h:'#/crm/feedback', t:'NFT Puls', d:'Stimmung je Kurs & Uhrzeit, Detraktor-Alarm mit 24h-SLA, Feature-Voting live.' },
+    { h:'#/crm/launch', t:'Launch-Cockpit', d:'Standort Nr. 11 eröffnet mit 63 Gründungsmitgliedern statt bei null — so skaliert 10 → 50.' },
+  ];
+  let tourStep = -1;
+  function tourRender(){
+    let o = document.getElementById('tour-overlay');
+    if(tourStep < 0){ if(o) o.remove(); return; }
+    if(!o){ o = document.createElement('div'); o.id='tour-overlay'; o.className='tour-card'; document.body.appendChild(o); }
+    const s = TOUR[tourStep];
+    o.innerHTML = `<div class="tc-step">Demo-Tour · Schritt ${tourStep+1} / ${TOUR.length}</div>
+      <b>${s.t}</b><p>${s.d}</p>
+      <div class="tc-btns">
+        ${tourStep>0?'<button type="button" data-tour="prev" class="btn btn-dark btn-sm">Zurück</button>':''}
+        ${tourStep<TOUR.length-1?'<button type="button" data-tour="next" class="btn btn-primary btn-sm">Weiter</button>':'<button type="button" data-tour="end" class="btn btn-primary btn-sm">Tour beenden ✓</button>'}
+        <button type="button" data-tour="end" class="btn btn-dark btn-sm" aria-label="Tour schließen">✕</button>
+      </div>`;
+    if(location.hash !== s.h) location.hash = s.h;
+  }
+  document.addEventListener('click', e=>{
+    const tb = e.target.closest('[data-tour]');
+    if(tb){ const a=tb.dataset.tour;
+      if(a==='next') tourStep=Math.min(TOUR.length-1,tourStep+1);
+      else if(a==='prev') tourStep=Math.max(0,tourStep-1);
+      else tourStep=-1;
+      tourRender(); return; }
+    if(e.target.closest('#tour-btn')){ tourStep=0; tourRender(); }
   });
 
   window.__render = render;

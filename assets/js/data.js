@@ -159,6 +159,27 @@ window.DATA = {
     { id:"verein", ico:"📄", name:"Mitgliedsbescheinigung", desc:"Nachweis der aktiven Mitgliedschaft" },
   ],
 
+  pt:[
+    { id:"mehmet", name:"Mehmet K.", spec:"Kickboxen · Kids-Coaching", price:"49 €/Std.", slots:["Do 15:00","Fr 14:00","Sa 11:00"] },
+    { id:"sven", name:"Sven B.", spec:"MMA · Wettkampf-Vorbereitung", price:"59 €/Std.", slots:["Mi 20:00","Fr 18:00"] },
+    { id:"lena", name:"Lena S.", spec:"BJJ · Technik-Feinschliff", price:"49 €/Std.", slots:["Di 15:00","Do 19:00"] },
+  ],
+  camp:{ title:"Sommer-Kampfsportcamp", dates:"28. Juli – 1. August", loc:"Mönchengladbach", ages:"6–14 Jahre",
+    spots:25, taken:17, priceEarly:"129 €", priceNormal:"149 €", earlyUntil:"10. Juli",
+    program:["Mo–Fr 9–15 Uhr Training, Spiele & Technik","Mittagessen & Getränke inklusive","Freitags Mini-Turnier + Urkunde für alle","Auch für Nicht-Mitglieder buchbar"] },
+  vouchers:[
+    { id:"v3m", ico:"🎁", name:"3 Monate Mitgliedschaft", desc:"Der Klassiker von Oma & Opa", price:"149 €" },
+    { id:"vpt", ico:"🥊", name:"1× Personal Training", desc:"60 Minuten Einzeltraining", price:"49 €" },
+    { id:"vcamp", ico:"⛺", name:"Feriencamp-Woche", desc:"5 Tage Action in den Ferien", price:"149 €" },
+  ],
+  faqBot:[
+    { q:"Was muss mein Kind mitbringen?", a:"Bequeme Sportkleidung, eine Trinkflasche und gute Laune! 🥋 Für die ersten Trainings reicht das völlig — Handschuhe & Co. gibt es leihweise vor Ort oder später im Pro-Shop." },
+    { q:"Was kostet die Mitgliedschaft?", a:"Kids-Tarife starten bei 49 €/Monat. Familien sparen mit dem Family-Tarif: 119 € für zwei Kinder statt 138 €. Die genauen Tarife siehst du beim Vertragsabschluss." },
+    { q:"Wie sind die Öffnungszeiten?", a:"NFT Krefeld: Mo–Fr 14–21 Uhr, Sa 10–14 Uhr. Die Kurszeiten deiner Kinder findest du jederzeit im Kursplan hier in der App." },
+    { q:"Kann ich beim Training zuschauen?", a:"Beim Probetraining sehr gern! Danach empfehlen wir: Kind abgeben, Kaffee holen — der Check-in-Push sagt dir, dass alles gut ist. 😊 Bei Prüfungen sind Eltern natürlich immer dabei." },
+    { q:"Mein Kind ist krank — was tun?", a:"Einfach in der App auf »Krankmelden« tippen (Home → Karte deines Kindes). Der Platz wird freigegeben, der Trainer weiß Bescheid und die Streak friert ein. Gute Besserung! 💛" },
+  ],
+
   ages:["3–5","6–9","10–14","15+"],
   goals:["Selbstvertrauen","Fitness","Selbstverteidigung","Disziplin","Wettkampf"],
 
@@ -337,6 +358,31 @@ NFT Gym Team`,
       risks:[ "Köln: Rücklastschriften-Häufung (5 Fälle) + Retention-Score im Sinkflug — Standortleiter-Gespräch empfohlen", "Di-17:00-Slots franchiseweit über 90 % — Stimmung im Kiosk-Voting messbar schlechter" ],
       decisions:[ "Family-Tarif-Rollout auf alle Standorte freigeben? (Pilot Krefeld: +11 % Geschwister-Konversion)", "Zweiter Trainer für Di-Stoßzeit Köln/Krefeld (ca. 1.400 €/Monat)" ],
     },
+    launch:{
+      city:"Duisburg", nr:11, open:"1. Oktober 2026",
+      presale:{ leads:412, members:63, goal:100 },
+      phases:[
+        { name:"Standort & Vertrag", items:[ {t:"Mietvertrag unterschrieben",done:true},{t:"Umbau beauftragt (Matten, Käfig, Umkleiden)",done:true},{t:"Behörden-Anmeldungen komplett",done:true} ] },
+        { name:"Team", items:[ {t:"Standortleiter eingestellt (Yusuf D.)",done:true},{t:"Trainer 2 von 4 eingestellt",done:false},{t:"Quali-Register vollständig (Führungszeugnisse)",done:false} ] },
+        { name:"Pre-Sale", items:[ {t:"Landingpage live · 412 Leads",done:true},{t:"63 Gründungsmitglieder (Ziel 100)",done:false},{t:"Eröffnungs-Event geplant",done:false} ] },
+        { name:"Go-Live", items:[ {t:"Kurse & Trainer im System angelegt",done:false},{t:"Chips & Kiosk-Hardware geliefert",done:false},{t:"Soft-Opening-Woche",done:false} ] },
+      ],
+    },
+    decisions:[
+      { id:"D1", ico:"💶", title:"Kulanz: 3 Monatsbeiträge stunden (267 €)", detail:"Familie Weber, Krefeld — Vater vorübergehend arbeitslos, Familie will unbedingt bleiben. Standortleiter empfiehlt Stundung statt Kündigung.", from:"Standortleiter Krefeld", status:"offen" },
+      { id:"D2", ico:"🏷️", title:"Family-Tarif auf alle Standorte ausrollen", detail:"Pilot Krefeld: +11 % Geschwister-Konversion. Erwarteter Effekt: +4.200 € MRR franchiseweit.", from:"Franchise-Zentrale", status:"offen" },
+      { id:"D3", ico:"🧑‍🏫", title:"Zweiter Trainer für Di-Stoßzeit Köln (1.400 €/Monat)", detail:"Kiosk-Stimmung und Auslastung sprechen dafür; Deckungsbeitrag bleibt positiv ab 12 zusätzlichen Mitgliedern.", from:"Standortleiter Köln", status:"offen" },
+    ],
+    anomalies:[
+      { ico:"📉", sev:"amber", t:"Check-ins Köln −18 % vs. Vorwoche", d:"Vermutlich Klausurphase — Reaktivierungs-Push liegt als Entwurf bereit." },
+      { ico:"💶", sev:"red", t:"Rücklastschriften München 3× über Schnitt", d:"Muster erkannt: alle Fälle nach der Tarif-Preisanpassung vom 15.06." },
+      { ico:"🕐", sev:"amber", t:"»Ringen Mi 18:00« Bochum: 4. Woche in Folge unter 50 %", d:"Vorschlag: Slot testweise auf 17:00 verschieben." },
+    ],
+    goals:{ month:"Juli", items:[
+      { t:"Probetrainings", cur:34, goal:50 },
+      { t:"Neue Verträge", cur:19, goal:30 },
+      { t:"Google-Bewertungen", cur:12, goal:15 },
+    ]},
     trainers:[
       { name:"Mehmet K.", loc:"Krefeld", rolle:"Head-Coach Kids", lizenz:"Trainer-B · bis 03/2028", eh:"Erste Hilfe · bis 05/2027", fz:"Führungszeugnis · bis 11/2026", status:"ok", kids:true },
       { name:"Lena S.", loc:"Krefeld", rolle:"BJJ Kids", lizenz:"Trainer-C · bis 09/2027", eh:"Erste Hilfe · bis 08/2026", fz:"Führungszeugnis · bis 02/2027", status:"warn", warnNote:"Erste Hilfe läuft in 5 Wochen ab", kids:true },

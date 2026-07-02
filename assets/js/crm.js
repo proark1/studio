@@ -41,6 +41,8 @@
       ['#/crm/zahlungen','euro','Zahlungen','Zahlungen'],
       ['#/crm/automationen','zap','Automationen','Automationen'],
       ['#/crm/reports','bars','Reports','Reports'],
+      ['#/crm/entscheidungen','file','Entscheidungen','Reports'],
+      ['#/crm/launch','zap','Launch-Cockpit','Reports'],
       ['#/crm/rollen','shield','Rollen & Rechte','Rollen/Rechte'],
     ].filter(x => can(x[3]));
     return `<div class="crm">
@@ -110,6 +112,19 @@
           <table class="tbl"><thead><tr><th>Zeit</th><th>Person</th><th>Kurs</th><th>Standort</th><th>Status</th></tr></thead><tbody>${feed}</tbody></table></div>
         <div class="panel"><div class="panel-h"><b>Zu erledigen</b></div>
           ${tasks.map(([t,h])=>`<a class="list-item" href="${h}"><div class="li-main"><b>${t}</b></div><span class="muted">›</span></a>`).join('')}</div>
+      </div>
+      <div class="split">
+        <div class="panel"><div class="panel-h"><b>🚨 Anomalie-Radar</b><span class="muted" style="font-size:12px">automatisch erkannt</span></div>
+          ${C().anomalies.map(x=>`<div class="list-item"><span class="li-ico" style="${x.sev==='red'?'background:var(--red-050)':''}">${x.ico}</span>
+            <div class="li-main"><b>${x.t}</b><small>${x.d}</small></div>
+            <span class="badge ${x.sev==='red'?'b-red':'b-amber'}">${x.sev==='red'?'kritisch':'beobachten'}</span></div>`).join('')}
+        </div>
+        <div class="panel"><div class="panel-h"><b>🎯 Monatsziele · ${C().goals.month}</b></div>
+          ${C().goals.items.map(g=>{ const p=Math.round(g.cur/g.goal*100);
+            return `<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px"><b>${g.t}</b><span class="muted">${g.cur} / ${g.goal}</span></div>
+            <div class="bar" style="height:10px"><span style="width:${Math.min(100,p)}%;background:${p>=70?'var(--green)':p>=45?'var(--amber)':'var(--red)'}"></span></div></div>`; }).join('')}
+          <p class="muted" style="font-size:12px;margin:0">Bei Rückstand > 20 % zum Monatsdrittel gibt es automatisch einen Hinweis mit Maßnahmen-Vorschlag.</p>
+        </div>
       </div>
       <div class="panel"><div class="panel-h"><b>📞 Verpasste Anrufe heute</b><span class="badge b-red">${byLoc(C().calls).filter(c=>c.status==='offen').length} offen</span></div>
         <table class="tbl"><thead><tr><th>Zeit</th><th>Nummer</th><th>Standort</th><th>Automatik</th><th></th></tr></thead><tbody>
@@ -682,6 +697,62 @@
     `,'#/crm/feedback');
   }
 
+  /* ---------------- decisions inbox (GF) ---------------- */
+  function entscheidungen(){
+    const items = C().decisions;
+    const open = items.filter(d=>d.status==='offen').length;
+    return shell(`
+      <h1 class="crm-h">Entscheidungs-Inbox</h1>
+      <div class="crm-sub">Nur was wirklich GF-Freigabe braucht — alles andere erledigen die Standorte selbst. Jede Entscheidung im Audit-Trail.</div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="kpi amber"><div class="n">${open}</div><div class="l">Warten auf Freigabe</div></div>
+        <div class="kpi green"><div class="n">${items.filter(d=>d.status==='freigegeben').length}</div><div class="l">Diese Woche freigegeben</div></div>
+        <div class="kpi"><div class="n">${items.filter(d=>d.status==='abgelehnt').length}</div><div class="l">Abgelehnt</div></div>
+      </div>
+      ${items.map(d=>{ const done=d.status!=='offen';
+        return `<div class="panel" style="${done?'opacity:.6':''}">
+        <div class="panel-h" style="margin-bottom:8px">
+          <div><span style="font-size:20px;margin-right:8px">${d.ico}</span><b style="font-size:17px">${d.title}</b></div>
+          <span class="badge ${d.status==='offen'?'b-amber':d.status==='freigegeben'?'b-green':'b-red'}">${d.status}</span></div>
+        <p class="dim" style="margin:0 0 6px">${d.detail}</p>
+        <small class="muted">Angefragt von: ${d.from}</small>
+        ${done?'':`<div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-primary btn-sm" data-action="crm-decide" data-id="${d.id}" data-v="freigegeben">✓ Freigeben</button>
+          <button class="btn btn-danger btn-sm" data-action="crm-decide" data-id="${d.id}" data-v="abgelehnt">Ablehnen</button>
+          <button class="btn btn-dark btn-sm" data-action="crm-toast" data-msg="Rückfrage gesendet (Demo)">Rückfrage</button></div>`}
+      </div>`; }).join('')}
+      <div class="notice">Freigabe-Regeln (Demo): Kulanz > 100 €, Preis-/Tarifänderungen und Personal-Budget landen automatisch hier — mit vollständigem Audit-Trail (wer, wann, was).</div>
+    `,'#/crm/entscheidungen');
+  }
+
+  /* ---------------- launch cockpit (Standort-Eröffnung) ---------------- */
+  function launchCockpit(){
+    const L = C().launch;
+    const all = L.phases.flatMap(p=>p.items), doneN = all.filter(i=>i.done).length;
+    const pct = Math.round(doneN/all.length*100);
+    const pmPct = Math.round(L.presale.members/L.presale.goal*100);
+    return shell(`
+      <h1 class="crm-h">Launch-Cockpit · Standort Nr. ${L.nr}: ${L.city}</h1>
+      <div class="crm-sub">Eröffnung ${L.open} · standardisiertes Eröffnungs-Playbook — kein Standort startet mehr bei null</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="n">${pct}%</div><div class="l">Playbook-Fortschritt (${doneN}/${all.length})</div></div>
+        <div class="kpi green"><div class="n">${L.presale.members}</div><div class="l">Gründungsmitglieder (Ziel ${L.presale.goal})</div></div>
+        <div class="kpi"><div class="n">${L.presale.leads}</div><div class="l">Pre-Sale-Leads</div></div>
+        <div class="kpi amber"><div class="n">89</div><div class="l">Tage bis Eröffnung</div></div>
+      </div>
+      <div class="panel"><div class="panel-h"><b>Pre-Sale-Ziel</b><span class="muted" style="font-size:13px">Eröffnen mit ${L.presale.goal} statt 0 Mitgliedern</span></div>
+        <div class="bar" style="height:14px"><span style="width:${pmPct}%"></span></div>
+        <p class="muted" style="font-size:13px;margin:8px 0 0">${L.presale.members} von ${L.presale.goal} Gründungsverträgen — Landingpage + Gründungsrabatt laufen über die normale Lead-Pipeline.</p></div>
+      <div class="grid g-2" style="margin-bottom:16px">
+        ${L.phases.map(p=>{ const d=p.items.filter(i=>i.done).length;
+          return `<div class="panel" style="margin-bottom:0"><div class="panel-h"><b>${p.name}</b><span class="badge ${d===p.items.length?'b-green':'b-amber'}">${d}/${p.items.length}</span></div>
+          ${p.items.map(i=>`<div class="list-item"><span class="li-ico">${i.done?'✅':'⬜'}</span><div class="li-main"><b style="${i.done?'':'color:var(--text-dim)'}">${i.t}</b></div></div>`).join('')}
+        </div>`; }).join('')}
+      </div>
+      <div class="notice">💡 So skaliert 10 → 50: Ein Klick klont Mandant + Konfiguration, das Playbook führt durch jede Phase, der Pre-Sale-Funnel füllt den Standort vor der Eröffnung. Effekt pro Eröffnung: 15–25k €.</div>
+    `,'#/crm/launch');
+  }
+
   /* ---------------- contract wizard ---------------- */
   function vertragWizard(){
     const st = state.vw, steps = ["Kunde","Standort","Tarif","Laufzeit","SEPA","Senden"];
@@ -796,7 +867,8 @@
   const ROUTE_MOD = { dashboard:'Dashboard', leads:'Leads', mitglieder:'Mitglieder', familie:'Mitglieder',
     retention:'Mitglieder', upsell:'Mitglieder', kurse:'Kurse', auslastung:'Auslastung', checkins:'Check-ins',
     kiosk:'Check-ins', kommunikation:'Kommunikation', feedback:'Kommunikation', vertraege:'Vertr\u00e4ge', team:'Vertr\u00e4ge',
-    zahlungen:'Zahlungen', automationen:'Automationen', reports:'Reports', rollen:'Rollen/Rechte' };
+    zahlungen:'Zahlungen', automationen:'Automationen', reports:'Reports', rollen:'Rollen/Rechte',
+    entscheidungen:'Reports', launch:'Reports' };
   function noAccess(mod){
     return shell(`
       <div class="panel center" style="max-width:520px;margin:40px auto;padding:40px">
@@ -829,6 +901,8 @@
     if(r==='upsell') return upsell();
     if(r==='team') return team();
     if(r==='feedback') return feedbackDash();
+    if(r==='entscheidungen') return entscheidungen();
+    if(r==='launch') return launchCockpit();
     if(r==='automationen') return automationen();
     if(r==='rollen') return rollen();
     if(r==='suche') return suche();
@@ -887,6 +961,7 @@
     if(a==='crm-up-send'){ const u=C().upsell.find(x=>x.id===el.dataset.id); if(u) u.status='gesendet'; (window.__toast||alert)('Angebot gesendet ✓ — liegt jetzt als Karte in der Kunden-App'); window.__render && window.__render(); return; }
     if(a==='crm-up-later'){ const u=C().upsell.find(x=>x.id===el.dataset.id); if(u) u.status='zurückgestellt'; (window.__toast||alert)('Zurückgestellt'); window.__render && window.__render(); return; }
     if(a==='crm-call-done'){ const c=C().calls.find(x=>x.id===el.dataset.id); if(c) c.status='erledigt'; (window.__toast||alert)('Rückruf erledigt ✓'); window.__render && window.__render(); return; }
+    if(a==='crm-decide'){ const d=C().decisions.find(x=>x.id===el.dataset.id); if(d){ d.status=el.dataset.v; (window.__toast||alert)((el.dataset.v==='freigegeben'?'✓ Freigegeben':'Abgelehnt')+' — im Audit-Trail protokolliert'); } window.__render && window.__render(); return; }
     if(a==='crm-kiosk-smiley'){ state.kioskSmiley=el.dataset.s; if(C().feedback) C().feedback.pulse.n++; window.__render && window.__render(); setTimeout(()=>{ state.kioskSmiley=null; window.__render && window.__render(); }, 2200); return; }
     if(a==='crm-fb-send'){ const d=C().feedback.detractors[+el.dataset.i]; if(d) d.status='beantwortet'; (window.__toast||alert)('Antwort gesendet ✓ — Fall im SLA erledigt'); window.__render && window.__render(); return; }
     if(a==='crm-fb-task'){ const d=C().feedback.detractors[+el.dataset.i]; if(d) d.status='Maßnahme erstellt'; (window.__toast||alert)('Maßnahme erstellt ✓ — Auslastung geöffnet'); return; }

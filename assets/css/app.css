@@ -430,3 +430,11 @@ button.irow{display:block;width:100%;text-align:left;background:none;border:0;co
 /* occupancy: differentiate sehr voll */
 .occ-sehr{font-weight:800}
 .occ-sehr .dot{box-shadow:0 0 0 3px rgba(161,0,31,.35)}
+/* demo tour */
+.demo-ribbon #tour-btn{margin-left:14px;background:#fff;color:var(--red-700);border:0;border-radius:100px;padding:2px 12px;font-size:11px;font-weight:800;letter-spacing:1px;cursor:pointer;text-transform:uppercase}
+.demo-ribbon #tour-btn:hover{background:#0c0c0e;color:#fff}
+.tour-card{position:fixed;right:20px;bottom:20px;z-index:400;width:min(340px,calc(100vw - 40px));background:var(--surface);border:1px solid var(--red);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+.tour-card .tc-step{color:var(--red);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.tour-card b{font-family:var(--ff-head);font-size:20px;text-transform:uppercase;letter-spacing:.5px}
+.tour-card p{color:var(--text-dim);font-size:14px;margin:6px 0 12px}
+.tour-card .tc-btns{display:flex;gap:8px}
