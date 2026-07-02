@@ -9,8 +9,8 @@
   --surface:#17171c;
   --surface-2:#1e1e25;
   --surface-3:#26262e;
-  --line:#2c2c34;
-  --line-soft:#22222a;
+  --line:#33333d;
+  --line-soft:#2a2a33;
   --text:#f6f6f8;
   --text-dim:#c4c4cc;
   --muted:#9d9da8;
@@ -157,11 +157,11 @@ p{margin:0 0 14px}
 
 /* chips / toggles for finder + wizard */
 .choices{display:flex;flex-wrap:wrap;gap:10px}
-.chip{padding:11px 18px;border:1px solid var(--line);border-radius:100px;background:var(--surface);font-weight:600;transition:.12s;user-select:none}
-.chip:hover{border-color:var(--muted)}
+.chip{padding:11px 18px;border:1px solid #4a4a55;border-radius:100px;background:#2e2e38;color:var(--text);font-weight:600;transition:.12s;user-select:none}
+.chip:hover{border-color:var(--muted);background:var(--graypill)}
 .chip.sel{background:var(--red);border-color:var(--red);color:#fff}
 .switch{display:inline-flex;align-items:center;gap:12px;cursor:pointer}
-.track{width:46px;height:26px;background:var(--surface-3);border-radius:100px;position:relative;transition:.15s;border:1px solid var(--line)}
+.track{width:46px;height:26px;background:var(--graypill);border-radius:100px;position:relative;transition:.15s;border:1px solid #4a4a55}
 .track::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.15s}
 .switch.on .track{background:var(--red);border-color:var(--red)}
 .switch.on .track::after{left:22px}
@@ -175,9 +175,10 @@ p{margin:0 0 14px}
 .field{margin-bottom:16px}
 .field label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:7px;text-transform:uppercase;letter-spacing:1px}
 .field input,.field select,.field textarea{
-  width:100%;background:var(--surface);border:1px solid var(--line);color:var(--text);
+  width:100%;background:var(--surface-2);border:1px solid var(--graypill);color:var(--text);
   padding:13px 15px;border-radius:var(--radius-sm);font-size:15px;font-family:inherit;
 }
+.field input::placeholder,.field textarea::placeholder{color:var(--muted)}
 .field input:focus,.field select:focus{outline:none;border-color:var(--red)}
 
 /* footer */
