@@ -1,0 +1,6 @@
+# Lokale Claude-Code-Einstellungen (benutzer-spezifisch)
+.claude/settings.local.json
+
+# OS / Editor
+.DS_Store
+Thumbs.db
