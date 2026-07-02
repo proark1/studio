@@ -273,7 +273,7 @@
             <p class="muted">Live-Auslastung, Check-in-Benachrichtigung, Gürtelfortschritt deines Kindes, Kursbuchung, Zahlungen und Nachrichten — alles an einem Ort.</p>
             <div style="margin-top:18px"><a class="btn btn-primary" href="#/app">App-Demo öffnen</a></div>
           </div>
-          <div style="background:linear-gradient(135deg,var(--red-700),#0c0c0e);display:flex;align-items:center;justify-content:center;font-size:80px">📱</div>
+          ${D.appTeaserImg?`<img src="${D.appTeaserImg}" alt="" style="width:100%;height:100%;min-height:260px;object-fit:cover" onerror="this.remove()">`:`<div style="background:linear-gradient(135deg,var(--red-700),#0c0c0e);display:flex;align-items:center;justify-content:center;font-size:80px">📱</div>`}
         </div>
       </div></div>
     `,'#/');
@@ -312,7 +312,7 @@
       </div></div>`).join('');
     return siteShell(`
       <div class="container">
-        <div class="hero" style="min-height:380px"><div class="hero-body">
+        <div class="hero" style="min-height:380px">${D.standortImg?`<img class="hero-photo" src="${D.standortImg}" alt="" onerror="this.remove()">`:''}<div class="hero-body">
           <a href="#/standorte" class="backlink">← Alle Standorte</a>
           <div class="eyebrow">${l.addr}</div>
           <h1 style="font-size:clamp(32px,5vw,58px)">NFT Gym<br>${l.city}</h1>
@@ -364,7 +364,9 @@
             <div style="display:flex;flex-direction:column;gap:12px">${bens.map(b=>`<div style="display:flex;gap:12px;align-items:center"><span class="slash sm"><i></i><i></i></span><b style="font-weight:600">${b}</b></div>`).join('')}</div>
             <div style="margin-top:22px"><a class="btn btn-primary" href="#/probetraining">Jetzt starten</a></div>
           </div>
-          <div class="card" style="height:320px;display:flex;align-items:center;justify-content:center;font-size:90px;background:linear-gradient(135deg,#0c0c0e,var(--red-700))">${isKids?'🥋':'🥊'}</div>
+          ${(isKids?D.landingKinderImg:D.landingErwachseneImg)
+            ?`<img src="${isKids?D.landingKinderImg:D.landingErwachseneImg}" alt="" style="width:100%;height:320px;object-fit:cover;border-radius:16px;border:1px solid var(--line)" onerror="this.remove()">`
+            :`<div class="card" style="height:320px;display:flex;align-items:center;justify-content:center;font-size:90px;background:linear-gradient(135deg,#0c0c0e,var(--red-700))">${isKids?'🥋':'🥊'}</div>`}
         </div>
       </div></div>
     `, isKids?'#/kinder':'#/erwachsene');
@@ -957,6 +959,7 @@
       <div class="section-head"><div><div class="kicker"><span class="slash sm"><i></i><i></i></span> Events</div>
         <h2>Turniere, Camps & Feiern</h2><p>Mehr als Training — erlebe die NFT-Community.</p></div></div>
       <div class="grid g-2">${D.events.map(e=>`<div class="card hover">
+        ${e.img?`<img src="${e.img}" alt="" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:12px;margin-bottom:14px" onerror="this.remove()">`:''}
         <div style="display:flex;justify-content:space-between;align-items:flex-start"><span class="tag">${e.cat}</span><b style="font-size:30px">${EV_ICO[e.cat]||'📅'}</b></div>
         <h3 style="margin:12px 0 6px;text-transform:none;letter-spacing:0">${e.title}</h3>
         <p class="muted" style="margin:0 0 4px">📅 ${e.date} · 📍 ${e.loc}</p>
@@ -973,7 +976,7 @@
         <h2>Ausrüstung & Bekleidung</h2><p>Alles fürs Training — online reservieren, am Standort abholen.</p></div>
         <a class="btn btn-dark btn-sm" href="#/app/warenkorb">${ICON('cart')} Warenkorb${cart.length?` (${cart.length})`:''}</a></div>
       <div class="grid g-3">${D.shop.map(s=>`<div class="card hover">
-        <div style="height:120px;display:flex;align-items:center;justify-content:center;font-size:56px;background:linear-gradient(135deg,#20161b,#0c0c0e);border-radius:12px;margin-bottom:14px">${s.ico}</div>
+        ${s.img?`<img src="${s.img}" alt="" style="height:120px;width:100%;object-fit:cover;border-radius:12px;margin-bottom:14px" onerror="this.remove()">`:`<div style="height:120px;display:flex;align-items:center;justify-content:center;font-size:56px;background:linear-gradient(135deg,#20161b,#0c0c0e);border-radius:12px;margin-bottom:14px">${s.ico}</div>`}
         <span class="tag ghost">${s.cat}</span><h3 style="margin:10px 0 4px;font-size:19px;text-transform:none;letter-spacing:0">${s.name}</h3>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><b>${s.price}</b>
           <button class="btn btn-dark btn-sm" data-action="cart-add" data-id="${s.id}">In den Korb</button></div>
@@ -1028,7 +1031,7 @@
     return appShell(`<a class="backlink" href="#/app/community">← Mehr</a>
       <h1 class="app-h">Pro-Shop</h1>
       ${D.shop.map(s=>`<div class="app-card" style="display:flex;gap:12px;align-items:center">
-        <div class="thumb" style="font-size:24px">${s.ico}</div><div class="meta" style="flex:1"><b>${s.name}</b><small>${s.cat} · ${s.price}</small></div>
+        ${s.img?`<img src="${s.img}" alt="" style="width:52px;height:52px;border-radius:12px;object-fit:cover;flex-shrink:0">`:`<div class="thumb" style="font-size:24px">${s.ico}</div>`}<div class="meta" style="flex:1"><b>${s.name}</b><small>${s.cat} · ${s.price}</small></div>
         <button class="btn btn-primary btn-sm" data-action="cart-add" data-id="${s.id}" aria-label="${s.name} in den Warenkorb">+</button></div>`).join('')}
     `,'#/app/konto');
   }
@@ -1101,7 +1104,7 @@
     const total = items.reduce((n,{s})=>n + parseFloat(s.price.replace(/[^0-9,]/g,'').replace(',','.')),0);
     return appShell(`<h1 class="app-h">Warenkorb</h1>
       ${items.map(({s,idx})=>`<div class="app-card" style="display:flex;gap:12px;align-items:center">
-        <div class="thumb" style="font-size:24px">${s.ico}</div><div class="meta" style="flex:1"><b>${s.name}</b><small>${s.price}</small></div>
+        ${s.img?`<img src="${s.img}" alt="" style="width:52px;height:52px;border-radius:12px;object-fit:cover;flex-shrink:0">`:`<div class="thumb" style="font-size:24px">${s.ico}</div>`}<div class="meta" style="flex:1"><b>${s.name}</b><small>${s.price}</small></div>
         <button class="btn btn-danger btn-sm" data-action="cart-remove" data-idx="${idx}">Entfernen</button></div>`).join('')}
       <div class="app-card" style="display:flex;justify-content:space-between;align-items:center"><b>Summe</b><b style="font-size:18px">${total.toFixed(2).replace('.',',')} €</b></div>
       <button class="btn btn-primary btn-block" data-action="cart-checkout">Reservieren &amp; am Standort abholen</button>
@@ -1184,6 +1187,7 @@
       <div class="kicker"><span class="slash sm"><i></i><i></i></span> Feriencamp · auch für Nicht-Mitglieder</div>
       <h2>${c.title}</h2>
       <p class="muted" style="margin-top:6px">📅 ${c.dates} · 📍 NFT ${c.loc} · 👧 ${c.ages}</p>
+      ${D.campImg?`<img src="${D.campImg}" alt="" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:16px;margin-top:18px" onerror="this.remove()">`:''}
       ${campBooked ? `
         <div class="card center" style="margin-top:20px;border-color:var(--green)">
           <div style="font-size:48px">⛺</div>
@@ -1211,6 +1215,7 @@
     return siteShell(`<div class="section" style="padding-top:36px"><div class="container">
       <div class="center" style="margin-bottom:26px"><div class="kicker" style="justify-content:center"><span class="slash sm"><i></i><i></i></span> Geschenk-Gutscheine</div>
         <h2>Verschenke Stärke</h2><p class="muted" style="max-width:460px;margin:8px auto 0">Das Lieblingsgeschenk von Großeltern: Kampfsport-Zeit statt Spielzeug.</p></div>
+      ${D.gutscheinImg?`<img src="${D.gutscheinImg}" alt="" style="display:block;width:100%;max-width:720px;margin:0 auto 26px;aspect-ratio:16/9;object-fit:cover;border-radius:16px" onerror="this.remove()">`:''}
       ${voucherCode ? `
         <div class="card center" style="max-width:520px;margin:0 auto;border-color:var(--green)">
           <div style="font-size:44px">🎁</div>

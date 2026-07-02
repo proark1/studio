@@ -12,12 +12,21 @@
   const IMG_PREFIX = 'nft_img_';
 
   /* ---------- Bild-Register: alle Bilder der Website ---------- */
+  const SHOP_PROMPTS = {
+    gi:'Product photo of a neatly folded white kids martial arts gi (kimono) with a white belt on top, dark charcoal background, soft studio lighting, e-commerce product photography, no text, no logos',
+    handschuhe:'Product photo of a pair of red 10oz boxing gloves standing upright, dark charcoal background, soft studio lighting, e-commerce product photography, no logos',
+    schienbein:'Product photo of a pair of black and red martial arts shin guards, dark charcoal background, soft studio lighting, e-commerce product photography, no logos',
+    shirt:'Product photo of a plain black athletic team t-shirt with subtle red trim laid flat, dark charcoal background, soft studio lighting, e-commerce product photography, no text, no logos',
+    bandagen:'Product photo of a pair of rolled red boxing hand wraps, dark charcoal background, soft studio lighting, e-commerce product photography, no logos',
+    flasche:'Product photo of a black sports water bottle with a red cap, dark charcoal background, soft studio lighting, e-commerce product photography, no text, no logos',
+    pruefungspaket:'Product photo of a martial arts exam set: a yellow belt, a rolled certificate with red ribbon and a small dark picture frame arranged together, dark charcoal background, soft studio lighting, e-commerce product photography, no text',
+  };
   const SLOTS = [
-    { id:'hero', name:'Hero — Startseite', where:'Startseite · großes Titelbild', ratio:'16:9', maxW:1600,
+    { id:'hero', group:'Startseite', name:'Hero — Startseite', where:'Startseite · großes Titelbild', ratio:'16:9', maxW:1600,
       get:()=>D.heroImg, set:v=>{ D.heroImg=v; },
       prompt:'Wide cinematic photo inside a modern martial arts gym: a diverse group of kids and adults training kickboxing on dark mats, dramatic rim lighting, black background with deep red accent lights, energetic and motivating, professional sports photography, no text, no logos' },
     ...D.sports.map((s,i)=>({
-      id:'sport-'+i, name:'Disziplin — '+s.name, where:'Startseite · Karte „'+s.name+'“', ratio:'4:3', maxW:900,
+      id:'sport-'+i, group:'Startseite', name:'Disziplin — '+s.name, where:'Startseite · Karte „'+s.name+'“', ratio:'4:3', maxW:900,
       get:()=>D.sports[i].img, set:v=>{ D.sports[i].img=v; },
       prompt:({
         'Kickboxen':'Dynamic action photo of a kickboxer striking pads, mid-kick, dark gym with red accent lighting, sweat and motion, shallow depth of field, professional sports photography, no text',
@@ -28,6 +37,38 @@
         'Luta Livre':'No-gi submission grappling photo: two athletes in rashguards rolling on dark mats, dynamic scramble, dark gym with red accent lighting, professional sports photography, no text',
       })[s.name] || ('Professional sports photography of '+s.name+' training in a dark martial arts gym with red accent lighting, no text'),
     })),
+    { id:'app-teaser', group:'Startseite', name:'App-Teaser — „Dein Studio in der Tasche“', where:'Startseite · Mitglieder-App-Box (aktuell 📱-Platzhalter)', ratio:'4:3', maxW:900,
+      get:()=>D.appTeaserImg, set:v=>{ D.appTeaserImg=v; },
+      prompt:'Over-the-shoulder photo of a parent holding a smartphone in a modern martial arts gym, kids training softly blurred in the dark background with red accent lights, warm and reassuring, professional photography, blank phone screen, no text, no logos' },
+    { id:'landing-kinder', group:'Landingpages', name:'Landingpage — Kinder', where:'Seite „Kinder“ · Vorteils-Karte (aktuell 🥋-Platzhalter)', ratio:'4:3', maxW:900,
+      get:()=>D.landingKinderImg, set:v=>{ D.landingKinderImg=v; },
+      prompt:'Joyful photo of children aged 6 to 9 in a martial arts class doing a fun warm-up game with their coach on dark mats, laughing, safe and supervised, dark gym with red accent lighting, professional sports photography, no text' },
+    { id:'landing-erwachsene', group:'Landingpages', name:'Landingpage — Erwachsene', where:'Seite „Erwachsene“ · Vorteils-Karte (aktuell 🥊-Platzhalter)', ratio:'4:3', maxW:900,
+      get:()=>D.landingErwachseneImg, set:v=>{ D.landingErwachseneImg=v; },
+      prompt:'Photo of an evening adults kickboxing class: men and women hitting pads in pairs, focused energy after work, dark gym with red accent lighting, professional sports photography, no text' },
+    { id:'standort', group:'Standorte', name:'Studio innen — Standort-Seiten', where:'Alle Standort-Detailseiten · Hero-Hintergrund', ratio:'16:9', maxW:1600,
+      get:()=>D.standortImg, set:v=>{ D.standortImg=v; },
+      prompt:'Wide interior photo of a modern premium martial arts studio: clean black training mats, a row of heavy bags, red and black wall accents, dramatic ambient lighting, empty and tidy, professional architecture photography, no text, no logos' },
+    { id:'camp', group:'Events & Camp', name:'Feriencamp', where:'Camp-Seite · Banner + Events-Karte „Feriencamp“', ratio:'16:9', maxW:1200,
+      get:()=>D.campImg, set:v=>{ D.campImg=v; const ev=D.events.find(e=>e.id==='feriencamp'); if(ev) ev.img=v; },
+      prompt:'Group photo of happy kids aged 6 to 14 at a summer martial arts camp: pad games and training in front of a gym on a sunny day, high fives and big smiles, camp atmosphere, professional photography, no text' },
+    { id:'event-turnier', group:'Events & Camp', name:'Event — Turnier', where:'Events-Seite · Karte „NFT Open NRW“', ratio:'4:3', maxW:900,
+      get:()=>(D.events.find(e=>e.id==='turnier-nrw')||{}).img, set:v=>{ const ev=D.events.find(e=>e.id==='turnier-nrw'); if(ev) ev.img=v; },
+      prompt:'Martial arts tournament photo: young athlete on the podium receiving a medal, coaches applauding, sports hall with mats and red banners, celebratory moment, professional sports photography, no text' },
+    { id:'event-geburtstag', group:'Events & Camp', name:'Event — Kindergeburtstag', where:'Events-Seite · Karte „Kampfsport-Geburtstag“', ratio:'4:3', maxW:900,
+      get:()=>(D.events.find(e=>e.id==='geburtstag')||{}).img, set:v=>{ const ev=D.events.find(e=>e.id==='geburtstag'); if(ev) ev.img=v; },
+      prompt:'Kids birthday party in a martial arts gym: children playing an action game with a coach on dark mats, black and red balloons, joyful and energetic, professional photography, no text' },
+    { id:'event-lehrgang', group:'Events & Camp', name:'Event — Lehrgang', where:'Events-Seite · Karte „BJJ-Lehrgang“', ratio:'4:3', maxW:900,
+      get:()=>(D.events.find(e=>e.id==='lehrgang')||{}).img, set:v=>{ const ev=D.events.find(e=>e.id==='lehrgang'); if(ev) ev.img=v; },
+      prompt:'Martial arts seminar photo: a guest coach demonstrating a BJJ technique in front of adult students seated on dark mats, attentive atmosphere, dark gym with red accent lighting, professional sports photography, no text' },
+    ...D.shop.map((s,i)=>({
+      id:'shop-'+s.id, group:'Pro-Shop', name:'Produkt — '+s.name, where:'Shop-Seite + App-Shop · Produktbild (aktuell '+s.ico+'-Platzhalter)', ratio:'1:1', maxW:600,
+      get:()=>D.shop[i].img, set:v=>{ D.shop[i].img=v; },
+      prompt: SHOP_PROMPTS[s.id] || ('Product photo of '+s.name+' for martial arts, dark charcoal background, soft studio lighting, e-commerce product photography, no text, no logos'),
+    })),
+    { id:'gutschein', group:'Gutscheine', name:'Gutschein-Motiv', where:'Gutschein-Seite · Banner „Verschenke Stärke“', ratio:'16:9', maxW:1200,
+      get:()=>D.gutscheinImg, set:v=>{ D.gutscheinImg=v; },
+      prompt:'Elegant gift concept photo: a blank black gift voucher card with a red ribbon lying next to a pair of small red boxing gloves, dark background, soft festive studio lighting, sporty and premium, no text' },
   ];
   SLOTS.forEach(s=>{ s.def = s.get(); });
 
@@ -162,12 +203,14 @@
          <span>Gespeichert: <b style="color:var(--green)">${fmtSize(meta.comp)}</b></span>
          ${meta.raw?`<span class="tag ghost" style="text-transform:none;letter-spacing:0">−${Math.max(0,Math.round((1-meta.comp/meta.raw)*100))} %</span>`:''}
          ${meta.w?`<span class="muted">${meta.w}×${meta.h} px</span>`:''}`
-      : `<span class="muted">Noch nicht generiert — aktuell Standard-Bild (extern, Unsplash)</span>`;
+      : `<span class="muted">Noch nicht generiert — aktuell ${s.def?'Standard-Bild (extern, Unsplash)':'Emoji/Gradient-Platzhalter'}</span>`;
     return `<div class="card adm-card">
-      <img class="adm-prev" src="${cur}" alt="" loading="lazy" onerror="this.style.opacity=.2">
+      ${cur
+        ? `<img class="adm-prev" src="${cur}" alt="" loading="lazy" onerror="this.style.opacity=.2">`
+        : `<div class="adm-prev" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px">Noch kein Bild — Website zeigt Platzhalter</div>`}
       <div class="row" style="margin-top:12px">
         <h3 style="font-size:17px;margin:0">${s.name}</h3>
-        ${over?'<span class="tag">KI-generiert</span>':'<span class="tag ghost">Standard</span>'}
+        ${over?'<span class="tag">KI-generiert</span>':s.def?'<span class="tag ghost">Standard</span>':'<span class="tag ghost">Platzhalter</span>'}
       </div>
       <p class="muted" style="font-size:13px;margin:4px 0 10px">${s.where} · Format ${s.ratio} · max. ${s.maxW} px</p>
       <div class="adm-size">${sizes}</div>
@@ -232,7 +275,10 @@
           <p class="muted" style="margin-top:4px">${genCount} von ${SLOTS.length} generiert · Speicher: ${fmtSize(used)} von ~5 MB belegt</p></div>
           <button class="btn btn-primary btn-sm" data-admin="adm-generate-all" ${st.busyAll?'disabled':''}>${st.busyAll?'⏳ Generiere alle…':'✨ Alle '+SLOTS.length+' Bilder generieren'}</button>
         </div>
-        <div class="adm-grid">${SLOTS.map(slotCard).join('')}</div>
+        ${(()=>{ const groups=[]; SLOTS.forEach(s=>{ let g=groups.find(x=>x.name===s.group); if(!g){ g={name:s.group,slots:[]}; groups.push(g); } g.slots.push(s); });
+          return groups.map(g=>`<div style="font-family:var(--ff-head);text-transform:uppercase;font-size:18px;letter-spacing:1px;margin:26px 0 12px;display:flex;align-items:baseline;gap:10px">${g.name}
+              <span class="muted" style="font-size:13px;font-family:var(--ff-body,inherit);text-transform:none;letter-spacing:0">${g.slots.filter(x=>hasOverride(x.id)).length} von ${g.slots.length} generiert</span></div>
+            <div class="adm-grid">${g.slots.map(slotCard).join('')}</div>`).join(''); })()}
       </div></div></main>
       <style>
         .adm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px}
