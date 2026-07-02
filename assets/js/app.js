@@ -149,6 +149,18 @@
     ${Object.keys(T).map(k=>`<option value="${k}"${k===lang?' selected':''}>${T[k].name}</option>`).join('')}</select>`;
   const langNote = () => lang!=='de' ? `<div class="lang-note">${t('partialNote')}</div>` : '';
 
+  /* ---------- theme: dark / light ---------- */
+  let theme = 'dark';
+  try{ theme = localStorage.getItem('nftTheme') || ((window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark'); }catch(e){}
+  if(theme!=='light') theme = 'dark';
+  function applyTheme(){
+    document.documentElement.setAttribute('data-theme', theme);
+    const mc = document.querySelector('meta[name="theme-color"]'); if(mc) mc.setAttribute('content', theme==='light'?'#ffffff':'#0c0c0e');
+  }
+  function setTheme(tm){ theme = tm==='light'?'light':'dark'; try{ localStorage.setItem('nftTheme', theme); }catch(e){} applyTheme(); render(); }
+  const themeToggle = () => `<button type="button" class="icon-btn" data-action="theme" aria-label="Hell-/Dunkelmodus umschalten" title="${theme==='light'?'Dunkelmodus':'Hellmodus'}">${theme==='light'?'🌙':'☀️'}</button>`;
+  window.__themeBtn = themeToggle;   // exposed so crm.js can render the same toggle
+
   /* ---------- shared state ---------- */
   let cart = [];
   let menuOpen = false;
@@ -188,7 +200,7 @@
   function toast(msg, undo){
     let t = document.createElement('div');
     t.textContent = msg;
-    t.style.cssText = "position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:#fff;color:#0c0c0e;padding:12px 20px;border-radius:100px;font-weight:600;z-index:400;box-shadow:0 10px 30px rgba(0,0,0,.4);display:flex;align-items:center";
+    t.style.cssText = "position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:var(--inverse-bg);color:var(--inverse-ink);padding:12px 20px;border-radius:100px;font-weight:600;z-index:400;box-shadow:0 10px 30px rgba(0,0,0,.4);display:flex;align-items:center";
     if(undo){
       const u=document.createElement('button');
       u.className='toast-undo'; u.textContent='Rückgängig';
@@ -221,6 +233,7 @@
           ${link('#/erwachsene',t('nav_adults'))} ${link('#/preise',t('nav_prices'))} ${link('#/kursfinder',t('nav_finder'))} ${link('#/faq',t('nav_faq'))}
         </div>
         <div class="nav-cta">
+          ${themeToggle()}
           ${langSelect('')}
           <a class="btn btn-dark btn-sm" href="#/login">${t('login')}</a>
           <a class="btn btn-primary btn-sm" href="#/probetraining">${t('cta_trial')}</a>
@@ -678,6 +691,7 @@
         <div class="who"><div class="avatar">${D.parent.first[0]}</div>
           <div><div class="hi">${t('welcome')}</div><div class="nm">${D.parent.name}</div></div></div>
         <div style="display:flex;gap:8px">
+          ${themeToggle()}
           <a class="icon-btn" href="#/app/warenkorb" aria-label="Warenkorb${cartN?` (${cartN})`:''}">${ICON('cart')}${cartN?`<span class="cart-count">${cartN}</span>`:''}</a>
           <a class="icon-btn" href="#/app/nachrichten" aria-label="Nachrichten${unread?` (${unread} ungelesen)`:''}">${ICON('bell')}${unread?`<span class="badge-dot">${unread}</span>`:''}</a>
           <a class="icon-btn" href="#/" aria-label="Zur Website" title="Zur Website">${ICON('x')}</a>
@@ -847,7 +861,7 @@
         <p class="muted" style="font-size:13px;margin:4px 0 12px">Wann ist es ruhig? Grün = entspannt, Rot = voll.</p>
         <div class="heat"><table><thead><tr><th></th>${D.heatDays.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>
       </div>
-      <div class="rec"><div class="ri">✨</div><div><b>Empfehlung für Emir</b><p class="muted" style="margin:4px 0 0;font-size:14px">Mittwoch 16:00 ist diese Woche <b style="color:#fff">35 % ruhiger</b> als Dienstag 17:00 — kleinere Gruppe, mehr Aufmerksamkeit vom Trainer. Passt zu deinem Abholfenster.</p>
+      <div class="rec"><div class="ri">✨</div><div><b>Empfehlung für Emir</b><p class="muted" style="margin:4px 0 0;font-size:14px">Mittwoch 16:00 ist diese Woche <b style="color:var(--text)">35 % ruhiger</b> als Dienstag 17:00 — kleinere Gruppe, mehr Aufmerksamkeit vom Trainer. Passt zu deinem Abholfenster.</p>
         <button class="btn btn-primary btn-sm" style="margin-top:12px" data-action="toast" data-msg="Auf Mi 16:00 umgebucht (Demo)">Auf Mi 16:00 umbuchen</button></div></div>
     `,'#/app');
   }
@@ -917,7 +931,7 @@
     const k = D.kids.find(x=>x.name===name) || D.kids[0];
     const beltMap = k.belts.map((b,i)=>`<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex:1">
       <div style="width:32px;height:32px;border-radius:50%;border:3px solid ${i<=k.beltIdx?'var(--green)':'var(--line)'};background:${i===k.beltIdx?'var(--red)':i<k.beltIdx?'var(--green)':'var(--surface)'}"></div>
-      <small style="font-size:10px;text-align:center;color:${i===k.beltIdx?'#fff':'var(--muted)'}">${b}</small></div>`)
+      <small style="font-size:10px;text-align:center;color:${i===k.beltIdx?'var(--text)':'var(--muted)'}">${b}</small></div>`)
       .join('<div style="flex:0 0 14px;height:3px;background:var(--line);margin-top:14px"></div>');
     return appShell(`
       <a class="backlink" href="#/app/kind/${k.name}">← ${k.name}</a>
@@ -1055,6 +1069,12 @@
       <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">${t('lang_label')} · Dil · اللغة</b>
         <div class="choices" style="margin-top:10px">
           ${Object.keys(T).map(k=>`<button type="button" class="chip ${k===lang?'sel':''}" data-action="lang-chip" data-v="${k}">${T[k].name}</button>`).join('')}
+        </div>
+      </div>
+      <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Design</b>
+        <div class="choices" style="margin-top:10px">
+          <button type="button" class="chip ${theme==='dark'?'sel':''}" data-action="theme-set" data-v="dark">🌙 Dunkel</button>
+          <button type="button" class="chip ${theme==='light'?'sel':''}" data-action="theme-set" data-v="light">☀️ Hell</button>
         </div>
       </div>
       <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Dokumente auf Knopfdruck</b>
@@ -1500,6 +1520,8 @@
     if(a==='toast'){ toast(el.dataset.msg||'Demo'); return; }
     if(a==='goapp'){ go('#/app'); return; }
     if(a==='menu'){ menuOpen=!menuOpen; render(); return; }
+    if(a==='theme'){ setTheme(theme==='light'?'dark':'light'); return; }
+    if(a==='theme-set'){ setTheme(el.dataset.v); return; }
     // finder
     if(a==='f-who'){ finder.who=el.dataset.v; render(); return; }
     if(a==='f-age'){ finder.age=el.dataset.v; render(); return; }
@@ -1618,6 +1640,7 @@
   window.__render = render;
   window.__toast = toast;
   applyLangAttrs();
+  applyTheme();
   injectJsonLd();
   window.addEventListener('hashchange', ()=>{
     menuOpen=false;

@@ -78,7 +78,7 @@
           <b style="font-family:var(--ff-head);letter-spacing:1px;font-size:20px">CRM</b></div>
         <nav class="crm-nav" aria-label="CRM-Navigation">${navHtml}</nav>
         <a href="#/trainer" class="crm-nav" style="color:var(--muted);padding:10px 12px;font-size:13px;display:flex;align-items:center;gap:10px"><span class="ci">${I('activity')}</span>Trainer-Ansicht →</a>
-        <div class="role-note">Angemeldet als<br><b style="color:#fff">${state.role}</b><br><a href="#/crm" style="color:var(--red-ink)">Rolle wechseln →</a></div>
+        <div class="role-note">Angemeldet als<br><b style="color:var(--text)">${state.role}</b><br><a href="#/crm" style="color:var(--red-ink)">Rolle wechseln →</a></div>
       </aside>
       <div class="crm-main">
         <div class="crm-top">
@@ -89,6 +89,7 @@
           </select>
           <a class="search" href="#/crm/suche" style="text-decoration:none;display:flex;align-items:center;gap:8px">${I('search')} Mitglieder, Leads, Kurse suchen…</a>
           <div class="spacer"></div>
+          ${window.__themeBtn ? window.__themeBtn() : ''}
           <a class="icon-btn" href="#/crm/kommunikation" aria-label="Kommunikation${openMsgs?` (${openMsgs} offen)`:''}">${I('bell')}${openMsgs?`<span class="badge-dot">${openMsgs}</span>`:''}</a>
           <div class="crm-user"><div class="u-meta"><b>${state.role}</b><small>NFT Team</small></div>
             <div class="avatar">${state.role[0]}</div></div>
@@ -434,7 +435,7 @@
         <div class="kpi"><div class="n">${s.heute}</div><div class="l">Heute fällig</div></div>
         <div class="kpi green"><div class="n">${s.recovery}</div><div class="l">Recovery-Quote</div></div>
       </div>
-      <div class="notice">🔴 Rote Fälle (Rücklastschriften) stehen immer ganz oben. Offener Betrag gesamt: <b style="color:#fff">${s.betrag}</b> · automatische Zahlungserinnerung-Journey aktiv, sensible Mahnstufe eskaliert an Mensch.</div>
+      <div class="notice">🔴 Rote Fälle (Rücklastschriften) stehen immer ganz oben. Offener Betrag gesamt: <b style="color:var(--text)">${s.betrag}</b> · automatische Zahlungserinnerung-Journey aktiv, sensible Mahnstufe eskaliert an Mensch.</div>
       <div class="panel"><table class="tbl"><thead><tr><th>Kunde</th><th>Betrag</th><th>Grund</th><th>Alter</th><th>Status</th><th>Aktion</th></tr></thead><tbody>${rows}</tbody></table></div>`,'#/crm/zahlungen');
   }
 
@@ -443,12 +444,12 @@
     const r = C().reports;
     const ceo = r.ceo.map(x=>`<div class="kpi" style="cursor:default"><div class="n" style="font-size:26px">${x.v}</div><div class="l">${x.l}</div></div>`).join('');
     const rows = r.standorte.map(s=>`<tr><td><b>${s.city}</b></td><td>${s.leads}</td><td>${s.trial}</td><td>${s.close}</td><td>${s.occ}</td><td>${s.offen}</td></tr>`).join('');
-    const hCol = s => s>=80?'var(--green)':s>=70?'var(--amber)':'#ff5470';
+    const hCol = s => s>=80?'var(--green)':s>=70?'var(--amber)':'var(--red-ink)';
     const health = C().health.map(h=>`<div class="kpi" style="cursor:default;border-color:${h.score<70?'rgba(228,0,43,.4)':'var(--line)'}">
       <div style="display:flex;justify-content:space-between;align-items:baseline">
         <div class="n" style="font-size:34px;color:${hCol(h.score)}">${h.score}</div>
         <span class="badge ${h.trend.startsWith('+')?'b-green':'b-red'}">${h.trend}</span></div>
-      <div class="l"><b style="color:#fff">${h.city}</b> · Health-Score</div>
+      <div class="l"><b style="color:var(--text)">${h.city}</b> · Health-Score</div>
       <div style="display:flex;gap:4px;margin-top:10px">${Object.entries(h.drivers).map(([k,v])=>`<div title="${k}: ${v}" style="flex:1;height:6px;border-radius:100px;background:${hCol(v)}"></div>`).join('')}</div>
       <div class="muted" style="font-size:10px;margin-top:5px">${Object.entries(h.drivers).map(([k,v])=>k+' '+v).join(' · ')}</div>
     </div>`).join('');
@@ -460,7 +461,7 @@
         <div class="split" style="grid-template-columns:1fr 1fr 1fr;gap:14px">
           <div><b style="color:var(--green);font-size:13px;text-transform:uppercase;letter-spacing:1px">Highlights</b>
             ${C().digest.highlights.map(h=>`<p class="dim" style="font-size:13px;margin:8px 0 0">• ${h}</p>`).join('')}</div>
-          <div><b style="color:#ff5470;font-size:13px;text-transform:uppercase;letter-spacing:1px">Risiken</b>
+          <div><b style="color:var(--red-ink);font-size:13px;text-transform:uppercase;letter-spacing:1px">Risiken</b>
             ${C().digest.risks.map(h=>`<p class="dim" style="font-size:13px;margin:8px 0 0">• ${h}</p>`).join('')}</div>
           <div><b style="color:var(--amber);font-size:13px;text-transform:uppercase;letter-spacing:1px">Entscheidungsbedarf</b>
             ${C().digest.decisions.map(h=>`<p class="dim" style="font-size:13px;margin:8px 0 0">• ${h}</p>`).join('')}</div>
@@ -475,7 +476,7 @@
         <div class="panel"><div class="panel-h"><b>💶 P&amp;L light · Monat</b><span class="muted" style="font-size:12px">4 von 10 Standorten (Auszug) · Franchise-MRR gesamt: ${C().fact.mrr}</span></div>
           <table class="tbl" style="min-width:520px"><thead><tr><th>Standort</th><th>Umsatz</th><th>Personal</th><th>Miete</th><th>Sonstiges</th><th>DB</th></tr></thead><tbody>
             ${C().pnl.map(p=>`<tr><td><b>${p.city}</b></td><td>${p.umsatz}</td><td>${p.personal}</td><td>${p.miete}</td><td>${p.sonst}</td>
-              <td><b style="color:${p.ok?'var(--green)':'#ff5470'}">${p.db}</b> <span class="muted">(${p.pct} %)</span></td></tr>`).join('')}
+              <td><b style="color:${p.ok?'var(--green)':'var(--red-ink)'}">${p.db}</b> <span class="muted">(${p.pct} %)</span></td></tr>`).join('')}
           </tbody></table>
           ${C().pnl.some(p=>!p.ok)?'<div class="notice" style="margin-top:12px">⚠️ München unter Break-even — Personalkosten prüfen (siehe Anomalie-Radar) und Miete/Umsatz-Verhältnis 37 %.</div>':''}
         </div>
@@ -655,7 +656,7 @@
   function retention(){
     const items = byLoc(C().retention);
     const open = items.filter(r=>r.status==='offen').length;
-    const scoreCol = s => s>=80?'#ff5470':s>=70?'var(--amber)':'var(--text-dim)';
+    const scoreCol = s => s>=80?'var(--red-ink)':s>=70?'var(--amber)':'var(--text-dim)';
     const card = r => {
       const done = r.status!=='offen';
       const manual = r.draft.startsWith('⚠️');
@@ -668,7 +669,7 @@
           </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">${r.reasons.map(x=>`<span class="badge b-gray" style="text-transform:none;letter-spacing:0">${x}</span>`).join('')}</div>
-        <div style="font-size:13px;color:var(--text-dim);margin-bottom:10px"><b style="color:#fff">Next Best Action:</b> ${r.action}</div>
+        <div style="font-size:13px;color:var(--text-dim);margin-bottom:10px"><b style="color:var(--text)">Next Best Action:</b> ${r.action}</div>
         ${done?'':`<div class="aibox" style="max-height:130px;overflow:auto">${r.draft}</div>
         <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
           ${manual
@@ -713,8 +714,8 @@
           <div><span style="font-size:20px;margin-right:8px">${typIco[u.typ]||'💡'}</span><b style="font-size:17px">${u.familie}</b>
             <span class="badge b-gray" style="margin-left:8px;text-transform:none;letter-spacing:0">${u.typ}</span></div>
           ${badge(u.status)}</div>
-        <div style="font-size:14px;color:var(--text-dim);margin-bottom:6px"><b style="color:#fff">Erkannt:</b> ${u.insight}</div>
-        <div style="font-size:14px;color:var(--text-dim);margin-bottom:10px"><b style="color:#fff">Rechnung:</b> ${u.calc}</div>
+        <div style="font-size:14px;color:var(--text-dim);margin-bottom:6px"><b style="color:var(--text)">Erkannt:</b> ${u.insight}</div>
+        <div style="font-size:14px;color:var(--text-dim);margin-bottom:10px"><b style="color:var(--text)">Rechnung:</b> ${u.calc}</div>
         ${u.status==='offen'?`<div class="aibox" style="max-height:120px;overflow:auto">${u.draft}</div>
           <div style="display:flex;gap:8px;margin-top:12px">
             <button class="btn btn-primary btn-sm" data-action="crm-up-send" data-id="${u.id}">Bestätigen & Angebot senden</button>
@@ -730,7 +731,7 @@
   function team(){
     const t = C().trainers;
     const st = s => s==='ok'?'<span class="badge b-green">✓ vollständig</span>':s==='warn'?'<span class="badge b-amber">läuft bald ab</span>':'<span class="badge b-red">GESPERRT für Kinderkurse</span>';
-    const doc = d => d.includes('ABGELAUFEN')?`<span style="color:#ff5470;font-weight:600">${d}</span>`:d.includes('08/2026')?`<span style="color:var(--amber)">${d}</span>`:d;
+    const doc = d => d.includes('ABGELAUFEN')?`<span style="color:var(--red-ink);font-weight:600">${d}</span>`:d.includes('08/2026')?`<span style="color:var(--amber)">${d}</span>`:d;
     return shell(`
       <h1 class="crm-h">Trainer & Team · Qualifikations-Register</h1>
       <div class="crm-sub">Harte Regel: Kein Kinderkurs ohne gültige Lizenz + Erste Hilfe + erweitertes Führungszeugnis.</div>
@@ -1097,7 +1098,7 @@
       <div class="panel center" style="max-width:520px;margin:40px auto;padding:40px">
         <div style="font-size:44px">\ud83d\udd12</div>
         <h1 class="crm-h" style="font-size:26px">Kein Zugriff</h1>
-        <p class="muted">Die Rolle <b style="color:#fff">${state.role}</b> hat keine Berechtigung f\u00fcr \u201e${mod}\u201c.</p>
+        <p class="muted">Die Rolle <b style="color:var(--text)">${state.role}</b> hat keine Berechtigung f\u00fcr \u201e${mod}\u201c.</p>
         <a class="btn btn-primary" href="#/crm" style="margin-top:12px">Rolle wechseln</a>
       </div>`,'');
   }
