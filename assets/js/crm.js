@@ -12,6 +12,10 @@
   const payBadge = s => ({bezahlt:["b-green","Bezahlt"],offen:["b-amber","Offen"],rueck:["b-red","Rücklastschrift"]}[s]);
   const riskBadge = r => ({gruen:["b-green","● OK"],gelb:["b-amber","● beobachten"],rot:["b-red","● At-Risk"]}[r]);
   const byLoc = arr => state.standort==='Alle Standorte' ? arr : arr.filter(x => (x.loc||x.city)===state.standort);
+  const ageBadge = m => m===undefined ? '' : m>=60
+    ? `<span class="badge b-red">⏱ vor ${Math.round(m/60*10)/10} Std</span>`
+    : m>=30 ? `<span class="badge b-amber">⏱ vor ${m} Min</span>` : `<span class="badge b-green">⏱ vor ${m} Min</span>`;
+  const srcBadge = s => s ? `<span class="badge b-gray" style="text-transform:none;letter-spacing:0">${({Website:'🌐',Instagram:'📸','Google Maps':'📍',WhatsApp:'🟢'}[s]||'☎️')} ${s}</span>` : '';
   const actBtn = label => label==='—' ? '<span class="muted">—</span>'
       : `<button class="btn btn-dark btn-sm" data-action="crm-toast" data-msg="${label} (Demo)">${label}</button>`;
 
@@ -31,11 +35,13 @@
       ['#/crm/retention','activity','Retention','Mitglieder'],
       ['#/crm/upsell','trending','Upsell-Chancen','Mitglieder'],
       ['#/crm/team','shield','Trainer & Team','Verträge'],
+      ['#/crm/zeiten','clock','Arbeitszeiten','Verträge'],
       ['#/crm/kurse','calendar','Kurse & Stundenplan','Kurse'],
       ['#/crm/auslastung','trending','Auslastung','Auslastung'],
       ['#/crm/checkins','clock','Check-ins','Check-ins'],
       ['#/crm/kiosk','monitor','Kiosk Check-in','Check-ins'],
       ['#/crm/kommunikation','mail','Kommunikation','Kommunikation'],
+      ['#/crm/aufgaben','file','Aufgaben','Kommunikation'],
       ['#/crm/feedback','message','Feedback & Puls','Kommunikation'],
       ['#/crm/vertraege','file','Verträge','Verträge'],
       ['#/crm/zahlungen','euro','Zahlungen','Zahlungen'],
@@ -145,11 +151,12 @@
       body = `<div class="kanban">${C().pipeline.map(st=>{
         const items = byLoc(C().leads).filter(l=>l.stage===st);
         return `<div class="kcol"><div class="kh"><span>${st}</span><span>${items.length}</span></div>
-          ${items.map(l=>`<a class="kcard" href="#/crm/leads/${l.id}"><b>${l.name}</b><small>${l.who}</small><small>${l.interest} · ${l.loc}</small></a>`).join('') || '<div class="muted" style="font-size:12px;padding:6px">—</div>'}</div>`;
+          ${items.map(l=>`<a class="kcard" href="#/crm/leads/${l.id}"><b>${l.name}</b><small>${l.who}</small><small>${l.interest} · ${l.loc}</small>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">${ageBadge(l.ageMin)}${srcBadge(l.src)}${l.noshow?'<span class="badge b-amber">No-Show</span>':''}</div></a>`).join('') || '<div class="muted" style="font-size:12px;padding:6px">—</div>'}</div>`;
       }).join('')}</div>`;
     } else {
-      body = `<div class="panel"><table class="tbl"><thead><tr><th>Lead</th><th>Wer</th><th>Standort</th><th>Interesse</th><th>Status</th><th>Nächste Aktion</th></tr></thead><tbody>
-        ${byLoc(C().leads).map(l=>`<tr onclick="location.hash='#/crm/leads/${l.id}'"><td><a href="#/crm/leads/${l.id}"><b>${l.name}</b></a></td><td>${l.who}</td><td>${l.loc}</td><td>${l.interest}</td><td><span class="badge b-gray">${l.stage}</span></td><td>${l.action}</td></tr>`).join('')}
+      body = `<div class="panel"><table class="tbl"><thead><tr><th>Lead</th><th>Wartet seit</th><th>Quelle</th><th>Standort</th><th>Interesse</th><th>Status</th><th>Nächste Aktion</th></tr></thead><tbody>
+        ${byLoc(C().leads).map(l=>`<tr onclick="location.hash='#/crm/leads/${l.id}'"><td><a href="#/crm/leads/${l.id}"><b>${l.name}</b></a></td><td>${ageBadge(l.ageMin)}</td><td>${srcBadge(l.src)}</td><td>${l.loc}</td><td>${l.interest}</td><td><span class="badge b-gray">${l.stage}</span></td><td>${l.action}</td></tr>`).join('')}
       </tbody></table></div>`;
     }
     return shell(`
@@ -164,7 +171,17 @@
     return shell(`
       <a class="backlink" href="#/crm/leads">← Alle Leads</a>
       <h1 class="crm-h">${l.name}</h1>
-      <div class="crm-sub">${l.who} · ${l.interest} · ${l.loc} · <span class="badge b-gray">${l.stage}</span></div>
+      <div class="crm-sub" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${l.who} · ${l.interest} · ${l.loc} · <span class="badge b-gray">${l.stage}</span> ${ageBadge(l.ageMin)} ${srcBadge(l.src)}</div>
+      ${l.noshow?`<div class="panel" style="border-color:var(--amber)"><div class="panel-h"><b>⏰ Probetraining verpasst — Rebooking-Automatik läuft</b><span class="badge b-green">SMS gesendet ✓</span></div>
+        <p class="dim" style="margin:0 0 10px">Automatische Nachricht: „Kein Problem, das passiert! Sollen wir einen neuen Termin finden? Ein Tippen genügt:" — der Kunde sieht zwei 1-Tap-Slots:</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" data-action="crm-rebook" data-slot="Mi 16:00">Mi 16:00 (ruhig) — Kunde tippt ✓</button>
+          <button class="btn btn-dark btn-sm" data-action="crm-rebook" data-slot="Fr 15:30">Fr 15:30 — Kunde tippt ✓</button>
+        </div>
+        <p class="muted" style="font-size:12px;margin:10px 0 0">Ohne Reaktion: sanfte Erinnerung nach 3 Tagen, dann Lead → „Verloren" mit Win-back in 90 Tagen. Rettet typisch 20–30 % der No-Shows.</p></div>`:''}
+      ${l.trialTags?`<div class="panel" style="border-color:var(--green)"><div class="panel-h"><b>🥋 Trainer-Eindruck aus dem Probetraining</b><span class="muted" style="font-size:12px">von Trainer Igor, 30-Sek-Tags</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">${l.trialTags.map(t=>`<span class="badge b-green" style="text-transform:none;letter-spacing:0">${t}</span>`).join('')}</div>
+        <p class="muted" style="font-size:12px;margin:10px 0 0">Diese Tags fließen automatisch in den Angebotsentwurf rechts — das Angebot nennt konkrete Stärken statt Floskeln.</p></div>`:''}
       <div class="split" style="grid-template-columns:1fr 1.15fr">
         <div>
           <div class="panel"><div class="panel-h"><b>Kontakt & Kontext</b></div>
@@ -181,8 +198,8 @@
             <button class="btn btn-primary btn-block" data-action="crm-lead-stage" data-id="${l.id}" data-stage="Vertrag">Vertrag vorbereiten</button>
           </div>
         </div>
-        <div class="panel"><div class="panel-h"><b>✨ KI-Antwortentwurf</b><span class="badge b-green">Bereit zur Freigabe</span></div>
-          <div class="aibox">${C().leadDraft}</div>
+        <div class="panel"><div class="panel-h"><b>✨ KI-Antwortentwurf${l.trialTags?' (personalisiert)':''}</b><span class="badge b-green">Bereit zur Freigabe</span></div>
+          <div class="aibox">${l.draft || C().leadDraft}</div>
           <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
             <button class="btn btn-primary" data-action="crm-lead-next" data-id="${l.id}">Bestätigen & Senden</button>
             <button class="btn btn-dark" data-action="crm-toast" data-msg="Bearbeiten (Demo)">Bearbeiten</button>
@@ -323,7 +340,8 @@
       <div class="crm-sub">Zentraler Posteingang · KI-Entwürfe zur Freigabe (Human-in-the-Loop)</div>
       <div class="split">
         <div class="panel ilist">${list}</div>
-        <div class="panel"><div class="panel-h"><b>${m.customer} · ${m.topic}</b><span class="badge ${escal?'b-red':'b-green'}">${m.status}</span></div>
+        <div class="panel"><div class="panel-h"><b>${m.customer} · ${m.topic}</b>
+          <div style="display:flex;gap:8px;align-items:center"><a class="btn btn-dark btn-sm" href="#/crm/kunde/A">👤 Kunden-360</a><span class="badge ${escal?'b-red':'b-green'}">${m.status}</span></div></div>
           <div style="font-size:13px;color:var(--muted);margin-bottom:10px;display:flex;gap:8px;align-items:center">Kanal: ${m.channel}
             ${m.wa?'<span class="badge b-green" style="text-transform:none">🟢 24h-Antwortfenster aktiv</span>':''}</div>
           ${m.wa?`${(m.chat||[]).map(([dir,txt])=>`<div class="bubble" style="max-width:85%;${dir==='in'?'':'margin-left:auto'}">${txt}</div>`).join('')}
@@ -420,7 +438,22 @@
       <div class="kpi-grid">${health}</div>
       <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">${ceo}</div>
       <div class="panel"><div class="panel-h"><b>Standortvergleich</b></div>
-        <table class="tbl"><thead><tr><th>Standort</th><th>Leads</th><th>Trial-Rate</th><th>Abschluss</th><th>Auslastung</th><th>Offene Zahlungen</th></tr></thead><tbody>${rows}</tbody></table></div>`,'#/crm/reports');
+        <table class="tbl"><thead><tr><th>Standort</th><th>Leads</th><th>Trial-Rate</th><th>Abschluss</th><th>Auslastung</th><th>Offene Zahlungen</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="split">
+        <div class="panel"><div class="panel-h"><b>💶 P&amp;L light · Monat</b><span class="muted" style="font-size:12px">Deckungsbeitrag je Standort</span></div>
+          <table class="tbl" style="min-width:520px"><thead><tr><th>Standort</th><th>Umsatz</th><th>Personal</th><th>Miete</th><th>Sonstiges</th><th>DB</th></tr></thead><tbody>
+            ${C().pnl.map(p=>`<tr><td><b>${p.city}</b></td><td>${p.umsatz}</td><td>${p.personal}</td><td>${p.miete}</td><td>${p.sonst}</td>
+              <td><b style="color:${p.ok?'var(--green)':'#ff5470'}">${p.db}</b> <span class="muted">(${p.pct} %)</span></td></tr>`).join('')}
+          </tbody></table>
+          ${C().pnl.some(p=>!p.ok)?'<div class="notice" style="margin-top:12px">⚠️ München unter Break-even — Personalkosten prüfen (siehe Anomalie-Radar) und Miete/Umsatz-Verhältnis 37 %.</div>':''}
+        </div>
+        <div class="panel"><div class="panel-h"><b>🤖 Selbstservice-Quote</b><span class="badge ${C().selfservice.quote>=C().selfservice.ziel?'b-green':'b-amber'}">${C().selfservice.quote} % · Ziel ${C().selfservice.ziel} %</span></div>
+          <p class="muted" style="font-size:13px;margin:0 0 12px">Anteil aller Vorgänge ohne Mitarbeiter-Beteiligung — DIE Kostenspar-Kennzahl.</p>
+          ${C().selfservice.items.map(([n,v])=>`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px"><b>${n}</b><span class="muted">${v} %</span></div>
+            <div class="bar" style="height:9px"><span style="width:${v}%;background:${v>=80?'var(--green)':v>=60?'var(--amber)':'var(--red)'}"></span></div></div>`).join('')}
+          <p class="muted" style="font-size:12px;margin:0">Hebel: Zahlart-Wechsel &amp; Umbuchungen noch zu oft an der Theke → App-Flows bewerben.</p>
+        </div>
+      </div>`,'#/crm/reports');
   }
 
   /* ---------------- trainer view (slim mobile) ---------------- */
@@ -448,9 +481,29 @@
   function trainerHome(){
     const today=[["K2","16:00","Kids Kickboxen 6–9","ruhig"],["K1","17:00","Kids Kickboxen 6–9","voll"],["T1","18:30","Teens Kickboxen","normal"],["T2","20:00","MMA Beginner","normal"]];
     const drafts = (D.weeklyReports||[]).filter(r=>r.status==='entwurf').length;
+    const me = C().zeiten.find(z=>z.name.startsWith('Mehmet'));
+    const vt = C().vertretung;
     return trainerShell(`
       <h1 class="app-h">Heute</h1>
       <p class="muted" style="margin:-8px 0 14px">4 Kurse · NFT Krefeld</p>
+      <div class="app-card" style="display:flex;gap:12px;align-items:center">
+        <div class="thumb" style="font-size:22px">⏱️</div>
+        <div class="meta" style="flex:1"><b>Arbeitszeit</b><small>${me && me.in!=='–' ? 'Eingestempelt um '+me.in+' · Plan '+me.plan : 'Noch nicht eingestempelt · Plan '+((me||{}).plan||'')}</small></div>
+        <button class="btn ${me && me.in!=='–' ? 'btn-dark':'btn-primary'} btn-sm" data-action="crm-stamp">${me && me.in!=='–' ? 'Ausstempeln' : 'Einstempeln'}</button>
+      </div>
+      ${vt && vt.status!=='bestätigt' ? `<div class="app-card" style="border-color:var(--amber)">
+        <div style="display:flex;gap:12px;align-items:center"><div class="thumb" style="background:rgba(245,165,36,.15);color:var(--amber);font-size:22px">⚠️</div>
+          <div class="meta" style="flex:1"><b>Vertretung gesucht: ${vt.kurs}</b><small>${vt.when} · ${vt.loc} · Grund: ${vt.reason} · angefragt: ${vt.asked.join(', ')}</small></div></div>
+        <div class="rowbtns"><button class="btn btn-primary" data-action="crm-vertretung">Ich übernehme</button>
+          <button class="btn btn-dark" data-action="crm-toast" data-msg="Weitergeleitet an Trainer-Cluster (Demo)">Kann nicht</button></div></div>`
+      : vt ? `<div class="app-card" style="border-color:var(--green);display:flex;gap:12px;align-items:center"><div class="thumb">✅</div>
+          <div class="meta" style="flex:1"><b>Vertretung bestätigt: ${vt.kurs}</b><small>${vt.when} · Eltern wurden automatisch informiert</small></div></div>` : ''}
+      ${!D.kids[0].buddy ? `<div class="app-card" style="border-color:var(--blue)">
+        <b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">🤝 Neues Mitglied ohne Buddy: Emir A.</b>
+        <p class="muted" style="font-size:13px;margin:6px 0 10px">Wähle einen Trainingsbuddy aus dem Kurs — die Eltern sehen es sofort in ihrer App.</p>
+        <div class="choices">${['Nora B.','Sara K.','Milan T.'].map(n=>`<button type="button" class="chip" data-action="crm-buddy" data-n="${n}">${n}</button>`).join('')}</div>
+      </div>` : `<div class="app-card" style="display:flex;gap:12px;align-items:center"><div class="thumb">🤝</div>
+        <div class="meta" style="flex:1"><b>Buddy zugewiesen: Emir A. + ${D.kids[0].buddy}</b><small>Eltern-App aktualisiert ✓</small></div></div>`}
       ${drafts?`<a class="app-card accent" href="#/trainer/reports" style="display:flex;align-items:center;gap:14px">
         <div class="thumb">📝</div><div class="meta" style="flex:1"><b>Wochenreports freigeben</b><small>${drafts} KI-Entwürfe warten · Freitag ist Report-Tag</small></div><span class="muted">›</span></a>`:''}
       <a class="app-card" href="#/trainer/pruefung" style="display:flex;align-items:center;gap:14px;border-color:var(--red)">
@@ -697,6 +750,81 @@
     `,'#/crm/feedback');
   }
 
+  /* ---------------- kunden-360 (rezeption) ---------------- */
+  function kunde360(id){
+    const isA = !id || id==='A';
+    const name = isA ? 'Familie A.' : ((C().members.find(m=>m.fam===id)||{}).name || 'Kunde');
+    const kids = isA ? D.kids : [];
+    const pays = C().payments.filter(p=>p.who.includes('A.')||p.who.includes('Emir'));
+    const msgs = D.messages.slice(0,3);
+    const openTasks = C().tasks.filter(t=>t.status!=='done').slice(0,3);
+    return shell(`
+      <a class="backlink" href="#/crm/mitglieder">← Mitglieder</a>
+      <div class="panel-h" style="margin-bottom:14px;align-items:flex-end"><h1 class="crm-h" style="margin:0">📞 Kunden-360: ${name}</h1>
+        <span class="muted" style="font-size:13px">Ein Bildschirm für jede Interaktion — Anruf, WhatsApp, Theke</span></div>
+      <div class="split" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="panel"><div class="panel-h"><b>Familie & Verträge</b></div>
+          <div class="list-item"><span class="li-ico">👩</span><div class="li-main"><b>Nicole A.</b><small>Hauptkontakt · App + E-Mail</small></div></div>
+          ${kids.map(k=>`<div class="list-item"><span class="li-ico">🥋</span><div class="li-main"><b>${k.name}, ${k.age} · ${k.belt}</b><small>${k.program} · ${k.freq}${k.buddy?' · Buddy: '+k.buddy:''}</small></div><span class="badge b-green">aktiv</span></div>`).join('')}
+          <div class="list-item"><span class="li-ico">🏦</span><div class="li-main"><b>SEPA aktiv</b><small>nächste Abbuchung 01.08.</small></div></div>
+        </div>
+        <div class="panel"><div class="panel-h"><b>Zahlungen</b><a href="#/crm/zahlungen" style="color:var(--red);font-size:12px;font-weight:600">alle →</a></div>
+          ${pays.slice(0,3).map(p=>{const pb=payBadge(p.status);return `<div class="list-item"><div class="li-main"><b>${p.who}</b><small>${p.amount}</small></div><span class="badge ${pb[0]}">${pb[1]}</span></div>`;}).join('')||'<p class="muted" style="font-size:13px">Keine offenen Posten.</p>'}
+          <div class="panel-h" style="margin-top:12px"><b>Letzte Nachrichten</b></div>
+          ${msgs.map(m=>`<div class="list-item"><span class="li-ico">${m.ico}</span><div class="li-main"><b>${m.title}</b><small>${m.time}</small></div></div>`).join('')}
+        </div>
+        <div class="panel"><div class="panel-h"><b>Offene Aufgaben</b><a href="#/crm/aufgaben" style="color:var(--red);font-size:12px;font-weight:600">Board →</a></div>
+          ${openTasks.map(t=>`<div class="list-item"><span class="li-ico">${t.late?'🔴':'📋'}</span><div class="li-main"><b>${t.t}</b><small>${t.src} · ${t.sla}</small></div></div>`).join('')}
+          <div class="panel-h" style="margin-top:12px"><b>Quick-Actions</b></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-dark btn-sm" style="justify-content:flex-start" data-action="crm-toast" data-msg="Nachricht-Entwurf geöffnet (Demo)">✉️ Nachricht senden</button>
+            <button class="btn btn-dark btn-sm" style="justify-content:flex-start" data-action="crm-toast" data-msg="Zahlungslink gesendet (Demo)">💶 Zahlungslink senden</button>
+            <button class="btn btn-dark btn-sm" style="justify-content:flex-start" data-action="crm-toast" data-msg="Pausierung eingerichtet (Demo)">⏸️ Vertrag pausieren</button>
+            <button class="btn btn-dark btn-sm" style="justify-content:flex-start" data-action="crm-toast" data-msg="Bescheinigung erstellt (Demo)">📄 Bescheinigung erstellen</button>
+          </div>
+        </div>
+      </div>
+      <div class="notice">Ziel: Ø Bearbeitungszeit pro Kundenkontakt < 2 Minuten — alles auf einem Bildschirm statt auf 4 CRM-Seiten.</div>
+    `,'#/crm/mitglieder');
+  }
+
+  /* ---------------- aufgaben-board mit SLA ---------------- */
+  function aufgaben(){
+    const cols = [['offen','Offen'],['in','In Arbeit'],['done','Erledigt']];
+    const next = {offen:'in', in:'done', done:'offen'};
+    return shell(`
+      <h1 class="crm-h">Aufgaben</h1>
+      <div class="crm-sub">Alles Nicht-Automatisierbare landet hier — mit SLA, Quelle und Schichtübergabe. Klick auf eine Karte = weiterschieben.</div>
+      <div class="kanban">${cols.map(([key,label])=>{
+        const items = C().tasks.filter(t=>t.status===key);
+        return `<div class="kcol" style="flex:1 1 240px"><div class="kh"><span>${label}</span><span>${items.length}</span></div>
+          ${items.map(t=>`<button type="button" class="kcard" style="width:100%;text-align:left;${t.late&&t.status!=='done'?'border-color:rgba(228,0,43,.5)':''}" data-action="crm-task" data-id="${t.id}" data-next="${next[key]}">
+            <b>${t.t}</b><small>${t.src}</small>
+            <div style="margin-top:6px"><span class="badge ${t.status==='done'?'b-green':t.late?'b-red':'b-gray'}" style="text-transform:none;letter-spacing:0">${t.sla}</span></div>
+          </button>`).join('')||'<div class="muted" style="font-size:12px;padding:6px">—</div>'}</div>`;
+      }).join('')}</div>
+      <div class="notice">Quellen füttern das Board automatisch: Detraktor-Alarm, Mahnstufe 4, verpasste Anrufe, Chip-Verlust … SLA-Verstöße erscheinen im Morgen-Briefing.</div>
+    `,'#/crm/aufgaben');
+  }
+
+  /* ---------------- arbeitszeiterfassung (P0 Compliance) ---------------- */
+  function zeiten(){
+    return shell(`
+      <h1 class="crm-h">Arbeitszeiten</h1>
+      <div class="crm-sub">Gesetzeskonforme Zeiterfassung (BAG 1 ABR 22/21) — aus dem Kursplan vorbefüllt, Mitarbeiter stempeln nur.</div>
+      <div class="panel"><div class="panel-h"><b>Heute · NFT ${state.standort==='Alle Standorte'?'Krefeld':state.standort}</b><span class="badge b-green">● live</span></div>
+        <table class="tbl"><thead><tr><th>Mitarbeiter</th><th>Plan (aus Kursplan)</th><th>Kommen</th><th>Gehen</th><th>Woche</th><th></th></tr></thead><tbody>
+          ${C().zeiten.map((z,i)=>`<tr><td><b>${z.name}</b></td><td>${z.plan}</td>
+            <td>${z.in!=='–'?`<span class="badge b-green">${z.in}</span>`:'<span class="muted">–</span>'}</td>
+            <td>${z.out!=='–'?`<span class="badge b-gray">${z.out}</span>`:'<span class="muted">–</span>'}</td>
+            <td>${z.week}</td>
+            <td><button class="btn btn-dark btn-sm" data-action="crm-stamp-row" data-i="${i}">${z.in==='–'?'Einstempeln':z.out==='–'?'Ausstempeln':'✓'}</button></td></tr>`).join('')}
+        </tbody></table>
+      </div>
+      <div class="notice">⚖️ <b>Pflicht-Baustein für V1:</b> Arbeitszeiterfassung ist in Deutschland gesetzlich verpflichtend. Hier: Stempel-Demo; real: Chip/App-Stempel + Export für Lohnbuchhaltung + Überstunden-Warnung.</div>
+    `,'#/crm/zeiten');
+  }
+
   /* ---------------- decisions inbox (GF) ---------------- */
   function entscheidungen(){
     const items = C().decisions;
@@ -868,7 +996,7 @@
     retention:'Mitglieder', upsell:'Mitglieder', kurse:'Kurse', auslastung:'Auslastung', checkins:'Check-ins',
     kiosk:'Check-ins', kommunikation:'Kommunikation', feedback:'Kommunikation', vertraege:'Vertr\u00e4ge', team:'Vertr\u00e4ge',
     zahlungen:'Zahlungen', automationen:'Automationen', reports:'Reports', rollen:'Rollen/Rechte',
-    entscheidungen:'Reports', launch:'Reports' };
+    entscheidungen:'Reports', launch:'Reports', kunde:'Mitglieder', aufgaben:'Kommunikation', zeiten:'Verträge' };
   function noAccess(mod){
     return shell(`
       <div class="panel center" style="max-width:520px;margin:40px auto;padding:40px">
@@ -903,6 +1031,9 @@
     if(r==='feedback') return feedbackDash();
     if(r==='entscheidungen') return entscheidungen();
     if(r==='launch') return launchCockpit();
+    if(r==='kunde') return kunde360(seg[2]);
+    if(r==='aufgaben') return aufgaben();
+    if(r==='zeiten') return zeiten();
     if(r==='automationen') return automationen();
     if(r==='rollen') return rollen();
     if(r==='suche') return suche();
@@ -961,6 +1092,12 @@
     if(a==='crm-up-send'){ const u=C().upsell.find(x=>x.id===el.dataset.id); if(u) u.status='gesendet'; (window.__toast||alert)('Angebot gesendet ✓ — liegt jetzt als Karte in der Kunden-App'); window.__render && window.__render(); return; }
     if(a==='crm-up-later'){ const u=C().upsell.find(x=>x.id===el.dataset.id); if(u) u.status='zurückgestellt'; (window.__toast||alert)('Zurückgestellt'); window.__render && window.__render(); return; }
     if(a==='crm-call-done'){ const c=C().calls.find(x=>x.id===el.dataset.id); if(c) c.status='erledigt'; (window.__toast||alert)('Rückruf erledigt ✓'); window.__render && window.__render(); return; }
+    if(a==='crm-rebook'){ const l=C().leads.find(x=>x.noshow); if(l){ l.noshow=false; l.action='Neuer Termin: '+el.dataset.slot; } (window.__toast||alert)('Neu gebucht ✓ — '+el.dataset.slot+' bestätigt, Reminder-Journey neu gestartet'); window.__render && window.__render(); return; }
+    if(a==='crm-buddy'){ if(D.kids&&D.kids[0]) D.kids[0].buddy=el.dataset.n; (window.__toast||alert)('Buddy zugewiesen ✓ — Eltern-App aktualisiert'); window.__render && window.__render(); return; }
+    if(a==='crm-vertretung'){ if(C().vertretung){ C().vertretung.status='bestätigt'; } (window.__toast||alert)('Vertretung übernommen ✓ — Eltern werden automatisch informiert'); window.__render && window.__render(); return; }
+    if(a==='crm-stamp'){ const z=C().zeiten.find(x=>x.name.startsWith('Mehmet')); if(z){ if(z.in==='–'){ z.in='15:28'; (window.__toast||alert)('Eingestempelt ✓ 15:28'); } else { z.out='20:32'; (window.__toast||alert)('Ausgestempelt ✓ 20:32'); } } window.__render && window.__render(); return; }
+    if(a==='crm-stamp-row'){ const z=C().zeiten[+el.dataset.i]; if(z){ if(z.in==='–'){ z.in='jetzt'; } else if(z.out==='–'){ z.out='jetzt'; } (window.__toast||alert)('Stempel gesetzt ✓'); } window.__render && window.__render(); return; }
+    if(a==='crm-task'){ const t=C().tasks.find(x=>x.id===el.dataset.id); if(t){ t.status=el.dataset.next; if(t.status==='done'){ t.sla='erledigt gerade eben'; t.late=false; } } window.__render && window.__render(); return; }
     if(a==='crm-decide'){ const d=C().decisions.find(x=>x.id===el.dataset.id); if(d){ d.status=el.dataset.v; (window.__toast||alert)((el.dataset.v==='freigegeben'?'✓ Freigegeben':'Abgelehnt')+' — im Audit-Trail protokolliert'); } window.__render && window.__render(); return; }
     if(a==='crm-kiosk-smiley'){ state.kioskSmiley=el.dataset.s; if(C().feedback) C().feedback.pulse.n++; window.__render && window.__render(); setTimeout(()=>{ state.kioskSmiley=null; window.__render && window.__render(); }, 2200); return; }
     if(a==='crm-fb-send'){ const d=C().feedback.detractors[+el.dataset.i]; if(d) d.status='beantwortet'; (window.__toast||alert)('Antwort gesendet ✓ — Fall im SLA erledigt'); window.__render && window.__render(); return; }

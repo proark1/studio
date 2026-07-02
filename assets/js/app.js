@@ -51,6 +51,9 @@
   let faqChat = [];
   let voucherCode = null;
   let campBooked = false;
+  let siteBotOpen = false;
+  let siteBotChat = [];
+  const setup = { push:true, foto:true, kalender:false, partner:false };
   let finder = { who:null, age:null, goal:null, loc:null, shy:false, searched:false };
   let wiz = { step:0, who:null, age:null, loc:null, goal:null, slot:null, name:"", email:"" };
   let consent = { fotoEmir:true, fotoSara:false, marketing:true, whatsapp:false };
@@ -119,7 +122,17 @@
       <main id="main">${content}</main>
       ${siteFooter()}
     </div>
-    <button class="launch-app" data-action="goapp"><span class="slash sm"><i></i><i></i></span> Zur Mitglieder-App</button>`;
+    <button class="launch-app" data-action="goapp"><span class="slash sm"><i></i><i></i></span> Zur Mitglieder-App</button>
+    <button class="sitebot-btn" data-action="sitebot-toggle" aria-expanded="${siteBotOpen}" aria-label="Fragen? Chat öffnen">💬 Fragen?</button>
+    ${siteBotOpen?`<div class="sitebot-panel" role="dialog" aria-label="NFT-Assistent">
+      <div class="sb-head"><b>NFT-Assistent</b><button class="icon-btn" data-action="sitebot-toggle" aria-label="Schließen" style="width:30px;height:30px">${ICON('x')}</button></div>
+      <div class="sb-body">
+        <div class="bubble">Hi! 👋 Ich beantworte deine Fragen sofort — und wenn ich nicht weiterweiß, übernimmt ein Mensch (Antwort in unter 1 Stunde).</div>
+        ${siteBotChat.map(i=>`<div class="bubble me">${D.siteBot[i].q}</div><div class="bubble">${D.siteBot[i].a}</div>
+          ${D.siteBot[i].cta?`<a class="btn btn-primary btn-sm" href="#/probetraining" style="margin:4px 0 8px">Kostenloses Probetraining buchen</a>`:''}`).join('')}
+        <div class="choices" style="margin-top:8px">${D.siteBot.map((f,i)=>siteBotChat.includes(i)?'':`<button type="button" class="chip" data-action="sitebot-ask" data-i="${i}" style="font-size:13px;padding:8px 13px">${f.q}</button>`).join('')}</div>
+      </div>
+    </div>`:''}`;
   }
 
   function siteFooter(){
@@ -403,7 +416,9 @@
           <b>Was mitbringen:</b>
           <ul style="margin:8px 0 0;padding-left:18px;color:var(--text-dim)"><li>Bequeme Sportkleidung</li><li>Wasserflasche</li><li>10 Minuten früher da sein</li><li>Gute Laune 💪</li></ul>
         </div>
-        <div style="display:flex;gap:10px;margin-top:20px">
+        <div class="notice" style="text-align:left;margin-top:16px">✓ Bestätigung per SMS &amp; E-Mail gesendet · Bei Fragen antworten wir in unter 1 Stunde.</div>
+        <a class="btn btn-dark btn-block" href="#/erstes-training" style="margin-top:12px">▶ So läuft dein erstes Training</a>
+        <div style="display:flex;gap:10px;margin-top:10px">
           <button class="btn btn-dark btn-block" data-action="toast" data-msg="Zum Kalender hinzugefügt (Demo)">Zum Kalender</button>
           <a class="btn btn-primary btn-block" href="#/app">App öffnen</a>
         </div>
@@ -554,9 +569,20 @@
             ${[1,2,3,4].map(v=>`<button type="button" class="icon-btn" data-action="app-pulse" data-v="${v}" aria-label="Bewertung ${v} von 4" style="flex:1;height:56px;font-size:28px;border-radius:14px">${['','😞','😐','🙂','🤩'][v]}</button>`).join('')}
           </div>
           <p class="muted" style="font-size:12px;margin:10px 0 0">Ein Tap genügt · max. 1× pro Woche · anonym auswertbar</p></div>`;
+    const tr = D.transition;
+    const transCard = (tr && !tr.confirmed) ? `<div class="app-card" style="border-color:var(--blue)">
+      <div style="display:flex;gap:12px;align-items:center"><div class="thumb" style="background:rgba(74,144,255,.15);color:var(--blue);font-size:24px">🎓</div>
+        <div class="meta" style="flex:1"><b>${tr.kid} wechselt ${tr.when} in die ${tr.to}</b><small>Neue Trainerin: ${tr.trainer} · Kennenlern-Training: ${tr.meet}</small></div></div>
+      <div class="rowbtns"><button class="btn btn-primary" data-action="trans-confirm">Platz im Kennenlern-Training bestätigen</button>
+        <a class="btn btn-dark" href="#/app/nachrichten/1">Fragen?</a></div></div>` : '';
+    const careCard = sickset['Emir'] ? `<div class="app-card" style="border-color:var(--green)">
+      <div style="display:flex;gap:12px;align-items:center"><div class="thumb" style="background:rgba(39,194,102,.15);font-size:24px">💛</div>
+        <div class="meta" style="flex:1"><b>Gute Besserung von Trainer ${D.kids[0].trainer} &amp; dem ganzen Team!</b><small>Kein Stress — wenn Emir wieder fit ist, ist Mittwoch 16:00 ein sanfter Wiedereinstieg (ruhige Gruppe).</small></div></div>
+      <div class="rowbtns"><button class="btn btn-dark" data-action="toast" data-msg="Comeback-Slot vorgemerkt 💪">Comeback-Slot vormerken</button></div></div>` : '';
     return appShell(`
       <h1 class="app-h">Heute</h1>
       ${pulseCard}
+      ${careCard}${transCard}
       ${ferienBanner}${msCard}${examCard}${offerCard}${wrCard}
       ${sessions}
       ${campCard}
@@ -650,6 +676,7 @@
       <div class="app-card">
         <b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Nächste Einheit</b>
         <div class="list-item"><span class="li-ico">📅</span><div class="li-main"><b>${k.next.day}, ${k.next.time}</b><small>NFT ${D.parent.location} · ${OCC[k.next.occ].l}</small></div>${occPill(k.next.occ)}</div>
+        ${k.buddy?`<div class="list-item"><span class="li-ico">🤝</span><div class="li-main"><b>Trainingsbuddy: ${k.buddy}</b><small>trainiert im selben Kurs — hilft beim Ankommen</small></div></div>`:''}
       </div>
       <div class="app-card">
         <b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Anwesenheit</b>
@@ -778,6 +805,11 @@
           <a class="btn btn-dark" href="#/kuendigen">Kündigen</a>
         </div>
       </div>
+      <div class="app-card" style="border-color:#f5c518">
+        <div style="display:flex;gap:12px;align-items:center"><div class="thumb" style="background:rgba(245,197,24,.15);color:#f5c518;font-size:24px">🛡️</div>
+          <div class="meta" style="flex:1"><b>Mitglied seit ${D.loyalty.since} — danke für eure Treue!</b>
+          <small>Ab ${D.loyalty.flexAb} ist dein Vertrag automatisch monatlich kündbar (§ 309 BGB). Als Dankeschön wartet dann: ${D.loyalty.offer}.</small></div></div>
+      </div>
     `,'#/app/konto');
   }
 
@@ -804,6 +836,21 @@
       <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Ferienmodus</b>
         <div class="consent" style="border-bottom:0"><div><b>Wir sind im Urlaub</b><br><small>Kurse abmelden, Streak einfrieren, Pushes pausieren</small></div>
           <button class="switch ${ferienOn?'on':''}" data-action="app-ferien" role="switch" aria-checked="${ferienOn}" aria-label="Ferienmodus"><span class="track"></span></button></div>
+      </div>
+      <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Dein Team</b>
+        <div class="list-item"><span class="li-ico">${D.team.trainer.ico}</span><div class="li-main"><b>${D.team.trainer.name}</b><small>${D.team.trainer.role}</small></div>
+          <a class="btn btn-dark btn-sm" href="#/app/nachrichten/1">Nachricht</a></div>
+        <div class="list-item"><span class="li-ico">${D.team.leitung.ico}</span><div class="li-main"><b>${D.team.leitung.name}</b><small>${D.team.leitung.role} · NFT ${D.parent.location}</small></div>
+          <a class="btn btn-dark btn-sm" href="#/app/nachrichten/0">Nachricht</a></div>
+      </div>
+      <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Konto-Setup</b>
+        <p class="muted" style="font-size:13px;margin:4px 0 6px">${Object.values(setup).filter(Boolean).length} von 4 erledigt — so holt ihr alles raus.</p>
+        <div class="list-item"><span class="li-ico">${setup.push?'✅':'⬜'}</span><div class="li-main"><b>Push-Benachrichtigungen</b><small>Check-in/out &amp; Wochenreport</small></div></div>
+        <div class="list-item"><span class="li-ico">${setup.foto?'✅':'⬜'}</span><div class="li-main"><b>Foto-Einwilligungen entschieden</b><small>je Kind, jederzeit änderbar</small></div></div>
+        <div class="list-item"><span class="li-ico">${setup.kalender?'✅':'⬜'}</span><div class="li-main"><b>Familienkalender verbinden</b><small>Trainings automatisch im Kalender</small></div>
+          ${setup.kalender?'':'<button class="btn btn-dark btn-sm" data-action="setup-done" data-k="kalender">Verbinden</button>'}</div>
+        <div class="list-item"><span class="li-ico">${setup.partner?'✅':'⬜'}</span><div class="li-main"><b>Zweiten Elternteil einladen</b><small>beide informiert = entspannter Alltag</small></div>
+          ${setup.partner?'':'<button class="btn btn-primary btn-sm" data-action="setup-done" data-k="partner">Einladen</button>'}</div>
       </div>
       <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Dokumente auf Knopfdruck</b>
         <p class="muted" style="font-size:13px;margin:4px 0 6px">Sofort als PDF — z. B. fürs Krankenkassen-Bonusprogramm.</p>
@@ -997,6 +1044,34 @@
       </div>`,'#/app/nachrichten');
   }
 
+  /* ---------- "Dein erstes Training" (Show-Rate-Booster) ---------- */
+  function erstesTraining(){
+    const steps = [
+      ["🚗","10 Min. früher da sein","Parkplätze direkt vorm Studio (Kölner Str. 44). Einfach reinkommen — die Rezeption erwartet euch."],
+      ["👋","Begrüßung & Rundgang","Laura zeigt euch Umkleide & Matte. Dein Kind wird dem Trainer persönlich vorgestellt — er kennt den Namen schon."],
+      ["🥋","60 Minuten mittrainieren","Aufwärmspiel, erste Techniken, Abschlussspiel. Du kannst beim ersten Mal gern zuschauen."],
+      ["🍎","Kurzes Feedback","Der Trainer sagt dir ehrlich, wie es lief und welcher Kurs passt. Kein Verkaufsdruck — versprochen."],
+    ];
+    return siteShell(`<div class="section" style="padding-top:36px"><div class="container" style="max-width:720px">
+      <div class="kicker"><span class="slash sm"><i></i><i></i></span> Gut vorbereitet</div>
+      <h2>So läuft dein erstes Training</h2>
+      <p class="muted" style="margin-top:6px">90 Sekunden lesen — dann wisst ihr alles. Kein Grund, nervös zu sein. 💪</p>
+      <div class="card" style="margin-top:18px"><div class="belt-path">
+        ${steps.map(([i,t,d])=>`<div class="belt-step done"><div class="bdot" style="background:var(--red);border-color:var(--red)"></div>
+          <div><b>${i} ${t}</b><small>${d}</small></div></div>`).join('')}
+      </div></div>
+      <div class="card" style="display:flex;gap:14px;align-items:center">
+        <div class="avatar" style="width:54px;height:54px;font-size:24px">M</div>
+        <div style="flex:1"><b>Trainer Mehmet</b><br><small class="muted">Head-Coach Kids · seit 12 Jahren auf der Matte · „Bei mir traut sich jedes Kind was zu."</small></div>
+      </div>
+      <div class="card"><b>✔️ Checkliste</b>
+        <ul style="margin:10px 0 0;padding-left:20px;color:var(--text-dim)">
+          <li>Bequeme Sportkleidung (kein Gi nötig)</li><li>Trinkflasche</li><li>Barfuß oder Stoppersocken auf der Matte</li><li>Gute Laune — den Rest machen wir</li></ul>
+      </div>
+      <a class="btn btn-primary btn-block" href="#/probetraining">Noch kein Termin? Jetzt buchen</a>
+    </div></div>`,'#/probetraining');
+  }
+
   /* ---------- Mitbestimmen: Feature-Voting + Getan-Feed ---------- */
   function appMitbestimmen(){
     const rm = D.feedback.roadmap;
@@ -1162,6 +1237,7 @@
       else if(r==='login') html=loginPage();
       else if(r==='camp') html=campPage();
       else if(r==='gutscheine') html=gutscheinePage();
+      else if(r==='erstes-training') html=erstesTraining();
       else html=notFoundSite();
     }
     app.innerHTML=html;
@@ -1220,6 +1296,10 @@
     if(a==='faq-ask'){ faqChat.push(+el.dataset.i); render(); return; }
     if(a==='voucher-buy'){ voucherCode='NFT-GIFT-'+['XK42','MB77','RZ19'][cart.length%3]; toast('Gutschein erstellt 🎁'); render(); return; }
     if(a==='camp-book'){ campBooked=true; toast('Platz reserviert — Frühbucher-Preis gesichert ⛺'); render(); return; }
+    if(a==='sitebot-toggle'){ siteBotOpen=!siteBotOpen; render(); return; }
+    if(a==='sitebot-ask'){ siteBotChat.push(+el.dataset.i); render(); return; }
+    if(a==='setup-done'){ setup[el.dataset.k]=true; toast(el.dataset.k==='partner'?'Einladung an mehmet.a@mail.de gesendet ✓':'Kalender verbunden ✓'); render(); return; }
+    if(a==='trans-confirm'){ if(D.transition) D.transition.confirmed=true; toast('Platz bestätigt — Lena freut sich auf Emir! 🎓'); render(); return; }
   });
 
   // live-update select for finder / wizard inputs
@@ -1255,6 +1335,8 @@
     { h:'#/crm/leads/L1', t:'KI mit Freigabe', d:'Die KI schreibt Antwortentwürfe, der Mitarbeiter bestätigt nur — Human-in-the-Loop.' },
     { h:'#/crm/retention', t:'Retention-Inbox', d:'Kündigungsrisiken erkennen und handeln, bevor gekündigt wird.' },
     { h:'#/crm/feedback', t:'NFT Puls', d:'Stimmung je Kurs & Uhrzeit, Detraktor-Alarm mit 24h-SLA, Feature-Voting live.' },
+    { h:'#/crm/kunde/A', t:'Kunden-360', d:'Anruf kommt rein — ein Bildschirm zeigt alles: Kinder, Vertrag, Zahlung, Nachrichten, Aufgaben.' },
+    { h:'#/crm/zeiten', t:'Zeiten & Kosten', d:'Gesetzeskonforme Zeiterfassung, aus dem Kursplan vorbefüllt — und P&L je Standort in den Reports.' },
     { h:'#/crm/launch', t:'Launch-Cockpit', d:'Standort Nr. 11 eröffnet mit 63 Gründungsmitgliedern statt bei null — so skaliert 10 → 50.' },
   ];
   let tourStep = -1;
