@@ -38,6 +38,63 @@
   function ICON(name){ const p=ICON_PATHS[name]||''; return `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`; }
   window.ICON = ICON;
 
+  /* ===========================================================
+     I18N — Deutsch / Türkçe / العربية (Demo: Kernbereiche)
+     =========================================================== */
+  const T = {
+    de:{ name:"Deutsch",
+      nav_home:"Home", nav_loc:"Standorte", nav_kids:"Kinder", nav_adults:"Erwachsene", nav_finder:"Kursfinder", nav_faq:"FAQ",
+      login:"Login", cta_trial:"Probetraining buchen",
+      hero_title:'Kampfsport<br>für die ganze<br><span style="color:var(--red)">Familie</span>',
+      hero_lead:"Finde den passenden Kurs, sieh ruhige Trainingszeiten und buche dein kostenloses Probetraining direkt online — für Kinder ab 3, Jugendliche und Erwachsene.",
+      cta_free:"Kostenloses Probetraining", cta_plan:"Kursplan ansehen",
+      f_training:"Training", f_service:"Service", f_legal:"Rechtliches",
+      to_app:"Zur Mitglieder-App", bot_btn:"Fragen?",
+      tab_home:"Home", tab_courses:"Kurse", tab_occ:"Auslastung", tab_msgs:"Nachrichten", tab_account:"Konto",
+      today:"Heute", welcome:"Willkommen zurück", lang_label:"Sprache",
+      partialNote:"" },
+    tr:{ name:"Türkçe",
+      nav_home:"Ana Sayfa", nav_loc:"Şubeler", nav_kids:"Çocuklar", nav_adults:"Yetişkinler", nav_finder:"Kurs Bul", nav_faq:"SSS",
+      login:"Giriş", cta_trial:"Deneme dersi ayırt",
+      hero_title:'Tüm aile için<br><span style="color:var(--red)">dövüş sporu</span>',
+      hero_lead:"Uygun kursu bul, sakin antrenman saatlerini gör ve ücretsiz deneme dersini hemen online ayırt — 3 yaşından itibaren çocuklar, gençler ve yetişkinler için.",
+      cta_free:"Ücretsiz deneme dersi", cta_plan:"Ders programı",
+      f_training:"Antrenman", f_service:"Hizmet", f_legal:"Yasal",
+      to_app:"Üye Uygulaması", bot_btn:"Sorular?",
+      tab_home:"Ana Sayfa", tab_courses:"Dersler", tab_occ:"Doluluk", tab_msgs:"Mesajlar", tab_account:"Hesap",
+      today:"Bugün", welcome:"Tekrar hoş geldin", lang_label:"Dil",
+      partialNote:"🌐 Demo: Ana alanlar Türkçe — tam çeviri V1 ile geliyor. Sorularınız için WhatsApp üzerinden Türkçe destek veriyoruz." },
+    ar:{ name:"العربية",
+      nav_home:"الرئيسية", nav_loc:"الفروع", nav_kids:"الأطفال", nav_adults:"البالغون", nav_finder:"ابحث عن كورس", nav_faq:"الأسئلة",
+      login:"تسجيل الدخول", cta_trial:"احجز حصة تجريبية",
+      hero_title:'رياضة قتالية<br><span style="color:var(--red)">لكل العائلة</span>',
+      hero_lead:"اعثر على الكورس المناسب، شاهد الأوقات الهادئة واحجز حصة تجريبية مجانية أونلاين — للأطفال من 3 سنوات وللشباب والبالغين.",
+      cta_free:"حصة تجريبية مجانية", cta_plan:"جدول الحصص",
+      f_training:"التدريب", f_service:"الخدمات", f_legal:"قانوني",
+      to_app:"تطبيق الأعضاء", bot_btn:"أسئلة؟",
+      tab_home:"الرئيسية", tab_courses:"الحصص", tab_occ:"الازدحام", tab_msgs:"الرسائل", tab_account:"حسابي",
+      today:"اليوم", welcome:"أهلاً بعودتك", lang_label:"اللغة",
+      partialNote:"🌐 نسخة تجريبية: الأقسام الأساسية بالعربية — الترجمة الكاملة في الإصدار الأول. ندعمكم بالعربية عبر واتساب." },
+  };
+  let lang = 'de';
+  try{ lang = localStorage.getItem('nftLang') || 'de'; }catch(e){}
+  if(!T[lang]) lang = 'de';
+  const t = k => (T[lang] && T[lang][k] !== undefined ? T[lang][k] : T.de[k]) || k;
+  function applyLangAttrs(){
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang==='ar' ? 'rtl' : 'ltr';
+  }
+  function setLang(l){
+    if(!T[l]) return;
+    lang = l;
+    try{ localStorage.setItem('nftLang', l); }catch(e){}
+    applyLangAttrs();
+    render();
+  }
+  const langSelect = cls => `<select class="lang-select ${cls||''}" data-action="lang" aria-label="${t('lang_label')}">
+    ${Object.keys(T).map(k=>`<option value="${k}"${k===lang?' selected':''}>${T[k].name}</option>`).join('')}</select>`;
+  const langNote = () => lang!=='de' ? `<div class="lang-note">${t('partialNote')}</div>` : '';
+
   /* ---------- shared state ---------- */
   let cart = [];
   let menuOpen = false;
@@ -104,15 +161,17 @@
       <div class="nav"><div class="container nav-inner">
         ${logo}
         <div class="nav-links">
-          ${link('#/','Home')} ${link('#/standorte','Standorte')} ${link('#/kinder','Kinder')}
-          ${link('#/erwachsene','Erwachsene')} ${link('#/kursfinder','Kursfinder')} ${link('#/faq','FAQ')}
+          ${link('#/',t('nav_home'))} ${link('#/standorte',t('nav_loc'))} ${link('#/kinder',t('nav_kids'))}
+          ${link('#/erwachsene',t('nav_adults'))} ${link('#/kursfinder',t('nav_finder'))} ${link('#/faq',t('nav_faq'))}
         </div>
         <div class="nav-cta">
-          <a class="btn btn-dark btn-sm" href="#/login">Login</a>
-          <a class="btn btn-primary btn-sm" href="#/probetraining">Probetraining buchen</a>
+          ${langSelect('')}
+          <a class="btn btn-dark btn-sm" href="#/login">${t('login')}</a>
+          <a class="btn btn-primary btn-sm" href="#/probetraining">${t('cta_trial')}</a>
         </div>
         <button class="hamburger" data-action="menu" aria-expanded="${menuOpen}" aria-label="Menü">☰</button>
       </div></div>
+      ${langNote()}
       ${menuOpen?`<div class="mnav" role="dialog" aria-label="Menü">
         <a href="#/">Home</a><a href="#/standorte">Standorte</a><a href="#/kinder">Kinder</a>
         <a href="#/erwachsene">Erwachsene</a><a href="#/kursfinder">Kursfinder</a><a href="#/events">Events</a>
@@ -123,8 +182,8 @@
       <main id="main">${content}</main>
       ${siteFooter()}
     </div>
-    <button class="launch-app" data-action="goapp"><span class="slash sm"><i></i><i></i></span> Zur Mitglieder-App</button>
-    <button class="sitebot-btn" data-action="sitebot-toggle" aria-expanded="${siteBotOpen}" aria-label="Fragen? Chat öffnen">💬 Fragen?</button>
+    <button class="launch-app" data-action="goapp"><span class="slash sm"><i></i><i></i></span> ${t('to_app')}</button>
+    <button class="sitebot-btn" data-action="sitebot-toggle" aria-expanded="${siteBotOpen}" aria-label="Chat">💬 ${t('bot_btn')}</button>
     ${siteBotOpen?`<div class="sitebot-panel" role="dialog" aria-label="NFT-Assistent">
       <div class="sb-head"><b>NFT-Assistent</b><button class="icon-btn" data-action="sitebot-toggle" aria-label="Schließen" style="width:30px;height:30px">${ICON('x')}</button></div>
       <div class="sb-body">
@@ -143,11 +202,11 @@
           <p class="muted" style="margin-top:14px;max-width:280px">Kampfsport für Kinder, Jugendliche & Erwachsene. 10 Standorte in NRW & München.</p>
           <div class="slash" style="margin-top:8px"><i></i><i></i></div>
         </div>
-        <div><h4>Training</h4>
+        <div><h4>${t('f_training')}</h4>
           <a href="#/kinder">Kinder</a><a href="#/erwachsene">Erwachsene</a><a href="#/kursfinder">Kursfinder</a><a href="#/standorte">Standorte</a><a href="#/events">Events & Camps</a><a href="#/camp">Feriencamp</a><a href="#/shop">Pro-Shop</a><a href="#/gutscheine">Gutscheine</a></div>
-        <div><h4>Service</h4>
+        <div><h4>${t('f_service')}</h4>
           <a href="#/probetraining">Probetraining</a><a href="#/faq">FAQ</a><a href="#/empfehlen">Freund werben</a><a href="#/app">Mitglieder-Login</a><a href="#/crm">Team-Login (CRM)</a><a href="#/admin">Bild-Studio (Admin)</a><a href="#/kuendigen">Vertrag kündigen</a></div>
-        <div><h4>Rechtliches</h4>
+        <div><h4>${t('f_legal')}</h4>
           <a href="#/kuendigen">Kündigung</a><a href="#/impressum">Impressum</a><a href="#/datenschutz">Datenschutz</a><a href="#/agb">AGB</a></div>
       </div>
       <p class="muted" style="margin-top:34px;font-size:13px">© 2026 NFT Gym — Prototyp mit Demo-Daten. Kein echter Vertragsabschluss.</p>
@@ -170,11 +229,11 @@
       <div class="container">
         <div class="hero"><img class="hero-photo" src="${D.heroImg}" alt="" onerror="this.remove()"><div class="hero-body">
           <div class="eyebrow"><span class="slash sm"><i></i><i></i></span> National Fighting Team · Fairtex</div>
-          <h1>Kampfsport<br>für die ganze<br><span style="color:var(--red)">Familie</span></h1>
-          <p class="lead">Finde den passenden Kurs, sieh ruhige Trainingszeiten und buche dein kostenloses Probetraining direkt online — für Kinder ab 3, Jugendliche und Erwachsene.</p>
+          <h1>${t('hero_title')}</h1>
+          <p class="lead">${t('hero_lead')}</p>
           <div class="hero-cta">
-            <a class="btn btn-primary" href="#/probetraining">Kostenloses Probetraining</a>
-            <a class="btn btn-ghost" href="#/kursfinder">Kursplan ansehen</a>
+            <a class="btn btn-primary" href="#/probetraining">${t('cta_free')}</a>
+            <a class="btn btn-ghost" href="#/kursfinder">${t('cta_plan')}</a>
           </div>
         </div></div>
       </div>
@@ -494,23 +553,23 @@
      CUSTOMER APP
      =========================================================== */
   function appShell(content, tab){
-    const t=(h,ic,l)=>`<a href="${h}" class="${tab===h?'active':''}"${tab===h?' aria-current="page"':''}><span class="ti">${ICON(ic)}</span>${l}</a>`;
+    const tb=(h,ic,l)=>`<a href="${h}" class="${tab===h?'active':''}"${tab===h?' aria-current="page"':''}><span class="ti">${ICON(ic)}</span>${l}</a>`;
     const unread = unreadCount();
     const cartN = cart.length;
     return `<div class="app-wrap">
       <div class="app-top">
         <div class="who"><div class="avatar">${D.parent.first[0]}</div>
-          <div><div class="hi">Willkommen zurück</div><div class="nm">${D.parent.name}</div></div></div>
+          <div><div class="hi">${t('welcome')}</div><div class="nm">${D.parent.name}</div></div></div>
         <div style="display:flex;gap:8px">
           <a class="icon-btn" href="#/app/warenkorb" aria-label="Warenkorb${cartN?` (${cartN})`:''}">${ICON('cart')}${cartN?`<span class="cart-count">${cartN}</span>`:''}</a>
           <a class="icon-btn" href="#/app/nachrichten" aria-label="Nachrichten${unread?` (${unread} ungelesen)`:''}">${ICON('bell')}${unread?`<span class="badge-dot">${unread}</span>`:''}</a>
           <a class="icon-btn" href="#/" aria-label="Zur Website" title="Zur Website">${ICON('x')}</a>
         </div>
       </div>
-      <main class="app-body">${content}</main>
+      <main class="app-body">${langNote()}${content}</main>
       <nav class="tabbar" aria-label="Hauptnavigation">
-        ${t('#/app','home','Home')} ${t('#/app/kurse','calendar','Kurse')} ${t('#/app/auslastung','chart','Auslastung')}
-        ${t('#/app/nachrichten','message','Nachrichten')} ${t('#/app/konto','user','Konto')}
+        ${tb('#/app','home',t('tab_home'))} ${tb('#/app/kurse','calendar',t('tab_courses'))} ${tb('#/app/auslastung','chart',t('tab_occ'))}
+        ${tb('#/app/nachrichten','message',t('tab_msgs'))} ${tb('#/app/konto','user',t('tab_account'))}
       </nav>
     </div>`;
   }
@@ -576,14 +635,20 @@
         <div class="meta" style="flex:1"><b>${tr.kid} wechselt ${tr.when} in die ${tr.to}</b><small>Neue Trainerin: ${tr.trainer} · Kennenlern-Training: ${tr.meet}</small></div></div>
       <div class="rowbtns"><button class="btn btn-primary" data-action="trans-confirm">Platz im Kennenlern-Training bestätigen</button>
         <a class="btn btn-dark" href="#/app/nachrichten/1">Fragen?</a></div></div>` : '';
+    const bk = D.kids.find(k=>k.bday);
+    const bdayCard = bk ? `<div class="app-card" style="border-color:#f5c518">
+      <div style="display:flex;gap:12px;align-items:center"><div class="thumb" style="background:rgba(245,197,24,.15);font-size:24px">🎂</div>
+        <div class="meta" style="flex:1"><b>${bk.name} hat ${bk.bday} Geburtstag!</b><small>Im Training gratulieren wir natürlich — und der Geburtstag lässt sich bei uns feiern 🎉</small></div></div>
+      <div class="rowbtns"><a class="btn btn-primary" href="#/events">Kampfsport-Party anfragen</a>
+        <button class="btn btn-dark" data-action="toast" data-msg="Trainer Lena weiß Bescheid 🎂">Nur gratulieren</button></div></div>` : '';
     const careCard = sickset['Emir'] ? `<div class="app-card" style="border-color:var(--green)">
       <div style="display:flex;gap:12px;align-items:center"><div class="thumb" style="background:rgba(39,194,102,.15);font-size:24px">💛</div>
         <div class="meta" style="flex:1"><b>Gute Besserung von Trainer ${D.kids[0].trainer} &amp; dem ganzen Team!</b><small>Kein Stress — wenn Emir wieder fit ist, ist Mittwoch 16:00 ein sanfter Wiedereinstieg (ruhige Gruppe).</small></div></div>
       <div class="rowbtns"><button class="btn btn-dark" data-action="toast" data-msg="Comeback-Slot vorgemerkt 💪">Comeback-Slot vormerken</button></div></div>` : '';
     return appShell(`
-      <h1 class="app-h">Heute</h1>
+      <h1 class="app-h">${t('today')}</h1>
       ${pulseCard}
-      ${careCard}${transCard}
+      ${bdayCard}${careCard}${transCard}
       ${ferienBanner}${msCard}${examCard}${offerCard}${wrCard}
       ${sessions}
       ${campCard}
@@ -852,6 +917,20 @@
           ${setup.kalender?'':'<button class="btn btn-dark btn-sm" data-action="setup-done" data-k="kalender">Verbinden</button>'}</div>
         <div class="list-item"><span class="li-ico">${setup.partner?'✅':'⬜'}</span><div class="li-main"><b>Zweiten Elternteil einladen</b><small>beide informiert = entspannter Alltag</small></div>
           ${setup.partner?'':'<button class="btn btn-primary btn-sm" data-action="setup-done" data-k="partner">Einladen</button>'}</div>
+      </div>
+      <div class="app-card" style="border-color:var(--green)">
+        <b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">🎁 Freunde werben</b>
+        <p class="muted" style="font-size:13px;margin:4px 0 10px">${D.referral.status}</p>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div style="flex:1;font-family:var(--ff-head);font-size:22px;letter-spacing:3px;background:var(--surface-2);border:1px dashed var(--green);border-radius:10px;padding:10px;text-align:center">${D.referral.code}</div>
+          <button class="btn btn-primary btn-sm" data-action="toast" data-msg="Code kopiert & Teilen geöffnet (Demo)">Teilen</button>
+        </div>
+        <p class="muted" style="font-size:12px;margin:8px 0 0">Wird dein Freund Mitglied, bekommt ihr beide einen Gratis-Monat.</p>
+      </div>
+      <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">${t('lang_label')} · Dil · اللغة</b>
+        <div class="choices" style="margin-top:10px">
+          ${Object.keys(T).map(k=>`<button type="button" class="chip ${k===lang?'sel':''}" data-action="lang-chip" data-v="${k}">${T[k].name}</button>`).join('')}
+        </div>
       </div>
       <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Dokumente auf Knopfdruck</b>
         <p class="muted" style="font-size:13px;margin:4px 0 6px">Sofort als PDF — z. B. fürs Krankenkassen-Bonusprogramm.</p>
@@ -1299,6 +1378,7 @@
     if(a==='faq-ask'){ faqChat.push(+el.dataset.i); render(); return; }
     if(a==='voucher-buy'){ voucherCode='NFT-GIFT-'+['XK42','MB77','RZ19'][cart.length%3]; toast('Gutschein erstellt 🎁'); render(); return; }
     if(a==='camp-book'){ campBooked=true; toast('Platz reserviert — Frühbucher-Preis gesichert ⛺'); render(); return; }
+    if(a==='lang-chip'){ setLang(el.dataset.v); return; }
     if(a==='sitebot-toggle'){ siteBotOpen=!siteBotOpen; render(); return; }
     if(a==='sitebot-ask'){ siteBotChat.push(+el.dataset.i); render(); return; }
     if(a==='setup-done'){ setup[el.dataset.k]=true; toast(el.dataset.k==='partner'?'Einladung an mehmet.a@mail.de gesendet ✓':'Kalender verbunden ✓'); render(); return; }
@@ -1308,6 +1388,7 @@
   // live-update select for finder / wizard inputs
   document.addEventListener('change', e=>{
     const el=e.target.closest('[data-action]'); if(!el) return;
+    if(el.dataset.action==='lang'){ setLang(el.value); return; }
     if(el.dataset.action==='f-loc'){ finder.loc=el.value; }
   });
   document.addEventListener('input', e=>{
@@ -1370,6 +1451,7 @@
 
   window.__render = render;
   window.__toast = toast;
+  applyLangAttrs();
   window.addEventListener('hashchange', ()=>{
     menuOpen=false;
     if(prevHash.startsWith('#/probetraining/bestaetigung') && !location.hash.startsWith('#/probetraining')){

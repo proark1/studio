@@ -445,3 +445,15 @@ button.irow{display:block;width:100%;text-align:left;background:none;border:0;co
 .sitebot-panel .sb-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--surface-2)}
 .sitebot-panel .sb-head b{font-family:var(--ff-head);text-transform:uppercase;letter-spacing:1px}
 .sitebot-panel .sb-body{padding:14px;overflow-y:auto}
+/* language switcher + partial-translation note + RTL */
+.lang-select{background:var(--surface);border:1px solid var(--line);color:var(--text);padding:7px 10px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
+.lang-select:hover{border-color:var(--muted)}
+.lang-note{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--blue);color:var(--text-dim);font-size:13px;padding:9px 14px;margin:10px auto 0;max-width:var(--maxw);border-radius:10px}
+.app-wrap .lang-note{margin:0 0 14px}
+[dir="rtl"] .lang-note{border-left:1px solid var(--line);border-right:3px solid var(--blue)}
+[dir="rtl"] .nav-links a.active::after{left:0;right:0}
+[dir="rtl"] .notice{border-left:1px solid var(--line);border-right:3px solid var(--red)}
+[dir="rtl"] .aibox{border-left:1px solid var(--line);border-right:3px solid var(--red)}
+[dir="rtl"] .bubble.me{margin-left:0;margin-right:32px}
+[dir="rtl"] .slash{transform:skew(18deg)}
+[dir="rtl"] .logo .badge{transform:skew(8deg)}

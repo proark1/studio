@@ -163,7 +163,7 @@
     }
     return shell(`
       <div class="panel-h" style="margin-bottom:16px;align-items:flex-end">
-        <h1 class="crm-h" style="margin:0">Leads & Probetraining</h1>
+        <div><h1 class="crm-h" style="margin:0">Leads & Probetraining</h1><div class="crm-sub" style="margin:4px 0 0">Aktive Pipeline (Demo-Auszug) · franchiseweit diese Woche: 18 neue Anfragen</div></div>
         <div class="seg"><button class="${state.leadView==='kanban'?'on':''}" data-action="crm-leadview" data-v="kanban">Kanban</button><button class="${state.leadView==='table'?'on':''}" data-action="crm-leadview" data-v="table">Tabelle</button></div>
       </div>${body}`,'#/crm/leads');
   }
@@ -220,7 +220,7 @@
         <td><span class="badge ${r[0]}">${r[1]}</span></td></tr>`; }).join('');
     return shell(`
       <h1 class="crm-h">Mitglieder & Familien</h1>
-      <div class="crm-sub">${byLoc(C().members).length} Mitglieder · ${state.standort} · Zeile öffnet Familienprofil</div>
+      <div class="crm-sub">Demo-Auszug: ${byLoc(C().members).length} Einträge · ${state.standort} · Franchise gesamt: ${C().fact.mitglieder.toLocaleString("de-DE")} aktive Mitglieder · Zeile öffnet Profil</div>
       <div class="panel"><table class="tbl"><thead><tr><th>Name</th><th>Typ</th><th>Standort</th><th>Vertrag</th><th>Zahlung</th><th>Aktivität</th><th>Retention</th></tr></thead><tbody>${rows}</tbody></table></div>`,'#/crm/mitglieder');
   }
 
@@ -374,6 +374,7 @@
     return shell(`
       <div class="panel-h" style="margin-bottom:16px;align-items:flex-end"><h1 class="crm-h" style="margin:0">Verträge</h1>
         <a class="btn btn-primary btn-sm" href="#/crm/vertraege/neu">+ Neuer Vertrag</a></div>
+      <div class="crm-sub">Auszug: die 5 aktuellsten · franchiseweit 8 offene Verträge</div>
       <div class="panel"><table class="tbl"><thead><tr><th>Kunde</th><th>Tarif</th><th>Status</th><th>Laufzeit</th><th>Aktion</th></tr></thead><tbody>
         ${rows.map(([k,t,s,l,b,a])=>`<tr><td><b>${k}</b></td><td>${t}</td><td><span class="badge ${b}">${s}</span></td><td>${l}</td><td>${actBtn(a)}</td></tr>`).join('')}
       </tbody></table></div>
@@ -397,10 +398,10 @@
         <td><span class="badge ${pb[0]}">${pb[1]}</span></td><td>${actions}</td></tr>`; }).join('');
     return shell(`
       <h1 class="crm-h">Zahlungen</h1>
-      <div class="crm-sub">${state.standort} · Zahlungslauf Juli 2026</div>
+      <div class="crm-sub">Zahlungslauf Juli 2026 · KPIs franchiseweit (2.410 Mitglieder) · Tabelle: die dringendsten Fälle</div>
       <div class="kpi-grid">
-        <div class="kpi red"><div class="n">${s.rueck}</div><div class="l">Rücklastschriften</div></div>
-        <div class="kpi amber"><div class="n">${s.offen}</div><div class="l">Offene Zahlungen</div></div>
+        <div class="kpi red"><div class="n">${s.rueck}</div><div class="l">Rücklastschriften · franchiseweit</div></div>
+        <div class="kpi amber"><div class="n">${s.offen}</div><div class="l">Offene Zahlungen · franchiseweit</div></div>
         <div class="kpi"><div class="n">${s.heute}</div><div class="l">Heute fällig</div></div>
         <div class="kpi green"><div class="n">${s.recovery}</div><div class="l">Recovery-Quote</div></div>
       </div>
@@ -442,7 +443,7 @@
       <div class="panel"><div class="panel-h"><b>Standortvergleich</b></div>
         <table class="tbl"><thead><tr><th>Standort</th><th>Leads</th><th>Trial-Rate</th><th>Abschluss</th><th>Auslastung</th><th>Offene Zahlungen</th></tr></thead><tbody>${rows}</tbody></table></div>
       <div class="split">
-        <div class="panel"><div class="panel-h"><b>💶 P&amp;L light · Monat</b><span class="muted" style="font-size:12px">Deckungsbeitrag je Standort</span></div>
+        <div class="panel"><div class="panel-h"><b>💶 P&amp;L light · Monat</b><span class="muted" style="font-size:12px">4 von 10 Standorten (Auszug) · Franchise-MRR gesamt: ${C().fact.mrr}</span></div>
           <table class="tbl" style="min-width:520px"><thead><tr><th>Standort</th><th>Umsatz</th><th>Personal</th><th>Miete</th><th>Sonstiges</th><th>DB</th></tr></thead><tbody>
             ${C().pnl.map(p=>`<tr><td><b>${p.city}</b></td><td>${p.umsatz}</td><td>${p.personal}</td><td>${p.miete}</td><td>${p.sonst}</td>
               <td><b style="color:${p.ok?'var(--green)':'#ff5470'}">${p.db}</b> <span class="muted">(${p.pct} %)</span></td></tr>`).join('')}
@@ -488,6 +489,14 @@
     return trainerShell(`
       <h1 class="app-h">Heute</h1>
       <p class="muted" style="margin:-8px 0 14px">4 Kurse · NFT Krefeld</p>
+      <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">📊 Meine Stats</b>
+        <div style="display:flex;gap:10px;margin-top:10px;text-align:center">
+          <div style="flex:1;background:var(--surface-2);border-radius:10px;padding:10px"><b style="font-family:var(--ff-head);font-size:22px;color:var(--green)">${C().trainerStats.retention}</b><br><small class="muted">Retention meiner Kurse</small></div>
+          <div style="flex:1;background:var(--surface-2);border-radius:10px;padding:10px"><b style="font-family:var(--ff-head);font-size:22px;color:var(--green)">${C().trainerStats.puls}</b><br><small class="muted">Puls-Score</small></div>
+          <div style="flex:1;background:var(--surface-2);border-radius:10px;padding:10px"><b style="font-family:var(--ff-head);font-size:22px">${C().trainerStats.feedback}</b><br><small class="muted">Feedback-Quote</small></div>
+        </div>
+        <p class="muted" style="font-size:12px;margin:8px 0 0">${C().trainerStats.vergleich} — starke Woche! 💪</p>
+      </div>
       <div class="app-card" style="display:flex;gap:12px;align-items:center">
         <div class="thumb" style="font-size:22px">⏱️</div>
         <div class="meta" style="flex:1"><b>Arbeitszeit</b><small>${me && me.in!=='–' ? 'Eingestempelt um '+me.in+' · Plan '+me.plan : 'Noch nicht eingestempelt · Plan '+((me||{}).plan||'')}</small></div>
@@ -647,7 +656,7 @@
       <div class="crm-sub">Das System erkennt Kündigungsrisiken und schlägt die nächste Aktion vor — du bestätigst nur.</div>
       <div class="notice">🏖️ <b>Ferien-Engine aktiv:</b> ${C().ferien[0].land}-Sommerferien in ${C().ferien[0].inTagen} Tagen (${C().ferien[0].zeit}) — Anwesenheits-Scores werden automatisch gedämpft, Reaktivierungs-Journeys pausieren, Camp-Cross-Sell läuft.</div>
       <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
-        <div class="kpi red"><div class="n">${open}</div><div class="l">Offene Risiko-Fälle</div></div>
+        <div class="kpi red"><div class="n">${open}</div><div class="l">Offene Top-Risiken (von ${C().fact.watchlist} auf der Watchlist)</div></div>
         <div class="kpi green"><div class="n">${items.length-open}</div><div class="l">Diese Woche bearbeitet</div></div>
         <div class="kpi"><div class="n">~${open*70} €</div><div class="l">Gefährdeter Monatsumsatz</div></div>
       </div>
