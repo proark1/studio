@@ -115,3 +115,68 @@ Zuerst die Pflicht: Qualifikations-Register + Führungszeugnis (#11), WhatsApp-B
 Ab ~15 Standorten: Curriculum + Stundenbilder (Wette 1), Eröffnungs-Playbook (Wette 2), Vertretungs-Marktplatz, Schichtplanung + P&L (Wette 5), Health-Score-Vollausbau mit Liga und Kohorten. Ab ~20: Expansion-Analytics (Wette 6), B2B, Schul-AG-Portal, Fahrgemeinschaften (Wette 3), Monats-Rückblick-Video (Wette 4), Wallet nach ZAG-Prüfung (Wette 7). Ab ~30: SaaS-Licensing (Wette 8) — vorher nicht anfassen.
 
 **Leitplanke für alles:** Jedes Feature, das Kinderdaten berührt, läuft durch dieselben drei Filter wie die Top 12 — Datensparsamkeit by Design, HITL für jede ausgehende Kommunikation, und die Frage „hilft das beim Sprung auf 50 Standorte oder ist es nur charmant?". Was den dritten Filter nicht besteht, wartet.
+
+---
+
+# Nachtrag (02.07.2026): Feedback-/Voting-System · Persona-Entlastung · Automatisierung
+
+*Ergänzung auf die Frage: „Nutzerbefragungen/Voting, Leben einfacher machen (Trainer/Studioleiter/GF/Kunden), mehr Automatisierung."*
+
+## N1. Das Feedback-/Voting-System „NFT Puls"
+
+Prinzip: **erheben ohne zu nerven, auswerten ohne Pranger, Loop sichtbar schließen.**
+
+**Erhebung (Frequenz-Deckel eingebaut):**
+- **1-Tap-Trainings-Puls (App):** nach Check-out Karte „Wie war das Training heute?" 😞😐🙂🤩 + optionales Kommentarfeld. Max. 1×/Woche pro Familie.
+- **Smiley-Kiosk am Ausgang** (HappyOrNot-Prinzip): 4 große Tasten am Tablet, auch für Kinder, anonym, zählt pro Kurs/Slot → Stimmungs-Heatmap ohne App-Zwang.
+- **Ereignis-NPS statt Kalender-NPS:** Tag 30 nach Vertragsstart · nach Gürtelprüfung · 7 Tage nach Save-/Support-Fall. Eine Frage + „Warum?".
+- **Eltern-Quartalspuls:** max. 3 Fragen (Training/Kommunikation/Sauberkeit), 60 Sekunden.
+- **Feature-Voting („Community-Roadmap"):** NFT stellt 3–5 Ideen zur Abstimmung, 5 Stimmen je Familie, eigene Ideen einreichbar.
+- **Ideen-/Beschwerde-Kanal mit Status** für den Einreicher (Eingegangen → In Prüfung → Umgesetzt/Abgelehnt mit Begründung).
+
+**Auswertung (CRM):**
+- **Feedback-Dashboard je Standort:** Puls-Trend, NPS, Kiosk-Heatmap (Wochentag × Slot), KI-Themen-Clustering der Kommentare, fairer Standort-Benchmark.
+- **Kurs-/Trainer-Signale nur aggregiert:** sichtbar erst ab ≥10 Stimmen; Trainer sieht eigenen Trend zuerst — nie Einzel-Pranger.
+- **Detraktor-Alarm:** 😞-Vote mit Kommentar oder NPS ≤ 6 → Aufgabe an Standortleiter mit HITL-Antwortentwurf, 24h-SLA.
+- **Promoter-Weiche:** NPS ≥ 9 → erst dann Google-Review-Bitte + Referral.
+
+**Loop schließen:**
+- **„Ihr habt gesagt → Wir haben's getan"-Feed** in der App + Aushang-Export (monatlich 3 umgesetzte Punkte je Standort).
+- Voting-Ergebnisse transparent kommunizieren („Samstagskurs kommt ab September — 142 Stimmen").
+
+**Kinderschutz-Leitplanken:** Kiosk anonym · keine identifizierbaren Bewertungen von Kindern · keine öffentlichen Trainer-Rankings · Löschkonzept für Kommentare.
+
+## N2. Leben einfacher — Top 5 je Persona (jenseits des Bestands)
+
+**Trainer:** 1) Zero-Prep (Anwesenheit 100 % via Chip, nur Ausnahmen korrigieren) · 2) Kursausfall-Automatik (krankmelden → Teilnehmer-Info + Vertretungsanfrage automatisch) · 3) Stundenbild-Karte aufs Handy aus dem Curriculum · 4) Antwort-Schnipsel für Elternfragen · 5) Mangel-Melder (Foto → Ticket). Plus: persönliche Trainer-Stats (eigene Retention/Puls-Score, fairer Vergleich).
+
+**Studioleiter:** 1) Morgen-Briefing-Karte (5 wichtigste Dinge heute, auto-generiert) · 2) Anomalie-Alarme (Check-ins −20 %, Kurs 3× unterbesetzt, Rücklastschrift-Häufung) · 3) Wochenbericht schreibt sich selbst (KI-Entwurf aus KPIs) · 4) Inventar-/Wartungs-Radar (Erste-Hilfe-Ablauf, Matten, Feuerlöscher) · 5) Ziel-Tracker („Probetrainings 34/50" live + Rückstands-Push). Plus: Dienstplan-Autopilot-Vorschlag.
+
+**Geschäftsführer:** 1) Wochen-Digest (KI: Highlights/Risiken/Entscheidungsbedarf in 10 Sätzen) · 2) Entscheidungs-Inbox (nur echte GF-Freigaben, 1-Tap-Approve, Audit-Trail) · 3) Vertrags-/Lizenz-Radar (Miete/Versicherung/Lizenzen mit Ablauf-Warnung) · 4) Steuerberater-Paket automatisch (Monatsabschluss + DATEV + Belege) · 5) Wettbewerbs-Monitor (neues Studio im Umkreis → Alert). Plus: Krisen-Playbooks.
+
+**Kunden/Eltern:** 1) Dokumente auf Knopfdruck (Teilnahmebescheinigung Krankenkassen-Bonusprogramm, Beitrags-/Vereinsbescheinigung als Sofort-PDF) · 2) Eltern-FAQ-Bot (nur Eltern, nie Kinder; eskaliert an Mensch) · 3) Smart-Reminder („Gi waschen — Samstag Prüfung") · 4) Abhol-Koordination (geteilter Familienstatus, Oma read-only) · 5) Größen-Radar (Kind wächst → Gi-Nachkauf-Hinweis). Plus: Geschenk-Store für Großeltern, Familien-Jahresrückblick.
+
+## N3. Automatisierungs-Landkarte
+
+- **Vollautomatisch:** Check-in/out-Pushes · Anwesenheit · Auslastung · Streaks/Badges/Meilensteine · Erinnerungen · Warteliste · SEPA-Pre-Notification · Bescheinigungs-PDFs · Ferien-Anpassung · Kiosk-Voting-Aggregation · Anomalie-Erkennung · alle KI-Entwürfe (Reports, Digest, Antworten).
+- **Human-in-the-Loop (System entwirft, Mensch bestätigt):** jede individuelle ausgehende Nachricht (Leads, Retention, Upsell, Mahnung 1–3, Wochenreports, Detraktor-Antworten) · Vertretungsbesetzung · Dienstplan · GF-Wochenbericht.
+- **Bewusst manuell:** Mahnstufe 4/Rechtliches · Kündigungsgespräche · Kinderschutz-Fälle · Kulanz über Limit · Prüfungsentscheidung (Trainer) · jede Kommunikation direkt an Kinder.
+
+## N4. Prototyp-Paket C (empfohlen)
+
+1. Trainings-Puls (1-Tap-Smiley in der App + Danke-State)
+2. Smiley-Kiosk-Feedback-Screen (Tablet)
+3. Feedback-Dashboard im CRM (Puls-Trend, NPS, Kiosk-Heatmap, Detraktor-Alarm-Liste)
+4. Feature-Voting „Community-Roadmap" in der App (3 Ideen, Stimmen, Ergebnis)
+5. „Ihr habt gesagt → getan"-Feed in der App
+6. Morgen-Briefing-Karte im CRM-Dashboard
+7. Wochen-Digest-Karte (GF, Reports)
+8. Dokumente-auf-Knopfdruck im App-Konto
+
+## N5. Bewusst NICHT
+
+- Öffentliche Trainer-Sterne/Rankings (Pranger-Effekt, Betriebsklima, ggf. mitbestimmungspflichtig).
+- Identifizierbares Feedback von Kindern (nur anonymes Kiosk-Voting).
+- Tägliche/erzwungene Umfragen (Survey-Fatigue — der Frequenz-Deckel ist Teil des Designs).
+- Öffentliche Kommentare unter Kursen (Moderationsaufwand, Eskalationsrisiko).
+- Incentivierte Google-Reviews (Verstoß gegen Google-Richtlinien, Abmahnrisiko).
