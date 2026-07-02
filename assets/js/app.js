@@ -146,7 +146,7 @@
         <div><h4>Training</h4>
           <a href="#/kinder">Kinder</a><a href="#/erwachsene">Erwachsene</a><a href="#/kursfinder">Kursfinder</a><a href="#/standorte">Standorte</a><a href="#/events">Events & Camps</a><a href="#/camp">Feriencamp</a><a href="#/shop">Pro-Shop</a><a href="#/gutscheine">Gutscheine</a></div>
         <div><h4>Service</h4>
-          <a href="#/probetraining">Probetraining</a><a href="#/faq">FAQ</a><a href="#/empfehlen">Freund werben</a><a href="#/app">Mitglieder-Login</a><a href="#/crm">Team-Login (CRM)</a><a href="#/kuendigen">Vertrag kündigen</a></div>
+          <a href="#/probetraining">Probetraining</a><a href="#/faq">FAQ</a><a href="#/empfehlen">Freund werben</a><a href="#/app">Mitglieder-Login</a><a href="#/crm">Team-Login (CRM)</a><a href="#/admin">Bild-Studio (Admin)</a><a href="#/kuendigen">Vertrag kündigen</a></div>
         <div><h4>Rechtliches</h4>
           <a href="#/kuendigen">Kündigung</a><a href="#/impressum">Impressum</a><a href="#/datenschutz">Datenschutz</a><a href="#/agb">AGB</a></div>
       </div>
@@ -1220,6 +1220,8 @@
       else html=appNotFound();
     } else if(seg[0]==='crm' || seg[0]==='trainer'){
       html = window.CRM ? window.CRM.route(seg) : home();
+    } else if(seg[0]==='admin'){
+      html = window.ADMIN ? window.ADMIN.route(seg) : home();
     } else {
       const r=seg[0];
       if(!r) html=home();

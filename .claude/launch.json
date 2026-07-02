@@ -6,6 +6,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "4173"],
       "port": 4173
+    },
+    {
+      "name": "mockup-alt",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "4180"],
+      "port": 4180
     }
   ]
 }
