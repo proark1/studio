@@ -141,6 +141,24 @@ window.DATA = {
     { q:"Sehe ich, wann es im Studio voll ist?", a:"Ja — in der App siehst du die Live-Auslastung und eine Wochen-Heatmap und bekommst ruhige Zeiten für dein Kind empfohlen." },
   ],
 
+  feedback:{
+    roadmap:[
+      { id:"samstag", title:"Samstagskurs für Kids", desc:"Zusätzlicher Kids-Kurs am Samstagvormittag (10:00).", votes:142, voted:false },
+      { id:"kaffee", title:"Eltern-Kaffee-Ecke", desc:"Gemütlicher Wartebereich mit Kaffee & WLAN.", votes:98, voted:false },
+      { id:"openmat", title:"Teens Open Mat", desc:"Freies Training für Teens am Freitagabend.", votes:64, voted:false },
+    ],
+    done:[
+      { when:"Juni", what:"Früherer Kids-Kurs am Mittwoch (16:00) eingeführt", src:"42 Eltern-Stimmen" },
+      { when:"Mai", what:"Wasserspender im Wartebereich aufgestellt", src:"Ideen-Kanal" },
+      { when:"April", what:"Check-out-Push für Eltern eingeführt", src:"Eltern-Quartalspuls" },
+    ],
+  },
+  documents:[
+    { id:"kk", ico:"🏥", name:"Teilnahmebescheinigung", desc:"Für Krankenkassen-Bonusprogramme" },
+    { id:"beitrag", ico:"🧾", name:"Beitragsbescheinigung", desc:"Jahresübersicht für Unterlagen/Finanzamt" },
+    { id:"verein", ico:"📄", name:"Mitgliedsbescheinigung", desc:"Nachweis der aktiven Mitgliedschaft" },
+  ],
+
   ages:["3–5","6–9","10–14","15+"],
   goals:["Selbstvertrauen","Fitness","Selbstverteidigung","Disziplin","Wettkampf"],
 
@@ -286,6 +304,38 @@ NFT Gym Team`,
         { name:"Milan T.", type:"Rückkehrer", note:"3 Wochen krank gewesen — bitte sanft wieder einsteigen lassen." },
         { name:"Emir A.", type:"Prüfungsnah", note:"Noch ~6 Einheiten bis zur Gelbgurt-Prüfung — Fokus Deckung." },
       ],
+    },
+    feedback:{
+      pulse:{ score:"4,4", trend:"+0,2", n:213 },
+      nps:{ value:62, promoters:71, passives:20, detractors:9 },
+      kioskHeat:{
+        days:["Mo","Di","Mi","Do","Fr"],
+        rows:[
+          { time:"16:00", cells:["gut","mittel","gut","gut","gut"] },
+          { time:"17:00", cells:["mittel","schlecht","gut","mittel","gut"] },
+          { time:"18:00", cells:["mittel","schlecht","mittel","mittel","gut"] },
+          { time:"19:00", cells:["gut","mittel","mittel","gut","gut"] },
+        ],
+      },
+      detractors:[
+        { name:"Familie K.", loc:"Köln", signal:"Puls 😞 + Kommentar", text:"Die Umkleiden waren zweimal hintereinander schmutzig.", when:"gestern", status:"offen",
+          draft:"Hallo Familie K.,\n\ndanke für die ehrliche Rückmeldung — das entspricht nicht unserem Anspruch. Wir haben die Reinigung ab sofort auf zweimal täglich umgestellt und prüfen das eine Woche lang persönlich. Schauen Sie gern kommende Woche nochmal kritisch hin?\n\nViele Grüße\nNFT Gym Köln" },
+        { name:"Anonym (Kiosk)", loc:"Krefeld", signal:"NPS 4 · Di 17:00", text:"Dienstags viel zu voll, der Trainer hat kaum Zeit für die Kinder.", when:"vor 2 Tagen", status:"offen",
+          draft:"⚠️ Anonymes Feedback — keine Antwort möglich. Empfohlene Maßnahme: Dienstag 17:00 entzerren (Auslastungs-Empfehlung an passende Eltern senden) + zweiten Trainer prüfen." },
+      ],
+    },
+    briefing_today:[
+      { ico:"💶", t:"3 Rücklastschriften bearbeiten (429,60 €)", href:"#/crm/zahlungen" },
+      { ico:"🥋", t:"Gürtelprüfung Gelbgurt heute 16:00 — 3 Kandidaten", href:"#/trainer/pruefung" },
+      { ico:"📉", t:"4 Retention-Fälle offen — höchster Score 82", href:"#/crm/retention" },
+      { ico:"📞", t:"3 verpasste Anrufe von gestern nachfassen", href:"#/crm/dashboard" },
+      { ico:"😐", t:"Kiosk-Stimmung Di 17:00 erneut schwach — Slot entzerren", href:"#/crm/feedback" },
+    ],
+    digest:{
+      week:"KW 27",
+      highlights:[ "Trial-Conversion Krefeld auf 62 % gestiegen (best of Franchise)", "Prüfungswoche: 34 Kinder befördert, Review-Journey brachte 12 neue Google-Bewertungen (Ø 4,9)" ],
+      risks:[ "Köln: Rücklastschriften-Häufung (5 Fälle) + Retention-Score im Sinkflug — Standortleiter-Gespräch empfohlen", "Di-17:00-Slots franchiseweit über 90 % — Stimmung im Kiosk-Voting messbar schlechter" ],
+      decisions:[ "Family-Tarif-Rollout auf alle Standorte freigeben? (Pilot Krefeld: +11 % Geschwister-Konversion)", "Zweiter Trainer für Di-Stoßzeit Köln/Krefeld (ca. 1.400 €/Monat)" ],
     },
     trainers:[
       { name:"Mehmet K.", loc:"Krefeld", rolle:"Head-Coach Kids", lizenz:"Trainer-B · bis 03/2028", eh:"Erste Hilfe · bis 05/2027", fz:"Führungszeugnis · bis 11/2026", status:"ok", kids:true },

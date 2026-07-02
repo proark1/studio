@@ -36,6 +36,7 @@
       ['#/crm/checkins','clock','Check-ins','Check-ins'],
       ['#/crm/kiosk','monitor','Kiosk Check-in','Check-ins'],
       ['#/crm/kommunikation','mail','Kommunikation','Kommunikation'],
+      ['#/crm/feedback','message','Feedback & Puls','Kommunikation'],
       ['#/crm/vertraege','file','Verträge','Verträge'],
       ['#/crm/zahlungen','euro','Zahlungen','Zahlungen'],
       ['#/crm/automationen','zap','Automationen','Automationen'],
@@ -100,6 +101,9 @@
     return shell(`
       <h1 class="crm-h">Dashboard</h1>
       <div class="crm-sub">Heute · ${state.standort} · Standortleitung sieht sofort, was wichtig ist</div>
+      <div class="panel" style="border-color:var(--red)"><div class="panel-h"><b>📋 Morgen-Briefing</b><span class="muted" style="font-size:12px">automatisch erstellt · heute 07:00</span></div>
+        ${C().briefing_today.map(b=>`<a class="list-item" href="${b.href}"><span class="li-ico">${b.ico}</span><div class="li-main"><b>${b.t}</b></div><span class="muted">›</span></a>`).join('')}
+      </div>
       <div class="kpi-grid">${kpis}</div>
       <div class="split" style="grid-template-columns:1.4fr 1fr">
         <div class="panel"><div class="panel-h"><b>Heute im Studio</b><a href="#/crm/checkins" style="color:var(--red);font-size:14px;font-weight:600">Live-Monitor →</a></div>
@@ -386,6 +390,17 @@
     return shell(`
       <h1 class="crm-h">Reports · Geschäftsführung</h1>
       <div class="crm-sub">Konsolidiert über alle Standorte (Franchise-Cockpit)</div>
+      <div class="panel" style="border-color:var(--amber)"><div class="panel-h"><b>🧠 Wochen-Digest (KI) · ${C().digest.week}</b>
+          <button class="btn btn-dark btn-sm" data-action="crm-toast" data-msg="Digest als E-Mail versendet (Demo)">Als E-Mail senden</button></div>
+        <div class="split" style="grid-template-columns:1fr 1fr 1fr;gap:14px">
+          <div><b style="color:var(--green);font-size:13px;text-transform:uppercase;letter-spacing:1px">Highlights</b>
+            ${C().digest.highlights.map(h=>`<p class="dim" style="font-size:13px;margin:8px 0 0">• ${h}</p>`).join('')}</div>
+          <div><b style="color:#ff5470;font-size:13px;text-transform:uppercase;letter-spacing:1px">Risiken</b>
+            ${C().digest.risks.map(h=>`<p class="dim" style="font-size:13px;margin:8px 0 0">• ${h}</p>`).join('')}</div>
+          <div><b style="color:var(--amber);font-size:13px;text-transform:uppercase;letter-spacing:1px">Entscheidungsbedarf</b>
+            ${C().digest.decisions.map(h=>`<p class="dim" style="font-size:13px;margin:8px 0 0">• ${h}</p>`).join('')}</div>
+        </div>
+      </div>
       <div class="panel-h" style="margin-bottom:10px"><b>Standort-Health-Score</b><span class="muted" style="font-size:13px">Composite aus Umsatz · Retention · Auslastung · Leads · Zahlungen</span></div>
       <div class="kpi-grid">${health}</div>
       <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">${ceo}</div>
@@ -624,6 +639,49 @@
     `,'#/crm/team');
   }
 
+  /* ---------------- feedback dashboard (NFT Puls) ---------------- */
+  function feedbackDash(){
+    const f = C().feedback;
+    const smiley = {gut:['🙂','h-ruhig'], mittel:['😐','h-normal'], schlecht:['😞','h-voll']};
+    const heat = f.kioskHeat.rows.map(r=>`<tr><td class="t-time">${r.time}</td>${r.cells.map(c=>`<td class="${smiley[c][1]}">${smiley[c][0]}</td>`).join('')}</tr>`).join('');
+    const openDet = f.detractors.filter(d=>d.status==='offen').length;
+    return shell(`
+      <h1 class="crm-h">Feedback & Puls</h1>
+      <div class="crm-sub">NFT Puls: 1-Tap-Votes aus App & Kiosk · Ereignis-NPS · Detraktor-Alarm mit 24h-SLA</div>
+      <div class="kpi-grid">
+        <div class="kpi green"><div class="n">${f.pulse.score}<span style="font-size:16px;color:var(--muted)">/5</span></div><div class="l">Trainings-Puls (${f.pulse.n} Votes) · ${f.pulse.trend}</div></div>
+        <div class="kpi"><div class="n">${f.nps.value}</div><div class="l">NPS · ${f.nps.promoters}% Promoter / ${f.nps.detractors}% Detraktoren</div></div>
+        <div class="kpi red"><div class="n">${openDet}</div><div class="l">Offene Detraktor-Fälle (SLA 24h)</div></div>
+        <div class="kpi"><div class="n">${D.feedback.roadmap.reduce((n,r)=>n+r.votes,0)}</div><div class="l">Stimmen im Feature-Voting</div></div>
+      </div>
+      <div class="split">
+        <div class="panel"><div class="panel-h"><b>Kiosk-Stimmung · Woche</b><span class="muted" style="font-size:12px">Smiley-Terminal am Ausgang</span></div>
+          <div class="heat"><table><thead><tr><th></th>${f.kioskHeat.days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>${heat}</tbody></table></div>
+          <div class="notice" style="margin:12px 0 0">Di 17–18 Uhr fällt ab — korreliert mit der Überfüllung. <a href="#/crm/auslastung" style="color:var(--red);font-weight:600">Slot entzerren →</a></div>
+        </div>
+        <div class="panel"><div class="panel-h"><b>Feature-Voting (live)</b><a href="#/app/mitbestimmen" style="color:var(--red);font-size:13px;font-weight:600">In der App ansehen →</a></div>
+          ${D.feedback.roadmap.map(r=>`<div class="list-item"><div class="li-main"><b>${r.title}</b><small>${r.votes} Stimmen</small></div></div>`).join('')}
+          <div class="panel-h" style="margin-top:14px"><b>„Getan"-Feed</b><button class="btn btn-dark btn-sm" data-action="crm-toast" data-msg="Eintrag hinzufügen (Demo)">+ Eintrag</button></div>
+          ${D.feedback.done.slice(0,2).map(d=>`<div class="list-item"><span class="li-ico">✅</span><div class="li-main"><b>${d.what}</b><small>${d.when} · ${d.src}</small></div></div>`).join('')}
+        </div>
+      </div>
+      ${f.detractors.map((d,i)=>{ const manual=d.draft.startsWith('⚠️'); const done=d.status!=='offen';
+        return `<div class="panel" style="${done?'opacity:.55':'border-color:rgba(228,0,43,.4)'}">
+        <div class="panel-h" style="margin-bottom:8px"><div><b>${d.name}</b> <span class="muted" style="font-size:13px">· ${d.loc} · ${d.when}</span></div>
+          <span class="badge ${done?'b-green':'b-red'}">${done?'✓ '+d.status:d.signal}</span></div>
+        <p class="dim" style="margin:0 0 10px">„${d.text}"</p>
+        ${done?'':`<div class="aibox">${d.draft}</div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          ${manual
+            ? `<a class="btn btn-primary btn-sm" href="#/crm/auslastung" data-action="crm-fb-task" data-i="${i}">Maßnahme: Slot entzerren</a>`
+            : `<button class="btn btn-primary btn-sm" data-action="crm-fb-send" data-i="${i}">Bestätigen & antworten</button>
+               <button class="btn btn-dark btn-sm" data-action="crm-toast" data-msg="Bearbeiten (Demo)">Bearbeiten</button>`}
+        </div>`}
+      </div>`; }).join('')}
+      <div class="notice">Fairness-Regeln: Trainer-/Kurs-Scores nur aggregiert ab ≥10 Stimmen · Kiosk anonym · Promoter (NPS ≥ 9) bekommen die Google-Review-Bitte, Detraktoren einen Menschen.</div>
+    `,'#/crm/feedback');
+  }
+
   /* ---------------- contract wizard ---------------- */
   function vertragWizard(){
     const st = state.vw, steps = ["Kunde","Standort","Tarif","Laufzeit","SEPA","Senden"];
@@ -673,6 +731,15 @@
           ${people.map(p=>`<button class="rolebtn" data-action="crm-kiosk" data-p="${p}" style="text-align:center"><div class="ri">🥋</div><b style="display:block;margin-top:6px">${p}</b></button>`).join('')}
         </div>
         <p class="muted" style="font-size:12px;margin-top:14px">Demo: Antippen simuliert den Chip-Scan. Real: RFID/NFC am Drehkreuz, Echtzeit-Prüfung von Mitgliedschaft & Zahlung.</p>
+      </div>
+      <div class="panel" style="text-align:center">
+        ${state.kioskSmiley
+          ? `<div style="font-size:56px">${state.kioskSmiley}</div><h2 style="color:var(--green);margin:8px 0 4px">Danke!</h2><p class="muted">Dein Feedback hilft uns, besser zu werden.</p>`
+          : `<div class="panel-h" style="justify-content:center"><b>Wie war dein Training heute?</b></div>
+             <div style="display:flex;gap:14px;justify-content:center;margin-top:6px">
+               ${['😞','😐','🙂','🤩'].map((s,i)=>`<button type="button" class="rolebtn" data-action="crm-kiosk-smiley" data-s="${s}" aria-label="Bewertung ${i+1} von 4" style="font-size:44px;text-align:center;padding:18px 26px">${s}</button>`).join('')}
+             </div>
+             <p class="muted" style="font-size:12px;margin-top:14px">Anonym · auch für Kinder · zählt pro Kurs/Uhrzeit in die Stimmungs-Heatmap</p>`}
       </div>
     `,'#/crm/kiosk');
   }
@@ -728,7 +795,7 @@
   /* ---------------- router (mit Rollen-Guard) ---------------- */
   const ROUTE_MOD = { dashboard:'Dashboard', leads:'Leads', mitglieder:'Mitglieder', familie:'Mitglieder',
     retention:'Mitglieder', upsell:'Mitglieder', kurse:'Kurse', auslastung:'Auslastung', checkins:'Check-ins',
-    kiosk:'Check-ins', kommunikation:'Kommunikation', vertraege:'Vertr\u00e4ge', team:'Vertr\u00e4ge',
+    kiosk:'Check-ins', kommunikation:'Kommunikation', feedback:'Kommunikation', vertraege:'Vertr\u00e4ge', team:'Vertr\u00e4ge',
     zahlungen:'Zahlungen', automationen:'Automationen', reports:'Reports', rollen:'Rollen/Rechte' };
   function noAccess(mod){
     return shell(`
@@ -761,6 +828,7 @@
     if(r==='retention') return retention();
     if(r==='upsell') return upsell();
     if(r==='team') return team();
+    if(r==='feedback') return feedbackDash();
     if(r==='automationen') return automationen();
     if(r==='rollen') return rollen();
     if(r==='suche') return suche();
@@ -819,6 +887,9 @@
     if(a==='crm-up-send'){ const u=C().upsell.find(x=>x.id===el.dataset.id); if(u) u.status='gesendet'; (window.__toast||alert)('Angebot gesendet ✓ — liegt jetzt als Karte in der Kunden-App'); window.__render && window.__render(); return; }
     if(a==='crm-up-later'){ const u=C().upsell.find(x=>x.id===el.dataset.id); if(u) u.status='zurückgestellt'; (window.__toast||alert)('Zurückgestellt'); window.__render && window.__render(); return; }
     if(a==='crm-call-done'){ const c=C().calls.find(x=>x.id===el.dataset.id); if(c) c.status='erledigt'; (window.__toast||alert)('Rückruf erledigt ✓'); window.__render && window.__render(); return; }
+    if(a==='crm-kiosk-smiley'){ state.kioskSmiley=el.dataset.s; if(C().feedback) C().feedback.pulse.n++; window.__render && window.__render(); setTimeout(()=>{ state.kioskSmiley=null; window.__render && window.__render(); }, 2200); return; }
+    if(a==='crm-fb-send'){ const d=C().feedback.detractors[+el.dataset.i]; if(d) d.status='beantwortet'; (window.__toast||alert)('Antwort gesendet ✓ — Fall im SLA erledigt'); window.__render && window.__render(); return; }
+    if(a==='crm-fb-task'){ const d=C().feedback.detractors[+el.dataset.i]; if(d) d.status='Maßnahme erstellt'; (window.__toast||alert)('Maßnahme erstellt ✓ — Auslastung geöffnet'); return; }
     if(a==='crm-call-voice'){ C().leads.unshift({id:'L9',name:'Anruferin 16:42 (Sprachnotiz)',who:'Kind (6)',loc:'Krefeld',interest:'Mini-Kids',stage:'Neu',action:'KI-Mail senden'}); (window.__toast||alert)('🎤 Transkribiert ✓ — Lead-Karte angelegt (Mini-Kids, Krefeld)'); location.hash='#/crm/leads'; return; }
     if(a==='crm-trainer-save'){ const ta=document.getElementById('tfeedback'); const txt=ta?ta.value.trim():''; const k=D.kids&&D.kids[0]; if(k){ k.feedbackLog=k.feedbackLog||[]; k.feedbackLog.push({time:'gerade eben', skills:state.trainerSkills.slice(), text:txt}); } state.trainerSkills=[]; (window.__toast||alert)('Gespeichert ✓ — Eltern sehen das Update'); location.hash='#/trainer'; return; }
   });

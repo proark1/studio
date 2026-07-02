@@ -45,6 +45,8 @@
   const replies = {};
   const sickset = {};
   let ferienOn = false;
+  let pulseVoted = 0;
+  const docsDone = {};
   let finder = { who:null, age:null, goal:null, loc:null, shy:false, searched:false };
   let wiz = { step:0, who:null, age:null, loc:null, goal:null, slot:null, name:"", email:"" };
   let consent = { fotoEmir:true, fotoSara:false, marketing:true, whatsapp:false };
@@ -537,8 +539,20 @@
       <div class="thumb" style="background:rgba(245,165,36,.15);color:var(--amber);font-size:24px">☀️</div>
       <div class="meta" style="flex:1"><b>In ${((D.crm||{}).ferien||[{inTagen:12}])[0].inTagen} Tagen sind Sommerferien</b><small>Sommer-Kampfsportcamp 28.07.–01.08. — Frühbucher sichern</small></div>
       <span class="muted">›</span></a>`;
+    const pulseCard = pulseVoted
+      ? `<div class="app-card" style="border-color:var(--green);display:flex;gap:12px;align-items:center">
+          <div class="thumb" style="background:rgba(39,194,102,.15);font-size:24px">${['','😞','😐','🙂','🤩'][pulseVoted]}</div>
+          <div class="meta" style="flex:1"><b>Danke für dein Feedback!</b><small>Es hilft uns, das Training besser zu machen.</small></div>
+          <a class="btn btn-dark btn-sm" href="#/app/mitbestimmen">Mitbestimmen</a></div>`
+      : `<div class="app-card accent">
+          <b style="font-family:var(--ff-head);text-transform:uppercase;font-size:17px">Wie war Emirs Training heute?</b>
+          <div style="display:flex;gap:10px;margin-top:12px">
+            ${[1,2,3,4].map(v=>`<button type="button" class="icon-btn" data-action="app-pulse" data-v="${v}" aria-label="Bewertung ${v} von 4" style="flex:1;height:56px;font-size:28px;border-radius:14px">${['','😞','😐','🙂','🤩'][v]}</button>`).join('')}
+          </div>
+          <p class="muted" style="font-size:12px;margin:10px 0 0">Ein Tap genügt · max. 1× pro Woche · anonym auswertbar</p></div>`;
     return appShell(`
       <h1 class="app-h">Heute</h1>
+      ${pulseCard}
       ${ferienBanner}${msCard}${examCard}${offerCard}${wrCard}
       ${sessions}
       ${campCard}
@@ -787,7 +801,15 @@
         <div class="consent" style="border-bottom:0"><div><b>Wir sind im Urlaub</b><br><small>Kurse abmelden, Streak einfrieren, Pushes pausieren</small></div>
           <button class="switch ${ferienOn?'on':''}" data-action="app-ferien" role="switch" aria-checked="${ferienOn}" aria-label="Ferienmodus"><span class="track"></span></button></div>
       </div>
+      <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Dokumente auf Knopfdruck</b>
+        <p class="muted" style="font-size:13px;margin:4px 0 6px">Sofort als PDF — z. B. fürs Krankenkassen-Bonusprogramm.</p>
+        ${D.documents.map(d=>`<div class="list-item"><span class="li-ico">${d.ico}</span>
+          <div class="li-main"><b>${d.name}</b><small>${d.desc}</small></div>
+          ${docsDone[d.id]?'<span class="badge b-green">✓ PDF erstellt</span>':`<button class="btn btn-dark btn-sm" data-action="app-doc" data-id="${d.id}">Erstellen</button>`}
+        </div>`).join('')}
+      </div>
       <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Community & Mehr</b>
+        <a class="list-item" href="#/app/mitbestimmen"><span class="li-ico">🗳️</span><div class="li-main"><b>Mitbestimmen</b><small>Feature-Voting · Ihr habt gesagt → getan</small></div><span class="muted">›</span></a>
         <a class="list-item" href="#/app/community"><span class="li-ico">🎉</span><div class="li-main"><b>Events, Shop & Videos</b><small>Turniere, Pro-Shop, Technik-Videos, Party</small></div><span class="muted">›</span></a>
         <a class="list-item" href="#/app/onboarding"><span class="li-ico">🚀</span><div class="li-main"><b>Meine ersten 30 Tage</b><small>Onboarding-Fortschritt</small></div><span class="muted">›</span></a>
       </div>
@@ -966,6 +988,31 @@
       </div>`,'#/app/nachrichten');
   }
 
+  /* ---------- Mitbestimmen: Feature-Voting + Getan-Feed ---------- */
+  function appMitbestimmen(){
+    const rm = D.feedback.roadmap;
+    const maxV = Math.max(...rm.map(r=>r.votes));
+    return appShell(`
+      <h1 class="app-h">Mitbestimmen</h1>
+      <div class="notice">🗳️ Eure Stimme zählt: Wofür sollen wir als Nächstes Zeit und Geld einsetzen? Jede Familie hat 5 Stimmen.</div>
+      <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Abstimmung läuft</b>
+        ${rm.map(r=>`<div style="padding:13px 0;border-bottom:1px solid var(--line-soft)">
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
+            <div style="flex:1"><b>${r.title}</b><br><small class="muted">${r.desc}</small></div>
+            ${r.voted?'<span class="badge b-green">✓ Abgestimmt</span>':`<button class="btn btn-primary btn-sm" data-action="app-vote" data-id="${r.id}">Abstimmen</button>`}
+          </div>
+          <div class="bar" style="margin-top:10px;height:9px"><span style="width:${Math.round(r.votes/maxV*100)}%;background:var(--red)"></span></div>
+          <small class="muted">${r.votes} Stimmen</small>
+        </div>`).join('')}
+        <button class="btn btn-dark btn-block" style="margin-top:12px" data-action="toast" data-msg="Ideen-Formular (Demo)">💡 Eigene Idee einreichen</button>
+      </div>
+      <div class="app-card" style="border-color:var(--green)"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">✅ Ihr habt gesagt → Wir haben's getan</b>
+        ${D.feedback.done.map(d=>`<div class="list-item"><span class="li-ico">✅</span>
+          <div class="li-main"><b>${d.what}</b><small>${d.when} · kam aus: ${d.src}</small></div></div>`).join('')}
+      </div>
+    `,'#/app/konto');
+  }
+
   /* ===========================================================
      ROUTER
      =========================================================== */
@@ -989,6 +1036,7 @@
       else if(seg[1]==='shop') html=appShop();
       else if(seg[1]==='videos') html=appVideos();
       else if(seg[1]==='onboarding') html=appOnboarding();
+      else if(seg[1]==='mitbestimmen') html=appMitbestimmen();
       else html=appNotFound();
     } else if(seg[0]==='crm' || seg[0]==='trainer'){
       html = window.CRM ? window.CRM.route(seg) : home();
@@ -1057,6 +1105,9 @@
     if(a==='save-offer'){ saveFlow.offer=el.dataset.o; saveFlow.done=true; toast('Alles klar — wir kümmern uns!'); render(); return; }
     if(a==='save-skip'){ saveFlow.showForm=true; render(); return; }
     if(a==='save-reset'){ saveFlow={offer:null,done:false,showForm:true}; render(); return; }
+    if(a==='app-pulse'){ pulseVoted=+el.dataset.v; if(D.crm&&D.crm.feedback) D.crm.feedback.pulse.n++; toast('Danke für dein Feedback! 🙏'); render(); return; }
+    if(a==='app-vote'){ const r=D.feedback.roadmap.find(x=>x.id===el.dataset.id); if(r&&!r.voted){ r.voted=true; r.votes++; toast('Stimme gezählt ✓'); } render(); return; }
+    if(a==='app-doc'){ docsDone[el.dataset.id]=true; toast('PDF erstellt — in deinen Downloads (Demo)'); render(); return; }
   });
 
   // live-update select for finder / wizard inputs
