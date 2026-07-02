@@ -20,7 +20,8 @@
       : `<button class="btn btn-dark btn-sm" data-action="crm-toast" data-msg="${label} (Demo)">${label}</button>`;
 
   const state = { role:"Geschäftsführung", standort:"Alle Standorte", leadView:"kanban", inboxSel:0, sideOpen:false, trainerAtt:null, trainerSkills:[],
-    courseFilter:"Alle", kioskLast:null, vw:{step:0,kunde:null,standort:null,tarif:null,laufzeit:null,sepa:false} };
+    courseFilter:"Alle", kioskLast:null, vw:{step:0,kunde:null,standort:null,tarif:null,laufzeit:null,sepa:false},
+    supFilter:"Alle", supSel:"S1" };
 
   /* ---------------- shell ---------------- */
   function shell(content, active){
@@ -40,6 +41,7 @@
       ['#/crm/auslastung','trending','Auslastung','Auslastung'],
       ['#/crm/checkins','clock','Check-ins','Check-ins'],
       ['#/crm/kiosk','monitor','Kiosk Check-in','Check-ins'],
+      ['#/crm/support','headset','Support-Center','Kommunikation'],
       ['#/crm/kommunikation','mail','Kommunikation','Kommunikation'],
       ['#/crm/aufgaben','file','Aufgaben','Kommunikation'],
       ['#/crm/feedback','message','Feedback & Puls','Kommunikation'],
@@ -750,6 +752,60 @@
     `,'#/crm/feedback');
   }
 
+  /* ---------------- support-center (WhatsApp + Telefon, KI beantwortet) ---------------- */
+  function supportCenter(){
+    const S = C().support;
+    const chips = ["Alle","WhatsApp","Telefon"];
+    const match = it => state.supFilter==='Alle' || (state.supFilter==='WhatsApp' ? it.ch==='whatsapp' : it.ch==='phone');
+    const items = S.items.filter(match);
+    if(!items.some(i=>i.id===state.supSel)) state.supSel = items.length ? items[0].id : null;
+    const cur = S.items.find(i=>i.id===state.supSel);
+    const chIco = c => c==='whatsapp' ? '🟢' : '☎️';
+    const stBadge = s => s==='auto' ? '<span class="badge b-green">✓ KI hat geantwortet</span>'
+      : s==='freigabe' ? '<span class="badge b-amber">Wartet auf Freigabe</span>'
+      : s==='mensch' ? '<span class="badge b-red">An Mensch eskaliert</span>'
+      : s==='done' ? '<span class="badge b-green">✓ Erledigt · Termin gebucht</span>'
+      : '<span class="badge b-gray">Gesendet ✓</span>';
+    return shell(`
+      <div class="panel-h" style="margin-bottom:6px;align-items:flex-end"><h1 class="crm-h" style="margin:0">Support-Center</h1>
+        <div class="choices">${chips.map(c=>`<button type="button" class="chip ${state.supFilter===c?'sel':''}" data-action="crm-sup-filter" data-v="${c}">${c}</button>`).join('')}</div></div>
+      <div class="crm-sub">WhatsApp Business + Telefon in einer Inbox — die KI beantwortet einfache Anliegen sofort, alles andere geht mit Entwurf an euch.</div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr)">
+        <div class="kpi"><div class="n">${S.stats.heute}</div><div class="l">Eingegangen heute</div></div>
+        <div class="kpi green"><div class="n">${S.stats.autoKI}</div><div class="l">Von KI sofort beantwortet (${Math.round(S.stats.autoKI/S.stats.heute*100)} %)</div></div>
+        <div class="kpi amber"><div class="n">${S.items.filter(i=>i.status==='freigabe').length}</div><div class="l">Warten auf Freigabe</div></div>
+        <div class="kpi red"><div class="n">${S.items.filter(i=>i.status==='mensch').length}</div><div class="l">An Mensch eskaliert</div></div>
+        <div class="kpi green"><div class="n">${S.stats.zeit}</div><div class="l">Ø Antwortzeit (KI)</div></div>
+      </div>
+      <div class="split">
+        <div class="panel ilist">
+          ${items.map(it=>`<button type="button" class="irow ${it.id===state.supSel?'on':''}" data-action="crm-sup-sel" data-id="${it.id}" aria-pressed="${it.id===state.supSel}">
+            <div style="display:flex;justify-content:space-between;gap:8px"><b>${chIco(it.ch)} ${it.who}</b><small class="muted">${it.time}</small></div>
+            <small class="muted">${it.topic}</small>
+            <div style="margin-top:5px">${stBadge(it.status)}</div>
+          </button>`).join('') || '<p class="muted" style="padding:10px">Keine Einträge für diesen Filter.</p>'}
+        </div>
+        ${cur ? `<div class="panel">
+          <div class="panel-h"><b>${chIco(cur.ch)} ${cur.who} · ${cur.topic}</b>
+            <div style="display:flex;gap:8px;align-items:center">${cur.who.includes('Nicole')?'<a class="btn btn-dark btn-sm" href="#/crm/kunde/A">👤 Kunden-360</a>':''}${stBadge(cur.status)}</div></div>
+          ${cur.ch==='whatsapp'?'<div style="margin-bottom:8px"><span class="badge b-green" style="text-transform:none">🟢 WhatsApp Business · 24h-Fenster aktiv</span></div>':'<div style="margin-bottom:8px"><span class="badge b-gray" style="text-transform:none">☎️ Telefon · KI-Assistent / Transkript</span></div>'}
+          ${cur.msgs.map(([dir,txt])=>`<div class="bubble ${dir==='out'?'me':''}" style="max-width:88%">${txt}</div>`).join('')}
+          ${cur.ai ? `<div style="font-size:12px;color:var(--muted);margin:10px 0 4px;text-transform:uppercase;letter-spacing:1px">${cur.status==='auto'?'KI-Antwort (automatisch gesendet)':cur.status==='mensch'?'KI-Einordnung':'KI-Antwortentwurf'}</div>
+          <div class="aibox" style="${cur.status==='mensch'?'border-left-color:var(--amber)':''}">${cur.ai}</div>` : ''}
+          ${cur.status==='freigabe' ? `<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+            <button class="btn btn-primary btn-sm" data-action="crm-sup-approve" data-id="${cur.id}">Bestätigen & Senden</button>
+            <button class="btn btn-dark btn-sm" data-action="crm-toast" data-msg="Bearbeiten (Demo)">Bearbeiten</button>
+            <button class="btn btn-dark btn-sm" data-action="crm-toast" data-msg="Eskaliert (Demo)">An Mensch eskalieren</button></div>`
+          : cur.status==='mensch' ? `<div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn btn-primary btn-sm" data-action="crm-sup-done" data-id="${cur.id}">Rückruf erledigt ✓</button>
+            <a class="btn btn-dark btn-sm" href="#/crm/aufgaben">Zur Aufgabe</a></div>` : ''}
+          <p class="muted" style="font-size:12px;margin:12px 0 0">${cur.note}</p>
+        </div>` : '<div class="panel"><p class="muted">Kein Eintrag ausgewählt.</p></div>'}
+      </div>
+      <div class="notice">Spielregeln: Die KI beantwortet <b>nur</b> FAQ-Kategorien automatisch (Öffnungszeiten, Preise, Was-mitbringen, Terminbestätigung). Zahlungen, Kündigungen, Beschwerden und alles rund um Kinder gehen <b>immer</b> an einen Menschen. Jede Antwort im Audit-Log · unbekannte Nummern werden automatisch Leads.</div>
+    `,'#/crm/support');
+  }
+
   /* ---------------- kunden-360 (rezeption) ---------------- */
   function kunde360(id){
     const isA = !id || id==='A';
@@ -996,7 +1052,8 @@
     retention:'Mitglieder', upsell:'Mitglieder', kurse:'Kurse', auslastung:'Auslastung', checkins:'Check-ins',
     kiosk:'Check-ins', kommunikation:'Kommunikation', feedback:'Kommunikation', vertraege:'Vertr\u00e4ge', team:'Vertr\u00e4ge',
     zahlungen:'Zahlungen', automationen:'Automationen', reports:'Reports', rollen:'Rollen/Rechte',
-    entscheidungen:'Reports', launch:'Reports', kunde:'Mitglieder', aufgaben:'Kommunikation', zeiten:'Verträge' };
+    entscheidungen:'Reports', launch:'Reports', kunde:'Mitglieder', aufgaben:'Kommunikation', zeiten:'Verträge',
+    support:'Kommunikation' };
   function noAccess(mod){
     return shell(`
       <div class="panel center" style="max-width:520px;margin:40px auto;padding:40px">
@@ -1032,6 +1089,7 @@
     if(r==='entscheidungen') return entscheidungen();
     if(r==='launch') return launchCockpit();
     if(r==='kunde') return kunde360(seg[2]);
+    if(r==='support') return supportCenter();
     if(r==='aufgaben') return aufgaben();
     if(r==='zeiten') return zeiten();
     if(r==='automationen') return automationen();
@@ -1092,6 +1150,10 @@
     if(a==='crm-up-send'){ const u=C().upsell.find(x=>x.id===el.dataset.id); if(u) u.status='gesendet'; (window.__toast||alert)('Angebot gesendet ✓ — liegt jetzt als Karte in der Kunden-App'); window.__render && window.__render(); return; }
     if(a==='crm-up-later'){ const u=C().upsell.find(x=>x.id===el.dataset.id); if(u) u.status='zurückgestellt'; (window.__toast||alert)('Zurückgestellt'); window.__render && window.__render(); return; }
     if(a==='crm-call-done'){ const c=C().calls.find(x=>x.id===el.dataset.id); if(c) c.status='erledigt'; (window.__toast||alert)('Rückruf erledigt ✓'); window.__render && window.__render(); return; }
+    if(a==='crm-sup-filter'){ state.supFilter=el.dataset.v; window.__render && window.__render(); return; }
+    if(a==='crm-sup-sel'){ state.supSel=el.dataset.id; window.__render && window.__render(); return; }
+    if(a==='crm-sup-approve'){ const it=C().support.items.find(x=>x.id===el.dataset.id); if(it){ it.status='sent'; it.note='Von Mitarbeiter freigegeben & gesendet · im Audit-Log protokolliert'; } (window.__toast||alert)('Gesendet ✓ — Trainer-Info wurde automatisch erstellt'); window.__render && window.__render(); return; }
+    if(a==='crm-sup-done'){ const it=C().support.items.find(x=>x.id===el.dataset.id); if(it){ it.status='sent'; it.note='Rückruf erledigt · Fall geschlossen · im Audit-Log protokolliert'; } (window.__toast||alert)('Rückruf erledigt ✓'); window.__render && window.__render(); return; }
     if(a==='crm-rebook'){ const l=C().leads.find(x=>x.noshow); if(l){ l.noshow=false; l.action='Neuer Termin: '+el.dataset.slot; } (window.__toast||alert)('Neu gebucht ✓ — '+el.dataset.slot+' bestätigt, Reminder-Journey neu gestartet'); window.__render && window.__render(); return; }
     if(a==='crm-buddy'){ if(D.kids&&D.kids[0]) D.kids[0].buddy=el.dataset.n; (window.__toast||alert)('Buddy zugewiesen ✓ — Eltern-App aktualisiert'); window.__render && window.__render(); return; }
     if(a==='crm-vertretung'){ if(C().vertretung){ C().vertretung.status='bestätigt'; } (window.__toast||alert)('Vertretung übernommen ✓ — Eltern werden automatisch informiert'); window.__render && window.__render(); return; }

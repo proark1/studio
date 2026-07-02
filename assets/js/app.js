@@ -33,6 +33,7 @@
     activity:'<path d="M3 12h4l3 8 4-16 3 8h4"/>',
     logout:'<path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4"/><path d="M10 12h10M17 8l4 4-4 4"/>',
     play:'<circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z" fill="currentColor"/>',
+    headset:'<path d="M4 14a8 8 0 0 1 16 0"/><rect x="3" y="14" width="4" height="6" rx="2"/><rect x="17" y="14" width="4" height="6" rx="2"/><path d="M21 18v1a3 3 0 0 1-3 3h-4"/>',
   };
   function ICON(name){ const p=ICON_PATHS[name]||''; return `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`; }
   window.ICON = ICON;
@@ -1335,6 +1336,7 @@
     { h:'#/crm/leads/L1', t:'KI mit Freigabe', d:'Die KI schreibt Antwortentwürfe, der Mitarbeiter bestätigt nur — Human-in-the-Loop.' },
     { h:'#/crm/retention', t:'Retention-Inbox', d:'Kündigungsrisiken erkennen und handeln, bevor gekündigt wird.' },
     { h:'#/crm/feedback', t:'NFT Puls', d:'Stimmung je Kurs & Uhrzeit, Detraktor-Alarm mit 24h-SLA, Feature-Voting live.' },
+    { h:'#/crm/support', t:'Support-Center', d:'WhatsApp & Telefon in einer Inbox — die KI beantwortet FAQ sofort, Sensibles geht an Menschen.' },
     { h:'#/crm/kunde/A', t:'Kunden-360', d:'Anruf kommt rein — ein Bildschirm zeigt alles: Kinder, Vertrag, Zahlung, Nachrichten, Aufgaben.' },
     { h:'#/crm/zeiten', t:'Zeiten & Kosten', d:'Gesetzeskonforme Zeiterfassung, aus dem Kursplan vorbefüllt — und P&L je Standort in den Reports.' },
     { h:'#/crm/launch', t:'Launch-Cockpit', d:'Standort Nr. 11 eröffnet mit 63 Gründungsmitgliedern statt bei null — so skaliert 10 → 50.' },
