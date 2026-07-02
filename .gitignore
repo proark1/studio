@@ -1,6 +1,11 @@
 # Lokale Claude-Code-Einstellungen (benutzer-spezifisch)
 .claude/settings.local.json
 
+# Node backend (Bild-Studio image API)
+node_modules/
+.env
+npm-debug.log*
+
 # OS / Editor
 .DS_Store
 Thumbs.db

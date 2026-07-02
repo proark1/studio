@@ -1,0 +1,17 @@
+{
+  "name": "nft-gym-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NFT Gym prototype (static SPA) + Bild-Studio image API backed by Postgres",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.11.5"
+  }
+}

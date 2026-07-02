@@ -9,7 +9,11 @@
   const LS_KEY = 'nft_gemini_key';
   const LS_META = 'nft_img_meta';
   const LS_PROMPTS = 'nft_img_prompts';
+  const LS_TOKEN = 'nft_admin_token';
   const IMG_PREFIX = 'nft_img_';
+  const cloud = {};                              // id -> DB record (when API on)
+  const API = { on:false, checked:false, db:false };
+  const token = () => { try{ return (localStorage.getItem(LS_TOKEN)||'').trim(); }catch(e){ return ''; } };
 
   /* ---------- Bild-Register: alle Bilder der Website ---------- */
   const SHOP_PROMPTS = {
@@ -91,9 +95,11 @@
 
   /* ---------- helpers ---------- */
   const readMeta = () => { try{ return JSON.parse(localStorage.getItem(LS_META)||'{}'); }catch(e){ return {}; } };
+  const metaFor = id => { const m=readMeta()[id]; if(m) return m;
+    if(API.on && cloud[id]){ const c=cloud[id]; return {raw:c.bytes,comp:c.bytes,w:c.width,h:c.height,model:c.model}; } return {}; };
   const dataSize = d => Math.round((d.length - d.indexOf(',') - 1) * 3/4); // Bytes aus Base64-Länge
   const fmtSize = b => b >= 1048576 ? (b/1048576).toFixed(1).replace('.',',')+' MB' : Math.max(1,Math.round(b/1024))+' KB';
-  const hasOverride = id => !!localStorage.getItem(IMG_PREFIX+id);
+  const hasOverride = id => API.on ? !!cloud[id] : !!localStorage.getItem(IMG_PREFIX+id);
   const storageUsed = () => SLOTS.reduce((n,s)=>n+(localStorage.getItem(IMG_PREFIX+s.id)||'').length,0);
 
   function compressImg(dataURL, maxW, quality, format){
@@ -133,11 +139,34 @@
     return 'data:'+(p.inlineData.mimeType||'image/png')+';base64,'+p.inlineData.data;
   }
 
-  function saveImage(id, url, meta){
-    try{ localStorage.setItem(IMG_PREFIX+id, url); }
-    catch(e){ throw new Error('Browser-Speicher voll — Qualität reduzieren und „Neu komprimieren“ nutzen.'); }
-    const m = readMeta(); m[id] = meta;
-    try{ localStorage.setItem(LS_META, JSON.stringify(m)); }catch(e){}
+  // Speichert ein Bild: lokal (Cache, best effort) und — wenn API aktiv — in Postgres.
+  async function persist(id, url, meta){
+    try{ localStorage.setItem(IMG_PREFIX+id, url); const m=readMeta(); m[id]=meta; localStorage.setItem(LS_META, JSON.stringify(m)); }
+    catch(e){ if(!API.on) throw new Error('Browser-Speicher voll — Qualität reduzieren und „Neu komprimieren“ nutzen.'); }
+    if(API.on){
+      cloud[id] = { data_url:url, bytes:meta.comp, width:meta.w, height:meta.h, model:meta.model };
+      const r = await fetch('/api/images/'+encodeURIComponent(id), { method:'PUT',
+        headers: Object.assign({'Content-Type':'application/json'}, token()?{'x-admin-token':token()}:{}),
+        body: JSON.stringify({ data_url:url, mime:st.format, width:meta.w, height:meta.h, bytes:meta.comp, prompt:st.prompts[id], model:meta.model }) });
+      if(!r.ok){ const e = await r.json().catch(()=>({})); throw new Error(e.error || ('Speichern in der Datenbank fehlgeschlagen (HTTP '+r.status+')')); }
+    }
+  }
+
+  // Beim Laden: Backend erkennen und gespeicherte Bilder anwenden (sonst localStorage-Modus).
+  async function apiInit(){
+    try{
+      const h = await fetch('/api/health', {cache:'no-store'}).then(r=> r.ok ? r.json() : Promise.reject());
+      API.checked = true; API.db = !!(h && h.db);
+      if(h && h.db){
+        const data = await fetch('/api/images', {cache:'no-store'}).then(r=>r.json());
+        API.on = true;
+        Object.entries(data.images||{}).forEach(([id,rec])=>{
+          const slot = SLOTS.find(s=>s.id===id);
+          if(slot && rec && rec.data_url){ cloud[id]=rec; slot.set(rec.data_url); }
+        });
+      }
+    }catch(e){ API.checked = true; /* kein Backend → localStorage-Modus */ }
+    render();
   }
 
   async function doGenerate(id){
@@ -149,34 +178,35 @@
       const raw = await geminiGenerate(st.prompts[id], slot.ratio, key);
       st.raw[id]=raw;
       const c = await compressImg(raw, slot.maxW, st.quality, st.format);
-      saveImage(id, c.url, { raw:dataSize(raw), comp:dataSize(c.url), w:c.w, h:c.h, model:st.model });
       slot.set(c.url);
-      toast('Bild generiert & komprimiert ✓');
+      await persist(id, c.url, { raw:dataSize(raw), comp:dataSize(c.url), w:c.w, h:c.h, model:st.model });
+      toast(API.on ? 'Bild generiert & in der Datenbank gespeichert ✓' : 'Bild generiert & komprimiert ✓');
     }catch(err){ st.err[id]=String(err.message||err); }
     st.busy[id]=false; render();
   }
 
   async function doRecompress(id){
     const slot = SLOTS.find(s=>s.id===id); if(!slot) return;
-    const src = st.raw[id] || localStorage.getItem(IMG_PREFIX+id);
+    const src = st.raw[id] || (cloud[id]&&cloud[id].data_url) || localStorage.getItem(IMG_PREFIX+id);
     if(!src) return;
     st.busy[id]=true; st.err[id]=null; render();
     try{
       const c = await compressImg(src, slot.maxW, st.quality, st.format);
-      const meta = readMeta()[id]||{};
-      saveImage(id, c.url, { ...meta, raw:meta.raw||dataSize(src), comp:dataSize(c.url), w:c.w, h:c.h });
+      const meta = metaFor(id);
       slot.set(c.url);
+      await persist(id, c.url, { ...meta, raw:meta.raw||dataSize(src), comp:dataSize(c.url), w:c.w, h:c.h, model:meta.model||st.model });
       toast('Neu komprimiert ✓ — '+fmtSize(dataSize(c.url)));
     }catch(err){ st.err[id]=String(err.message||err); }
     st.busy[id]=false; render();
   }
 
-  function doReset(id){
+  async function doReset(id){
     const slot = SLOTS.find(s=>s.id===id); if(!slot) return;
     localStorage.removeItem(IMG_PREFIX+id);
     const m = readMeta(); delete m[id];
     try{ localStorage.setItem(LS_META, JSON.stringify(m)); }catch(e){}
-    delete st.raw[id]; st.err[id]=null;
+    delete st.raw[id]; st.err[id]=null; delete cloud[id];
+    if(API.on){ try{ await fetch('/api/images/'+encodeURIComponent(id), { method:'DELETE', headers: token()?{'x-admin-token':token()}:{} }); }catch(e){} }
     slot.set(slot.def);
     toast('Standard-Bild wiederhergestellt');
     render();
@@ -194,7 +224,7 @@
 
   /* ---------- views ---------- */
   function slotCard(s){
-    const meta = readMeta()[s.id]||{};
+    const meta = metaFor(s.id);
     const over = hasOverride(s.id);
     const busy = st.busy[s.id];
     const cur = s.get();
@@ -255,7 +285,9 @@
                 <option value="gemini-2.5-flash-image" ${st.model==='gemini-2.5-flash-image'?'selected':''}>Gemini 2.5 Flash Image — schnell & günstig</option>
                 <option value="gemini-3-pro-image-preview" ${st.model==='gemini-3-pro-image-preview'?'selected':''}>Gemini 3 Pro Image — höchste Qualität</option>
               </select></div>
-            <p class="muted" style="font-size:12px;margin:0">Der Key wird nur lokal in diesem Browser gespeichert und direkt an Google gesendet. Key erstellen: <b>aistudio.google.com</b> → „Get API key“.</p>
+            <div class="field" style="margin-bottom:8px"><label for="adm-token">Admin-Token <span class="muted" style="text-transform:none;letter-spacing:0">(optional — nur wenn der Server ADMIN_TOKEN gesetzt hat)</span></label>
+              <input id="adm-token" type="password" value="${token().replace(/"/g,'&quot;')}" placeholder="für DB-Schreibzugriff" autocomplete="off" data-admin="adm-token"></div>
+            <p class="muted" style="font-size:12px;margin:0">Key & Token bleiben nur lokal in diesem Browser. Der Gemini-Key geht direkt an Google. Key erstellen: <b>aistudio.google.com</b> → „Get API key“.</p>
           </div>
           <div class="card">
             <h3 style="font-size:17px;margin-bottom:12px">🗜️ Komprimierung</h3>
@@ -272,7 +304,7 @@
 
         <div class="section-head" style="margin-bottom:16px"><div>
           <h2 style="font-size:24px">Bilder der Website</h2>
-          <p class="muted" style="margin-top:4px">${genCount} von ${SLOTS.length} generiert · Speicher: ${fmtSize(used)} von ~5 MB belegt</p></div>
+          <p class="muted" style="margin-top:4px">${genCount} von ${SLOTS.length} generiert · ${API.on ? '☁️ <b style="color:var(--green)">Postgres verbunden</b> — geteilt & persistent' : (API.checked ? '💾 Lokal (localStorage): '+fmtSize(used)+' / ~5 MB' : '… Speicher wird geprüft')}</p></div>
           <button class="btn btn-primary btn-sm" data-admin="adm-generate-all" ${st.busyAll?'disabled':''}>${st.busyAll?'⏳ Generiere alle…':'✨ Alle '+SLOTS.length+' Bilder generieren'}</button>
         </div>
         ${(()=>{ const groups=[]; SLOTS.forEach(s=>{ let g=groups.find(x=>x.name===s.group); if(!g){ g={name:s.group,slots:[]}; groups.push(g); } g.slots.push(s); });
@@ -304,6 +336,7 @@
     const el = e.target.closest('[data-admin]'); if(!el) return;
     const a = el.dataset.admin;
     if(a==='adm-key'){ localStorage.setItem(LS_KEY, el.value.trim()); return; }
+    if(a==='adm-token'){ try{ localStorage.setItem(LS_TOKEN, el.value.trim()); }catch(err){} return; }
     if(a==='adm-quality'){ st.quality=(+el.value)/100; const v=document.getElementById('adm-q-val'); if(v) v.textContent=el.value+' %'; return; }
     if(a==='adm-prompt'){ st.prompts[el.dataset.id]=el.value; try{ localStorage.setItem(LS_PROMPTS, JSON.stringify(st.prompts)); }catch(err){} return; }
   });
@@ -315,4 +348,5 @@
   });
 
   window.ADMIN = { route: () => adminPage() };
+  apiInit(); // Backend erkennen + gespeicherte Bilder laden (fällt sonst auf localStorage zurück)
 })();
