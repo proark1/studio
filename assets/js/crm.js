@@ -15,13 +15,13 @@
   const ageBadge = m => m===undefined ? '' : m>=60
     ? `<span class="badge b-red">⏱ vor ${Math.round(m/60*10)/10} Std</span>`
     : m>=30 ? `<span class="badge b-amber">⏱ vor ${m} Min</span>` : `<span class="badge b-green">⏱ vor ${m} Min</span>`;
-  const srcBadge = s => s ? `<span class="badge b-gray" style="text-transform:none;letter-spacing:0">${({Website:'🌐',Instagram:'📸','Google Maps':'📍',WhatsApp:'🟢'}[s]||'☎️')} ${s}</span>` : '';
+  const srcBadge = s => s ? `<span class="badge badge-label b-gray">${({Website:'🌐',Instagram:'📸','Google Maps':'📍',WhatsApp:'🟢'}[s]||'☎️')} ${s}</span>` : '';
   const actBtn = label => label==='—' ? '<span class="muted">—</span>'
       : `<button class="btn btn-dark btn-sm" data-action="crm-toast" data-msg="${label} (Demo)">${label}</button>`;
 
   const state = { role:"Geschäftsführung", standort:"Alle Standorte", leadView:"kanban", inboxSel:0, sideOpen:false, trainerAtt:null, trainerSkills:[],
     courseFilter:"Alle", kioskLast:null, vw:{step:0,kunde:null,standort:null,tarif:null,laufzeit:null,sepa:false},
-    supFilter:"Alle", supSel:"S1", sort:{} };
+    supFilter:"Alle", supSel:"S1", sort:{}, kpiAll:false };
 
   // --- client-side sortable tables ---
   function sortRows(id, rows, cols){
@@ -32,10 +32,16 @@
   }
   function sortHead(id, cols){
     const s = state.sort[id]||{};
-    return '<tr>'+cols.map((c,i)=>{ const on=s.col===i, arr=on?(s.dir>0?' ▲':' ▼'):'';
-      return c.get ? `<th style="cursor:pointer;user-select:none" data-action="crm-sort" data-id="${id}" data-col="${i}" aria-sort="${on?(s.dir>0?'ascending':'descending'):'none'}">${c.label}${arr}</th>`
-                   : `<th>${c.label}</th>`; }).join('')+'</tr>';
+    return '<tr>'+cols.map((c,i)=>{ const on=s.col===i, arr=on?(s.dir>0?' ▲':' ▼'):''; const cls=c.num?' class="num"':'';
+      return c.get ? `<th${cls} style="cursor:pointer;user-select:none" data-action="crm-sort" data-id="${id}" data-col="${i}" aria-sort="${on?(s.dir>0?'ascending':'descending'):'none'}">${c.label}${arr}</th>`
+                   : `<th${cls}>${c.label}</th>`; }).join('')+'</tr>';
   }
+  // unified page header + empty states (used across all screens for consistency)
+  function crmHead(title, sub, actions){
+    return `<div class="crm-head"><div><h1 class="crm-h">${title}</h1>${sub?`<div class="crm-sub">${sub}</div>`:''}</div>${actions?`<div>${actions}</div>`:''}</div>`;
+  }
+  const emptyRow = (cols, msg) => `<tr><td colspan="${cols}" class="muted" style="text-align:center;padding:22px">${msg||('Für '+state.standort+' liegen keine Einträge vor.')}</td></tr>`;
+  const emptyState = (ico, title, sub) => `<div class="panel"><div class="crm-empty"><div class="em-ico">${ico}</div><b>${title}</b>${sub?`<p class="muted" style="margin:6px 0 0">${sub}</p>`:''}</div></div>`;
 
   /* ---------------- shell ---------------- */
   function shell(content, active){
@@ -66,9 +72,13 @@
       ['#/crm/reports','bars','Reports','Reports','Steuerung'],
       ['#/crm/entscheidungen','file','Entscheidungen','Reports','Steuerung'],
       ['#/crm/rollen','shield','Rollen & Rechte','Rollen/Rechte','Steuerung'],
-    ].filter(x => can(x[3]));
+    ];
+    // Rezeption/Sales sieht nur die Alltags-Screens (Rest bleibt per Direktlink erreichbar)
+    const RECEPTION_NAV = ['#/crm/dashboard','#/crm/leads','#/crm/mitglieder','#/crm/checkins','#/crm/kiosk','#/crm/support','#/crm/zahlungen'];
+    const navVisible = x => can(x[3]) && (state.role!=='Rezeption / Sales' || RECEPTION_NAV.includes(x[0]));
+    const navItems = nav.filter(navVisible);
     let lastG='';
-    const navHtml = nav.map(([h,i,l,,g])=>{
+    const navHtml = navItems.map(([h,i,l,,g])=>{
       const head = g!==lastG ? `<div class="crm-navsec">${g}</div>` : ''; lastG=g;
       return head + `<a href="${h}" class="${active===h?'active':''}"${active===h?' aria-current="page"':''}><span class="ci">${I(i)}</span>${l}</a>`;
     }).join('');
@@ -80,6 +90,7 @@
         <a href="#/trainer" class="crm-nav" style="color:var(--muted);padding:10px 12px;font-size:13px;display:flex;align-items:center;gap:10px"><span class="ci">${I('activity')}</span>Trainer-Ansicht →</a>
         <div class="role-note">Angemeldet als<br><b style="color:var(--text)">${state.role}</b><br><a href="#/crm" style="color:var(--red-ink)">Rolle wechseln →</a></div>
       </aside>
+      ${state.sideOpen?'<div class="crm-scrim" data-action="crm-menu" aria-label="Menü schließen"></div>':''}
       <div class="crm-main">
         <div class="crm-top">
           <button class="icon-btn crm-burger" data-action="crm-menu" aria-label="Menü">${I('menu')}</button>
@@ -119,46 +130,52 @@
 
   /* ---------------- dashboard ---------------- */
   function dashboard(){
-    const kpis = C().kpis.map(k=>`<a class="kpi ${k.v}" href="${k.go}"><div class="n">${k.n}</div><div class="l">${k.l}</div></a>`).join('');
+    const K = C().kpis, coreIdx=[1,2,7,8];
+    const shownK = state.kpiAll ? K.map((_,i)=>i) : coreIdx;
+    const kpis = shownK.map(i=>`<a class="kpi ${K[i].v}" href="${K[i].go}"><div class="n">${K[i].n}</div><div class="l">${K[i].l}</div></a>`).join('');
     const feed = byLoc(C().checkins).slice(0,5).map(c=>`<tr><td>${c.time}</td><td><b>${c.person}</b></td><td>${c.course}</td><td>${c.loc}</td>
       <td><span class="badge ${c.status==='Check-out'?'b-gray':'b-green'}">${c.status}</span></td></tr>`).join('');
-    const tasks = [
-      [`🎯 ${byLoc(C().leads).filter(l=>l.stage==='Neu').length} neue Leads beantworten`,'#/crm/leads'],
-      [`💶 ${C().paysummary.rueck} Rücklastschriften bearbeiten`,'#/crm/zahlungen'],
-      ['✉️ 13 KI-Entwürfe prüfen','#/crm/kommunikation'],
-      ['📝 8 Verträge offen','#/crm/vertraege'],
-    ];
+    // Eine priorisierte, deduplizierte „Heute zuerst“-Liste aus allen Aufgabenquellen
+    const nLeads = byLoc(C().leads).filter(l=>l.stage==='Neu').length;
+    const nDrafts = C().inbox.filter(m=>m.status!=='Beantwortet').length;
+    const nRet = C().retention.filter(r=>r.status==='offen').length;
+    const todo = [
+      C().paysummary.rueck>0 && ['💶', `${C().paysummary.rueck} Rücklastschriften bearbeiten`, '#/crm/zahlungen', true],
+      nLeads>0 && ['🎯', `${nLeads} neue Leads beantworten`, '#/crm/leads', false],
+      nDrafts>0 && ['✉️', `${nDrafts} KI-Entwürfe freigeben`, '#/crm/kommunikation', false],
+      nRet>0 && ['📉', `${nRet} Retention-Fälle prüfen`, '#/crm/retention', false],
+      ['🥋', `${C().pruefung.title} heute`, '#/trainer/pruefung', false],
+      ['📝', '8 Verträge offen', '#/crm/vertraege', false],
+    ].filter(Boolean).slice(0,6);
+    const sub = state.role==='Rezeption / Sales' ? `Heute · ${state.standort} · deine offenen Vorgänge zuerst`
+      : state.role==='Standortleiter' ? `Heute · ${state.standort} · dein Standort auf einen Blick`
+      : `Heute · ${state.standort} · Franchise-Überblick`;
     return shell(`
-      <h1 class="crm-h">Dashboard</h1>
-      <div class="crm-sub">Heute · ${state.standort} · Standortleitung sieht sofort, was wichtig ist</div>
-      <div class="panel" style="border-color:var(--red)"><div class="panel-h"><b>📋 Morgen-Briefing</b><span class="muted" style="font-size:12px">automatisch erstellt · heute 07:00</span></div>
-        ${C().briefing_today.map(b=>`<a class="list-item" href="${b.href}"><span class="li-ico">${b.ico}</span><div class="li-main"><b>${b.t}</b></div><span class="muted">›</span></a>`).join('')}
+      ${crmHead('Dashboard', sub)}
+      <div class="panel" style="border-left:4px solid var(--red)"><div class="panel-h"><b>✅ Heute zuerst</b><span class="muted" style="font-size:12px">priorisiert · automatisch aus allen Quellen</span></div>
+        ${todo.map(([ico,t,href,urgent])=>`<a class="list-item" href="${href}"><span class="li-ico"${urgent?' style="background:var(--red-050)"':''}>${ico}</span><div class="li-main"><b>${t}</b></div><span class="muted">›</span></a>`).join('')}
       </div>
       <div class="kpi-grid">${kpis}</div>
+      <div style="margin:-4px 0 18px"><button class="btn btn-dark btn-sm" data-action="crm-kpi-all">${state.kpiAll?'Weniger anzeigen':`Alle ${K.length} Kennzahlen anzeigen`}</button></div>
       <div class="split" style="grid-template-columns:1.4fr 1fr">
         <div class="panel"><div class="panel-h"><b>Heute im Studio</b><a href="#/crm/checkins" style="color:var(--red-ink);font-size:14px;font-weight:600">Live-Monitor →</a></div>
-          <table class="tbl"><thead><tr><th>Zeit</th><th>Person</th><th>Kurs</th><th>Standort</th><th>Status</th></tr></thead><tbody>${feed}</tbody></table></div>
-        <div class="panel"><div class="panel-h"><b>Zu erledigen</b></div>
-          ${tasks.map(([t,h])=>`<a class="list-item" href="${h}"><div class="li-main"><b>${t}</b></div><span class="muted">›</span></a>`).join('')}</div>
-      </div>
-      <div class="split">
-        <div class="panel"><div class="panel-h"><b>🚨 Anomalie-Radar</b><span class="muted" style="font-size:12px">automatisch erkannt</span></div>
-          ${C().anomalies.map(x=>`<div class="list-item"><span class="li-ico" style="${x.sev==='red'?'background:var(--red-050)':''}">${x.ico}</span>
-            <div class="li-main"><b>${x.t}</b><small>${x.d}</small></div>
-            <span class="badge ${x.sev==='red'?'b-red':'b-amber'}">${x.sev==='red'?'kritisch':'beobachten'}</span></div>`).join('')}
-        </div>
+          <table class="tbl"><thead><tr><th>Zeit</th><th>Mitglied</th><th>Kurs</th><th>Standort</th><th>Status</th></tr></thead><tbody>${feed||emptyRow(5)}</tbody></table></div>
         <div class="panel"><div class="panel-h"><b>🎯 Monatsziele · ${C().goals.month}</b></div>
           ${C().goals.items.map(g=>{ const p=Math.round(g.cur/g.goal*100);
             return `<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px"><b>${g.t}</b><span class="muted">${g.cur} / ${g.goal}</span></div>
             <div class="bar" style="height:10px"><span style="width:${Math.min(100,p)}%;background:${p>=70?'var(--green)':p>=45?'var(--amber)':'var(--red)'}"></span></div></div>`; }).join('')}
-          <p class="muted" style="font-size:12px;margin:0">Bei Rückstand > 20 % zum Monatsdrittel gibt es automatisch einen Hinweis mit Maßnahmen-Vorschlag.</p>
         </div>
+      </div>
+      <div class="panel"><div class="panel-h"><b>📊 Muster & Signale</b><span class="muted" style="font-size:12px">automatisch erkannt · keine To-dos</span></div>
+        ${C().anomalies.map(x=>`<div class="list-item"><span class="li-ico" style="${x.sev==='red'?'background:var(--red-050)':''}">${x.ico}</span>
+          <div class="li-main"><b>${x.t}</b><small>${x.d}</small></div>
+          <span class="badge ${x.sev==='red'?'b-red':'b-amber'}">${x.sev==='red'?'kritisch':'beobachten'}</span></div>`).join('')}
       </div>
       <div class="panel"><div class="panel-h"><b>📞 Verpasste Anrufe heute</b><span class="badge b-red">${byLoc(C().calls).filter(c=>c.status==='offen').length} offen</span></div>
         <table class="tbl"><thead><tr><th>Zeit</th><th>Nummer</th><th>Standort</th><th>Automatik</th><th></th></tr></thead><tbody>
         ${byLoc(C().calls).map(c=>`<tr style="${c.status!=='offen'?'opacity:.5':''}"><td>${c.time}</td><td><b>${c.num}</b></td><td>${c.loc}</td>
-          <td><span class="badge ${c.status==='offen'?'b-green':'b-gray'}" style="text-transform:none;letter-spacing:0">${c.auto}</span></td>
-          <td>${c.status==='offen'?`<button class="btn btn-dark btn-sm" data-action="crm-call-done" data-id="${c.id}">Rückruf erledigt</button>`:'<span class="badge b-green">✓</span>'}</td></tr>`).join('')}
+          <td><span class="badge badge-label ${c.status==='offen'?'b-green':'b-gray'}">${c.auto}</span></td>
+          <td>${c.status==='offen'?`<button class="btn btn-dark btn-sm" data-action="crm-call-done" data-id="${c.id}">Rückruf erledigt</button>`:'<span class="badge b-green">✓</span>'}</td></tr>`).join('') || emptyRow(5)}
         </tbody></table>
         <div style="display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap">
           <button class="btn btn-primary btn-sm" data-action="crm-call-voice">🎤 Sprachnotiz → Lead anlegen</button>
@@ -187,10 +204,7 @@
       </tbody></table></div>`;
     }
     return shell(`
-      <div class="panel-h" style="margin-bottom:16px;align-items:flex-end">
-        <div><h1 class="crm-h" style="margin:0">Leads & Probetraining</h1><div class="crm-sub" style="margin:4px 0 0">Aktive Pipeline (Demo-Auszug) · franchiseweit diese Woche: 18 neue Anfragen</div></div>
-        <div class="seg"><button class="${state.leadView==='kanban'?'on':''}" data-action="crm-leadview" data-v="kanban">Kanban</button><button class="${state.leadView==='table'?'on':''}" data-action="crm-leadview" data-v="table">Tabelle</button></div>
-      </div>${body}`,'#/crm/leads');
+      ${crmHead('Leads & Probetraining','Aktive Pipeline (Demo-Auszug) · 18 neue Anfragen diese Woche',`<div class="seg"><button class="${state.leadView==='kanban'?'on':''}" data-action="crm-leadview" data-v="kanban">Kanban</button><button class="${state.leadView==='table'?'on':''}" data-action="crm-leadview" data-v="table">Tabelle</button></div>`)}${body}`,'#/crm/leads');
   }
 
   function leadDetail(id){
@@ -207,7 +221,7 @@
         </div>
         <p class="muted" style="font-size:12px;margin:10px 0 0">Ohne Reaktion: sanfte Erinnerung nach 3 Tagen, dann Lead → „Verloren" mit Win-back in 90 Tagen. Rettet typisch 20–30 % der No-Shows.</p></div>`:''}
       ${l.trialTags?`<div class="panel" style="border-color:var(--green)"><div class="panel-h"><b>🥋 Trainer-Eindruck aus dem Probetraining</b><span class="muted" style="font-size:12px">von Trainer Igor, 30-Sek-Tags</span></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">${l.trialTags.map(t=>`<span class="badge b-green" style="text-transform:none;letter-spacing:0">${t}</span>`).join('')}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">${l.trialTags.map(t=>`<span class="badge badge-label b-green">${t}</span>`).join('')}</div>
         <p class="muted" style="font-size:12px;margin:10px 0 0">Diese Tags fließen automatisch in den Angebotsentwurf rechts — das Angebot nennt konkrete Stärken statt Floskeln.</p></div>`:''}
       <div class="split" style="grid-template-columns:1fr 1.15fr">
         <div>
@@ -251,7 +265,7 @@
     return shell(`
       <h1 class="crm-h">Mitglieder & Familien</h1>
       <div class="crm-sub">Demo-Auszug: ${byLoc(C().members).length} Einträge · ${state.standort} · Franchise gesamt: ${C().fact.mitglieder.toLocaleString("de-DE")} aktive Mitglieder · Spalte klicken = sortieren, Zeile öffnet Profil</div>
-      <div class="panel"><table class="tbl"><thead>${sortHead('members', cols)}</thead><tbody>${rows}</tbody></table></div>`,'#/crm/mitglieder');
+      <div class="panel"><table class="tbl"><thead>${sortHead('members', cols)}</thead><tbody>${rows||emptyRow(7)}</tbody></table></div>`,'#/crm/mitglieder');
   }
 
   function family(id){
@@ -308,8 +322,7 @@
       return `<tr onclick="location.hash='#/crm/kurse/${c.id}'"><td><a href="#/crm/kurse/${c.id}"><b>${c.name}</b></a></td><td>${c.day} ${c.time}</td><td>${c.loc}</td><td>${c.trainer}</td>
         <td>${c.booked}/${c.cap}<div class="capbar"><span style="width:${pct}%;background:${col}"></span></div></td><td>${occ(c.occ)}</td></tr>`; }).join('');
     return shell(`
-      <div class="panel-h" style="margin-bottom:16px;align-items:flex-end"><h1 class="crm-h" style="margin:0">Kurse & Stundenplan</h1>
-        <div class="choices">${filters.map(f=>`<button type="button" class="chip ${cf===f?'sel':''}" data-action="crm-cf" data-v="${f}">${f}</button>`).join('')}</div></div>
+      ${crmHead('Kurse & Stundenplan','Auslastung je Kurs · nach Standort/Typ filtern',`<div class="choices">${filters.map(f=>`<button type="button" class="chip ${cf===f?'sel':''}" data-action="crm-cf" data-v="${f}">${f}</button>`).join('')}</div>`)}
       <div class="panel"><table class="tbl"><thead><tr><th>Kurs</th><th>Zeit</th><th>Standort</th><th>Trainer</th><th>Auslastung</th><th>Status</th></tr></thead><tbody>${rows || '<tr><td colspan="6" class="muted">Keine Kurse für diesen Filter.</td></tr>'}</tbody></table></div>`,'#/crm/kurse');
   }
 
@@ -333,7 +346,7 @@
     const kpis = [["72 %","Ø Auslastung",""],["7","Überfüllte Kurse","amber"],["5","Unterausgelastet",""],["Mi 15:30","Ruhigster Slot","green"]];
     return shell(`
       <h1 class="crm-h">Auslastung</h1>
-      <div class="crm-sub">${state.standort==='Alle Standorte'?'Krefeld':state.standort} · aktuelle Woche · datengetriebene Steuerung</div>
+      <div class="crm-sub">${state.standort==='Alle Standorte'?'Krefeld':state.standort} · aktuelle Woche · grün = ruhig, rot = voll</div>
       <div class="kpi-grid">${kpis.map(([n,l,v])=>`<div class="kpi ${v}"><div class="n" style="font-size:26px">${n}</div><div class="l">${l}</div></div>`).join('')}</div>
       <div class="panel"><div class="panel-h"><b>Heatmap · Wochentag × Uhrzeit</b></div>
         <div class="heat"><table><thead><tr><th></th>${D.heatDays.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div></div>
@@ -352,7 +365,7 @@
       <div class="crm-sub">Live · Chip / QR / RFID · ${state.standort}</div>
       <div class="split" style="grid-template-columns:1.5fr 1fr">
         <div class="panel"><div class="panel-h"><b>Live-Feed</b><span class="badge b-green">● live</span></div>
-          <table class="tbl"><thead><tr><th>Zeit</th><th>Person</th><th>Standort</th><th>Kurs</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>
+          <table class="tbl"><thead><tr><th>Zeit</th><th>Mitglied</th><th>Standort</th><th>Kurs</th><th>Status</th></tr></thead><tbody>${rows||emptyRow(5)}</tbody></table>
           <div class="notice" style="margin-top:14px">Jeder Scan speist Auslastung, Retention-Frühwarnung und den Check-in/out-Push an Eltern.</div></div>
         <div class="panel"><div class="panel-h"><b>Aktionen</b></div>
           ${actions.map(a=>`<button class="btn btn-dark btn-block" style="margin-bottom:8px;justify-content:flex-start;text-transform:none;font-family:var(--ff-body);letter-spacing:0;font-size:14px" data-action="crm-toast" data-msg="${a} (Demo)">${a}</button>`).join('')}</div>
@@ -375,7 +388,7 @@
         <div class="panel"><div class="panel-h"><b>${m.customer} · ${m.topic}</b>
           <div style="display:flex;gap:8px;align-items:center"><a class="btn btn-dark btn-sm" href="#/crm/kunde/A">👤 Kunden-360</a><span class="badge ${escal?'b-red':'b-green'}">${m.status}</span></div></div>
           <div style="font-size:13px;color:var(--muted);margin-bottom:10px;display:flex;gap:8px;align-items:center">Kanal: ${m.channel}
-            ${m.wa?'<span class="badge b-green" style="text-transform:none">🟢 24h-Antwortfenster aktiv</span>':''}</div>
+            ${m.wa?'<span class="badge badge-label b-green">🟢 24h-Antwortfenster aktiv</span>':''}</div>
           ${m.wa?`${(m.chat||[]).map(([dir,txt])=>`<div class="bubble" style="max-width:85%;${dir==='in'?'':'margin-left:auto'}">${txt}</div>`).join('')}
             <div style="font-size:12px;color:var(--muted);margin:8px 0 4px;text-transform:uppercase;letter-spacing:1px">KI-Antwortentwurf</div>`:''}
           <div class="aibox">${m.draft}</div>
@@ -402,10 +415,8 @@
       ['Deniz T.','Teens MMA','Entwurf','12 Mon.','b-gray','Senden'],
     ];
     return shell(`
-      <div class="panel-h" style="margin-bottom:16px;align-items:flex-end"><h1 class="crm-h" style="margin:0">Verträge</h1>
-        <a class="btn btn-primary btn-sm" href="#/crm/vertraege/neu">+ Neuer Vertrag</a></div>
-      <div class="crm-sub">Auszug: die 5 aktuellsten · franchiseweit 8 offene Verträge</div>
-      <div class="panel"><table class="tbl"><thead><tr><th>Kunde</th><th>Tarif</th><th>Status</th><th>Laufzeit</th><th>Aktion</th></tr></thead><tbody>
+      ${crmHead('Verträge','Auszug: die 5 aktuellsten · franchiseweit 8 offene Verträge','<a class="btn btn-primary btn-sm" href="#/crm/vertraege/neu">+ Neuer Vertrag</a>')}
+      <div class="panel"><table class="tbl"><thead><tr><th>Mitglied</th><th>Tarif</th><th>Status</th><th>Laufzeit</th><th>Aktion</th></tr></thead><tbody>
         ${rows.map(([k,t,s,l,b,a])=>`<tr><td><b>${k}</b></td><td>${t}</td><td><span class="badge ${b}">${s}</span></td><td>${l}</td><td>${actBtn(a)}</td></tr>`).join('')}
       </tbody></table></div>
       <div class="notice">Rechtlich erzwungen: max. 24 Monate Erstlaufzeit · Verlängerung monatlich kündbar (§ 309 BGB) · digitales SEPA-Mandat · Widerruf · Kündigungsbutton (§ 312k).</div>`,'#/crm/vertraege');
@@ -415,20 +426,27 @@
   function payments(){
     const s = C().paysummary;
     const order = {rueck:0, offen:1, bezahlt:2};
-    const ps = byLoc(C().payments).slice().sort((a,b)=>order[a.status]-order[b.status]);
+    const cols=[
+      {label:'Mitglied', get:p=>p.who},
+      {label:'Betrag', num:true, get:p=>parseFloat(String(p.amount).replace(/[^0-9,]/g,'').replace(',','.'))||0},
+      {label:'Grund', get:p=>p.reason},
+      {label:'Alter', num:true, get:p=>p.age==='—'?0:parseInt(p.age)||0},
+      {label:'Status', get:p=>order[p.status]},
+      {label:'Aktion'},
+    ];
+    const ps = sortRows('payments', byLoc(C().payments).slice().sort((a,b)=>order[a.status]-order[b.status]), cols);
     const rows = ps.map(p=>{ const pb=payBadge(p.status);
       const act = p.status==='rueck'?'Neuer Einzug':p.status==='offen'?'Erinnerung senden':'—';
       const armed = state.arm==='pay:'+p.who;
       const actions = p.status==='bezahlt'
         ? '<span class="muted">—</span>'
         : `<div style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap">
-             <button class="btn btn-dark btn-sm" data-action="crm-toast" data-msg="${act} (Demo)">${act}</button>
-             <button class="btn ${armed?'confirm-armed':'btn-dark'} btn-sm" data-action="crm-pay-paid" data-who="${p.who}">${armed?'Sicher? '+p.amount+' bestätigen':'✓ Bezahlt'}</button></div>`;
-      return `<tr><td><b>${p.who}</b><br><small class="muted">${p.loc}</small></td><td><b>${p.amount}</b></td><td>${p.reason}</td><td>${p.age}</td>
-        <td><span class="badge ${pb[0]}">${pb[1]}</span></td><td>${actions}</td></tr>`; }).join('');
+             ${armed?'':`<button class="btn btn-dark btn-sm" data-action="crm-toast" data-msg="${act} (Demo)">${act}</button>`}
+             <button class="btn ${armed?'confirm-armed':'btn-primary'} btn-sm" data-action="crm-pay-paid" data-who="${p.who}">${armed?'Sicher? '+p.amount+' bestätigen':'✓ Bezahlt'}</button></div>`;
+      return `<tr><td><b>${p.who}</b><br><small class="muted">${p.loc}</small></td><td class="num"><b>${p.amount}</b></td><td>${p.reason}</td><td class="num">${p.age}</td>
+        <td><span class="badge ${pb[0]}">${pb[1]}</span></td><td>${actions}</td></tr>`; }).join('') || emptyRow(6);
     return shell(`
-      <h1 class="crm-h">Zahlungen</h1>
-      <div class="crm-sub">Zahlungslauf Juli 2026 · KPIs franchiseweit (2.410 Mitglieder) · Tabelle: die dringendsten Fälle</div>
+      ${crmHead('Zahlungen','Zahlungslauf Juli 2026 · rote Fälle zuerst · Spalte klicken = sortieren')}
       <div class="kpi-grid">
         <div class="kpi red"><div class="n">${s.rueck}</div><div class="l">Rücklastschriften · franchiseweit</div></div>
         <div class="kpi amber"><div class="n">${s.offen}</div><div class="l">Offene Zahlungen · franchiseweit</div></div>
@@ -436,7 +454,7 @@
         <div class="kpi green"><div class="n">${s.recovery}</div><div class="l">Recovery-Quote</div></div>
       </div>
       <div class="notice">🔴 Rote Fälle (Rücklastschriften) stehen immer ganz oben. Offener Betrag gesamt: <b style="color:var(--text)">${s.betrag}</b> · automatische Zahlungserinnerung-Journey aktiv, sensible Mahnstufe eskaliert an Mensch.</div>
-      <div class="panel"><table class="tbl"><thead><tr><th>Kunde</th><th>Betrag</th><th>Grund</th><th>Alter</th><th>Status</th><th>Aktion</th></tr></thead><tbody>${rows}</tbody></table></div>`,'#/crm/zahlungen');
+      <div class="panel"><table class="tbl"><thead>${sortHead('payments',cols)}</thead><tbody>${rows}</tbody></table></div>`,'#/crm/zahlungen');
   }
 
   /* ---------------- reports ---------------- */
@@ -469,14 +487,14 @@
       </div>
       <div class="panel-h" style="margin-bottom:10px"><b>Standort-Health-Score</b><span class="muted" style="font-size:13px">Composite aus Umsatz · Retention · Auslastung · Leads · Zahlungen</span></div>
       <div class="kpi-grid">${health}</div>
-      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">${ceo}</div>
+      <div class="kpi-grid cols-3">${ceo}</div>
       <div class="panel"><div class="panel-h"><b>Standortvergleich</b></div>
         <table class="tbl"><thead><tr><th>Standort</th><th>Leads</th><th>Trial-Rate</th><th>Abschluss</th><th>Auslastung</th><th>Offene Zahlungen</th></tr></thead><tbody>${rows}</tbody></table></div>
       <div class="split">
         <div class="panel"><div class="panel-h"><b>💶 P&amp;L light · Monat</b><span class="muted" style="font-size:12px">4 von 10 Standorten (Auszug) · Franchise-MRR gesamt: ${C().fact.mrr}</span></div>
-          <table class="tbl" style="min-width:520px"><thead><tr><th>Standort</th><th>Umsatz</th><th>Personal</th><th>Miete</th><th>Sonstiges</th><th>DB</th></tr></thead><tbody>
-            ${C().pnl.map(p=>`<tr><td><b>${p.city}</b></td><td>${p.umsatz}</td><td>${p.personal}</td><td>${p.miete}</td><td>${p.sonst}</td>
-              <td><b style="color:${p.ok?'var(--green)':'var(--red-ink)'}">${p.db}</b> <span class="muted">(${p.pct} %)</span></td></tr>`).join('')}
+          <table class="tbl" style="min-width:520px"><thead><tr><th>Standort</th><th class="num">Umsatz</th><th class="num">Personal</th><th class="num">Miete</th><th class="num">Sonstiges</th><th class="num" title="Deckungsbeitrag">DB</th></tr></thead><tbody>
+            ${C().pnl.map(p=>`<tr><td><b>${p.city}</b></td><td class="num">${p.umsatz}</td><td class="num">${p.personal}</td><td class="num">${p.miete}</td><td class="num">${p.sonst}</td>
+              <td class="num"><b style="color:${p.ok?'var(--green)':'var(--red-ink)'}">${p.db}</b> <span class="muted">(${p.pct} %)</span></td></tr>`).join('')}
           </tbody></table>
           ${C().pnl.some(p=>!p.ok)?'<div class="notice" style="margin-top:12px">⚠️ München unter Break-even — Personalkosten prüfen (siehe Anomalie-Radar) und Miete/Umsatz-Verhältnis 37 %.</div>':''}
         </div>
@@ -599,7 +617,7 @@
       ${reps.map((r,i)=>`<div class="app-card" style="${r.status!=='entwurf'?'border-color:var(--green)':''}">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
           <b>${r.kid}</b>${r.status==='entwurf'?'<span class="badge b-amber">Entwurf</span>':'<span class="badge b-green">✓ An Eltern gesendet</span>'}</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${r.tags.map(t=>`<span class="badge b-gray" style="text-transform:none;letter-spacing:0">${t}</span>`).join('')}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${r.tags.map(t=>`<span class="badge badge-label b-gray">${t}</span>`).join('')}</div>
         <div class="bubble">${r.text}</div>
         ${r.status==='entwurf'?`<div style="display:flex;gap:8px;margin-top:10px">
           <button class="btn btn-primary btn-sm" data-action="crm-wr-approve" data-i="${i}">Freigeben</button>
@@ -668,8 +686,8 @@
             <span class="badge ${done?'b-green':'b-red'}">${done?'✓ '+r.status:'Churn-Risiko'}</span>
           </div>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">${r.reasons.map(x=>`<span class="badge b-gray" style="text-transform:none;letter-spacing:0">${x}</span>`).join('')}</div>
-        <div style="font-size:13px;color:var(--text-dim);margin-bottom:10px"><b style="color:var(--text)">Next Best Action:</b> ${r.action}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">${r.reasons.map(x=>`<span class="badge badge-label b-gray">${x}</span>`).join('')}</div>
+        <div style="font-size:13px;color:var(--text-dim);margin-bottom:10px"><b style="color:var(--text)">Nächster Schritt:</b> ${r.action}</div>
         ${done?'':`<div class="aibox" style="max-height:130px;overflow:auto">${r.draft}</div>
         <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
           ${manual
@@ -685,12 +703,12 @@
       <h1 class="crm-h">Retention-Inbox</h1>
       <div class="crm-sub">Das System erkennt Kündigungsrisiken und schlägt die nächste Aktion vor — du bestätigst nur.</div>
       <div class="notice">🏖️ <b>Ferien-Engine aktiv:</b> ${C().ferien[0].land}-Sommerferien in ${C().ferien[0].inTagen} Tagen (${C().ferien[0].zeit}) — Anwesenheits-Scores werden automatisch gedämpft, Reaktivierungs-Journeys pausieren, Camp-Cross-Sell läuft.</div>
-      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="kpi-grid cols-3">
         <div class="kpi red"><div class="n">${open}</div><div class="l">Offene Top-Risiken (von ${C().fact.watchlist} auf der Watchlist)</div></div>
         <div class="kpi green"><div class="n">${items.length-open}</div><div class="l">Diese Woche bearbeitet</div></div>
         <div class="kpi"><div class="n">~${open*70} €</div><div class="l">Gefährdeter Monatsumsatz</div></div>
       </div>
-      ${items.slice().sort((a,b)=>(a.status==='offen'?0:1)-(b.status==='offen'?0:1)||b.score-a.score).map(card).join('')}
+      ${items.slice().sort((a,b)=>(a.status==='offen'?0:1)-(b.status==='offen'?0:1)||b.score-a.score).map(card).join('') || emptyState('✅','Keine offenen Retention-Fälle für '+state.standort+'.','Sobald ein Kündigungsrisiko erkannt wird, erscheint es hier.')}
       <div class="notice">Score-Logik (Demo): Anwesenheits-Rückgang, Zahlungsstatus, Pausen-Ende, Plateau &amp; App-Inaktivität. Sensible Fälle werden nie automatisch versendet.</div>
     `,'#/crm/retention');
   }
@@ -704,7 +722,7 @@
     return shell(`
       <h1 class="crm-h">Upsell-Chancen</h1>
       <div class="crm-sub">Nächtlicher Daten-Scan: Tarif passt nicht zur Nutzung, Geschwister ohne Vertrag, Einzelticket-Muster — du bestätigst nur.</div>
-      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="kpi-grid cols-3">
         <div class="kpi amber"><div class="n">${open}</div><div class="l">Offene Chancen</div></div>
         <div class="kpi green"><div class="n">+78 €</div><div class="l">MRR-Potenzial (Demo)</div></div>
         <div class="kpi"><div class="n">${items.filter(u=>u.status==='angenommen').length}</div><div class="l">Diesen Monat angenommen</div></div>
@@ -718,11 +736,11 @@
         <div style="font-size:14px;color:var(--text-dim);margin-bottom:10px"><b style="color:var(--text)">Rechnung:</b> ${u.calc}</div>
         ${u.status==='offen'?`<div class="aibox" style="max-height:120px;overflow:auto">${u.draft}</div>
           <div style="display:flex;gap:8px;margin-top:12px">
-            <button class="btn btn-primary btn-sm" data-action="crm-up-send" data-id="${u.id}">Bestätigen & Angebot senden</button>
+            <button class="btn btn-primary btn-sm" data-action="crm-up-send" data-id="${u.id}">Bestätigen & senden</button>
             <button class="btn btn-dark btn-sm" data-action="crm-toast" data-msg="Bearbeiten (Demo)">Bearbeiten</button>
             <button class="btn btn-dark btn-sm" data-action="crm-up-later" data-id="${u.id}">Später</button></div>`
         : u.status==='gesendet'?'<div class="muted" style="font-size:13px">Wartet auf Antwort — das Angebot liegt als Ein-Tap-Karte in der Kunden-App.</div>':''}
-      </div>`).join('')}
+      </div>`).join('') || emptyState('✅','Keine offenen Upsell-Chancen für '+state.standort+'.','Der nächtliche Daten-Scan meldet neue Chancen automatisch hier.')}
       <div class="notice">Angebote sind immer Human-in-the-Loop: kein Auto-Versand, jede Karte wird von einem Mitarbeiter bestätigt.</div>
     `,'#/crm/upsell');
   }
@@ -735,7 +753,7 @@
     return shell(`
       <h1 class="crm-h">Trainer & Team · Qualifikations-Register</h1>
       <div class="crm-sub">Harte Regel: Kein Kinderkurs ohne gültige Lizenz + Erste Hilfe + erweitertes Führungszeugnis.</div>
-      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="kpi-grid cols-3">
         <div class="kpi green"><div class="n">${t.filter(x=>x.status==='ok').length}</div><div class="l">Vollständig qualifiziert</div></div>
         <div class="kpi amber"><div class="n">${t.filter(x=>x.status==='warn').length}</div><div class="l">Dokument läuft bald ab</div></div>
         <div class="kpi red"><div class="n">${t.filter(x=>x.status==='block').length}</div><div class="l">Gesperrt (Kinderkurse)</div></div>
@@ -783,10 +801,10 @@
         <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
           ${manual
             ? `<a class="btn btn-primary btn-sm" href="#/crm/auslastung" data-action="crm-fb-task" data-i="${i}">Maßnahme: Slot entzerren</a>`
-            : `<button class="btn btn-primary btn-sm" data-action="crm-fb-send" data-i="${i}">Bestätigen & antworten</button>
+            : `<button class="btn btn-primary btn-sm" data-action="crm-fb-send" data-i="${i}">Bestätigen & senden</button>
                <button class="btn btn-dark btn-sm" data-action="crm-toast" data-msg="Bearbeiten (Demo)">Bearbeiten</button>`}
         </div>`}
-      </div>`; }).join('')}
+      </div>`; }).join('') || emptyState('🙂','Keine offenen Detraktor-Fälle.','Negative Rückmeldungen mit 24h-SLA erscheinen hier — aktuell ist alles bearbeitet.')}
       <div class="notice">Fairness-Regeln: Trainer-/Kurs-Scores nur aggregiert ab ≥10 Stimmen · Kiosk anonym · Promoter (NPS ≥ 9) bekommen die Google-Review-Bitte, Detraktoren einen Menschen.</div>
     `,'#/crm/feedback');
   }
@@ -806,10 +824,8 @@
       : s==='done' ? '<span class="badge b-green">✓ Erledigt · Termin gebucht</span>'
       : '<span class="badge b-gray">Gesendet ✓</span>';
     return shell(`
-      <div class="panel-h" style="margin-bottom:6px;align-items:flex-end"><h1 class="crm-h" style="margin:0">Support-Center</h1>
-        <div class="choices">${chips.map(c=>`<button type="button" class="chip ${state.supFilter===c?'sel':''}" data-action="crm-sup-filter" data-v="${c}">${c}</button>`).join('')}</div></div>
-      <div class="crm-sub">WhatsApp Business + Telefon in einer Inbox — die KI beantwortet einfache Anliegen sofort, alles andere geht mit Entwurf an euch.</div>
-      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr)">
+      ${crmHead('Support-Center','WhatsApp Business + Telefon in einer Inbox — die KI beantwortet Einfaches sofort, Sensibles geht mit Entwurf an euch.',`<div class="choices">${chips.map(c=>`<button type="button" class="chip ${state.supFilter===c?'sel':''}" data-action="crm-sup-filter" data-v="${c}">${c}</button>`).join('')}</div>`)}
+      <div class="kpi-grid cols-5">
         <div class="kpi"><div class="n">${S.stats.heute}</div><div class="l">Eingegangen heute</div></div>
         <div class="kpi green"><div class="n">${S.stats.autoKI}</div><div class="l">Von KI sofort beantwortet (${Math.round(S.stats.autoKI/S.stats.heute*100)} %)</div></div>
         <div class="kpi amber"><div class="n">${S.items.filter(i=>i.status==='freigabe').length}</div><div class="l">Warten auf Freigabe</div></div>
@@ -827,7 +843,7 @@
         ${cur ? `<div class="panel">
           <div class="panel-h"><b>${chIco(cur.ch)} ${cur.who} · ${cur.topic}</b>
             <div style="display:flex;gap:8px;align-items:center">${cur.who.includes('Nicole')?'<a class="btn btn-dark btn-sm" href="#/crm/kunde/A">👤 Kunden-360</a>':''}${stBadge(cur.status)}</div></div>
-          ${cur.ch==='whatsapp'?'<div style="margin-bottom:8px"><span class="badge b-green" style="text-transform:none">🟢 WhatsApp Business · 24h-Fenster aktiv</span></div>':'<div style="margin-bottom:8px"><span class="badge b-gray" style="text-transform:none">☎️ Telefon · KI-Assistent / Transkript</span></div>'}
+          ${cur.ch==='whatsapp'?'<div style="margin-bottom:8px"><span class="badge badge-label b-green">🟢 WhatsApp Business · 24h-Fenster aktiv</span></div>':'<div style="margin-bottom:8px"><span class="badge badge-label b-gray">☎️ Telefon · KI-Assistent / Transkript</span></div>'}
           ${cur.msgs.map(([dir,txt])=>`<div class="bubble ${dir==='out'?'me':''}" style="max-width:88%">${txt}</div>`).join('')}
           ${cur.ai ? `<div style="font-size:12px;color:var(--muted);margin:10px 0 4px;text-transform:uppercase;letter-spacing:1px">${cur.status==='auto'?'KI-Antwort (automatisch gesendet)':cur.status==='mensch'?'KI-Einordnung':'KI-Antwortentwurf'}</div>
           <div class="aibox" style="${cur.status==='mensch'?'border-left-color:var(--amber)':''}">${cur.ai}</div>` : ''}
@@ -855,8 +871,7 @@
     const openTasks = C().tasks.filter(t=>t.status!=='done').slice(0,3);
     return shell(`
       <a class="backlink" href="#/crm/mitglieder">← Mitglieder</a>
-      <div class="panel-h" style="margin-bottom:14px;align-items:flex-end"><h1 class="crm-h" style="margin:0">📞 Kunden-360: ${name}</h1>
-        <span class="muted" style="font-size:13px">Ein Bildschirm für jede Interaktion — Anruf, WhatsApp, Theke</span></div>
+      ${crmHead('📞 Kunden-360: '+name,'Ein Bildschirm für jede Interaktion — Anruf, WhatsApp, Theke')}
       <div class="split" style="grid-template-columns:1fr 1fr 1fr">
         <div class="panel"><div class="panel-h"><b>Familie & Verträge</b></div>
           <div class="list-item"><span class="li-ico">👩</span><div class="li-main"><b>Nicole A.</b><small>Hauptkontakt · App + E-Mail</small></div></div>
@@ -895,7 +910,7 @@
         return `<div class="kcol" style="flex:1 1 240px"><div class="kh"><span>${label}</span><span>${items.length}</span></div>
           ${items.map(t=>`<button type="button" class="kcard" style="width:100%;text-align:left;${t.late&&t.status!=='done'?'border-color:rgba(228,0,43,.5)':''}" data-action="crm-task" data-id="${t.id}" data-next="${next[key]}">
             <b>${t.t}</b><small>${t.src}</small>
-            <div style="margin-top:6px"><span class="badge ${t.status==='done'?'b-green':t.late?'b-red':'b-gray'}" style="text-transform:none;letter-spacing:0">${t.sla}</span></div>
+            <div style="margin-top:6px"><span class="badge badge-label ${t.status==='done'?'b-green':t.late?'b-red':'b-gray'}">${t.sla}</span></div>
           </button>`).join('')||'<div class="muted" style="font-size:12px;padding:6px">—</div>'}</div>`;
       }).join('')}</div>
       <div class="notice">Quellen füttern das Board automatisch: Detraktor-Alarm, Mahnstufe 4, verpasste Anrufe, Chip-Verlust … SLA-Verstöße erscheinen im Morgen-Briefing.</div>
@@ -927,7 +942,7 @@
     return shell(`
       <h1 class="crm-h">Entscheidungs-Inbox</h1>
       <div class="crm-sub">Nur was wirklich GF-Freigabe braucht — alles andere erledigen die Standorte selbst. Jede Entscheidung im Audit-Trail.</div>
-      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="kpi-grid cols-3">
         <div class="kpi amber"><div class="n">${open}</div><div class="l">Warten auf Freigabe</div></div>
         <div class="kpi green"><div class="n">${items.filter(d=>d.status==='freigegeben').length}</div><div class="l">Diese Woche freigegeben</div></div>
         <div class="kpi"><div class="n">${items.filter(d=>d.status==='abgelehnt').length}</div><div class="l">Abgelehnt</div></div>
@@ -943,7 +958,7 @@
           <button class="btn btn-primary btn-sm" data-action="crm-decide" data-id="${d.id}" data-v="freigegeben">✓ Freigeben</button>
           <button class="btn btn-danger btn-sm" data-action="crm-decide" data-id="${d.id}" data-v="abgelehnt">Ablehnen</button>
           <button class="btn btn-dark btn-sm" data-action="crm-toast" data-msg="Rückfrage gesendet (Demo)">Rückfrage</button></div>`}
-      </div>`; }).join('')}
+      </div>`; }).join('') || emptyState('✅','Keine Entscheidungen offen.','Nur Vorgänge, die GF-Freigabe brauchen (Kulanz, Preise, Budget), landen hier.')}
       <div class="notice">Freigabe-Regeln (Demo): Kulanz > 100 €, Preis-/Tarifänderungen und Personal-Budget landen automatisch hier — mit vollständigem Audit-Trail (wer, wann, was).</div>
     `,'#/crm/entscheidungen');
   }
@@ -1138,6 +1153,8 @@
   }
 
   window.CRM = { route };
+  // Mobile: Drawer bei jedem Seitenwechsel schließen (läuft vor app.js-render)
+  window.addEventListener('hashchange', ()=>{ state.sideOpen = false; });
 
   /* ---------------- CRM interactions ---------------- */
   document.addEventListener('click', e=>{
@@ -1146,6 +1163,7 @@
     if(a==='crm-role'){ state.role = el.dataset.r; location.hash = (el.dataset.r==='Trainer') ? '#/trainer' : '#/crm/dashboard'; return; }
     if(a==='crm-leadview'){ state.leadView = el.dataset.v; window.__render && window.__render(); return; }
     if(a==='crm-sort'){ const id=el.dataset.id, col=+el.dataset.col; const s=state.sort[id]; state.sort[id]=(s&&s.col===col)?{col,dir:-s.dir}:{col,dir:1}; window.__render && window.__render(); return; }
+    if(a==='crm-kpi-all'){ state.kpiAll=!state.kpiAll; window.__render && window.__render(); return; }
     if(a==='crm-inbox'){ state.inboxSel = +el.dataset.i; window.__render && window.__render(); return; }
     if(a==='crm-menu'){ state.sideOpen = !state.sideOpen; window.__render && window.__render(); return; }
     if(a==='crm-toast'){ (window.__toast || alert)(el.dataset.msg||'Demo'); return; }
@@ -1186,8 +1204,8 @@
       if(el.dataset.name==='Emir A.'){ const k=D.kids&&D.kids[0]; if(k) k.examPassed=true; }
       (window.__toast||alert)('🎉 '+el.dataset.name+' hat bestanden — Eltern-App aktualisiert'); window.__render && window.__render(); return; }
     if(a==='crm-wr-approve'){ const r=(D.weeklyReports||[])[+el.dataset.i]; if(r) r.status='freigegeben'; (window.__toast||alert)('Report an Eltern gesendet ✓'); window.__render && window.__render(); return; }
-    if(a==='crm-wr-all'){ (D.weeklyReports||[]).forEach(r=>r.status='freigegeben'); (window.__toast||alert)('Alle Reports gesendet ✓'); window.__render && window.__render(); return; }
-    if(a==='crm-up-send'){ const u=C().upsell.find(x=>x.id===el.dataset.id); if(u) u.status='gesendet'; (window.__toast||alert)('Angebot gesendet ✓ — liegt jetzt als Karte in der Kunden-App'); window.__render && window.__render(); return; }
+    if(a==='crm-wr-all'){ const reps=(D.weeklyReports||[]); const prev=reps.map(r=>r.status); reps.forEach(r=>r.status='freigegeben'); (window.__toast||alert)('Alle Reports gesendet ✓', ()=>{ reps.forEach((r,i)=>r.status=prev[i]); window.__render && window.__render(); }); window.__render && window.__render(); return; }
+    if(a==='crm-up-send'){ const u=C().upsell.find(x=>x.id===el.dataset.id); if(u){ const prev=u.status; u.status='gesendet'; (window.__toast||alert)('Angebot gesendet ✓ — liegt jetzt als Karte in der Kunden-App', ()=>{ u.status=prev; window.__render && window.__render(); }); } window.__render && window.__render(); return; }
     if(a==='crm-up-later'){ const u=C().upsell.find(x=>x.id===el.dataset.id); if(u) u.status='zurückgestellt'; (window.__toast||alert)('Zurückgestellt'); window.__render && window.__render(); return; }
     if(a==='crm-call-done'){ const c=C().calls.find(x=>x.id===el.dataset.id); if(c) c.status='erledigt'; (window.__toast||alert)('Rückruf erledigt ✓'); window.__render && window.__render(); return; }
     if(a==='crm-sup-filter'){ state.supFilter=el.dataset.v; window.__render && window.__render(); return; }
@@ -1204,7 +1222,7 @@
     if(a==='crm-kiosk-smiley'){ state.kioskSmiley=el.dataset.s; if(C().feedback) C().feedback.pulse.n++; window.__render && window.__render(); setTimeout(()=>{ state.kioskSmiley=null; window.__render && window.__render(); }, 2200); return; }
     if(a==='crm-fb-send'){ const d=C().feedback.detractors[+el.dataset.i]; if(d) d.status='beantwortet'; (window.__toast||alert)('Antwort gesendet ✓ — Fall im SLA erledigt'); window.__render && window.__render(); return; }
     if(a==='crm-fb-task'){ const d=C().feedback.detractors[+el.dataset.i]; if(d) d.status='Maßnahme erstellt'; (window.__toast||alert)('Maßnahme erstellt ✓ — Auslastung geöffnet'); return; }
-    if(a==='crm-call-voice'){ C().leads.unshift({id:'L9',name:'Anruferin 16:42 (Sprachnotiz)',who:'Kind (6)',loc:'Krefeld',interest:'Mini-Kids',stage:'Neu',action:'KI-Mail senden'}); (window.__toast||alert)('🎤 Transkribiert ✓ — Lead-Karte angelegt (Mini-Kids, Krefeld)'); location.hash='#/crm/leads'; return; }
+    if(a==='crm-call-voice'){ C().leads.unshift({id:'L9',name:'Anruferin 16:42 (Sprachnotiz)',who:'Kind (6)',loc:'Krefeld',interest:'Mini-Kids',stage:'Neu',action:'KI-Mail senden',ageMin:0,src:'Telefon'}); (window.__toast||alert)('🎤 Transkribiert ✓ — Lead-Karte angelegt (Mini-Kids, Krefeld)'); location.hash='#/crm/leads'; return; }
     if(a==='crm-trainer-save'){ const ta=document.getElementById('tfeedback'); const txt=ta?ta.value.trim():''; const k=D.kids&&D.kids[0]; if(k){ k.feedbackLog=k.feedbackLog||[]; k.feedbackLog.push({time:'gerade eben', skills:state.trainerSkills.slice(), text:txt}); } state.trainerSkills=[]; (window.__toast||alert)('Gespeichert ✓ — Eltern sehen das Update'); location.hash='#/trainer'; return; }
   });
   document.addEventListener('change', e=>{

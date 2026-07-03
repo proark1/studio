@@ -394,12 +394,30 @@ table.tbl tbody tr:hover{background:var(--surface-2)}
 .rolebtn{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;text-align:left;color:var(--text);transition:.15s}
 .rolebtn:hover{border-color:var(--red);transform:translateY(-2px)}
 .rolebtn .ri{font-size:26px} .rolebtn b{display:block;margin-top:8px;font-size:16px} .rolebtn small{color:var(--muted);font-size:13px}
+/* CRM utilities: unified header, kpi variants, label badges, numeric cells, sub-headers, empty states */
+.crm-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.crm-head .crm-h{margin:0}
+.crm-head .crm-sub{margin:4px 0 0}
+.kpi-grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.kpi-grid.cols-5{grid-template-columns:repeat(5,1fr)}
+.kpi.kpi-sm .n{font-size:26px}
+.kpi.kpi-score .n{font-size:34px}
+.badge-label{text-transform:none;letter-spacing:0}
+.tbl td.num,.tbl th.num{text-align:right;font-variant-numeric:tabular-nums}
+.panel-sub{font-family:var(--ff-head);text-transform:uppercase;font-size:14px;color:var(--muted);letter-spacing:.5px;margin:16px 0 8px}
+.crm-empty{text-align:center;padding:30px 16px;color:var(--muted)}
+.crm-empty .em-ico{font-size:34px;margin-bottom:6px}
+button.kcard{width:100%;text-align:left;font:inherit;color:inherit}
+.crm-scrim{display:none}
 @media(max-width:900px){
   .crm-side{position:fixed;left:0;top:var(--ribbon);bottom:0;height:auto;transform:translateX(-100%);z-index:120;transition:.2s;box-shadow:var(--shadow)}
   .crm-side.open{transform:none}
   .crm-burger{display:flex}
-  .kpi-grid{grid-template-columns:1fr 1fr}
-  .split{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:1fr 1fr!important}
+  .split{grid-template-columns:1fr!important}
+  .crm-scrim{display:block;position:fixed;inset:var(--ribbon) 0 0 0;background:rgba(0,0,0,.5);z-index:110}
+  .crm-top .search{display:none}
+  .crm-user .u-meta{display:none}
 }
 
 /* ============================================================
