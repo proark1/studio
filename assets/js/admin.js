@@ -73,6 +73,21 @@
     { id:'gutschein', group:'Gutscheine', name:'Gutschein-Motiv', where:'Gutschein-Seite · Banner „Verschenke Stärke“', ratio:'16:9', maxW:1200,
       get:()=>D.gutscheinImg, set:v=>{ D.gutscheinImg=v; },
       prompt:'Elegant gift concept photo: a blank black gift voucher card with a red ribbon lying next to a pair of small red boxing gloves, dark background, soft festive studio lighting, sporty and premium, no text' },
+    { id:'safety', group:'Vertrauen', name:'Sicherheit — „Sicher aufgehoben“', where:'Startseite · Vertrauens-Sektion · Banner über den 4 Kacheln', ratio:'16:9', maxW:1400,
+      get:()=>D.safetyImg, set:v=>{ D.safetyImg=v; },
+      prompt:'Warm reassuring wide photo: a friendly martial arts coach kneeling and guiding a small child on dark mats in a modern gym, more kids training safely in the soft background, supportive and safe atmosphere, dark gym with subtle red accent lighting, professional photography, no text, no logos' },
+    { id:'coach', group:'Vertrauen', name:'Head-Coach-Portrait', where:'Seite „So läuft dein erstes Training“ · Trainer-Karte (aktuell Buchstaben-Avatar)', ratio:'1:1', maxW:600,
+      get:()=>D.coachImg, set:v=>{ D.coachImg=v; },
+      prompt:'Friendly professional portrait of a male martial arts head coach in his 30s wearing a plain black team t-shirt, warm confident smile, dark charcoal gym background with subtle red accent light, shallow depth of field, professional headshot photography, no text, no logos' },
+    ...[
+      ['moment-0','Erste saubere Rückwärtsrolle','Candid action photo of a happy 7-year-old boy doing a backward roll on dark martial arts mats, mid-motion, focused and joyful, dark gym with red accent lighting, professional sports photography, no text'],
+      ['moment-1','Kombination am Sandsack','Photo of a young boy in sportswear hitting a heavy bag with a punch combination, motion and concentration, dark gym with red accent lighting, professional sports photography, no text'],
+      ['moment-2','Team-Foto nach dem Training','Group photo of a happy kids martial arts class with their coach on dark mats after training, smiling and giving thumbs up, dark gym with red accent lighting, professional sports photography, no text'],
+    ].map(([id,cap,prompt],i)=>({ id, group:'App-Inhalte', name:'Trainingsmoment — '+cap, where:'App · Trainingsmomente (aktuell Emoji/Gradient-Platzhalter)', ratio:'4:3', maxW:900,
+      get:()=>D.moments[i] && D.moments[i].img, set:v=>{ if(D.moments[i]) D.moments[i].img=v; }, prompt })),
+    { id:'video-thumb', group:'App-Inhalte', name:'Technik-Video · Vorschaubild', where:'App · Technik-Videos · Vorschaubild (aktuell ▶️-Platzhalter)', ratio:'16:9', maxW:900,
+      get:()=>D.videoThumb, set:v=>{ D.videoThumb=v; },
+      prompt:'Instructional video thumbnail: close-up of a martial arts coach demonstrating a clean kickboxing technique, well framed as a tutorial thumbnail, dark gym with red accent lighting, professional sports photography, no text' },
   ];
   SLOTS.forEach(s=>{ s.def = s.get(); });
 

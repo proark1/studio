@@ -325,6 +325,7 @@
 
       <div class="section"><div class="container">
         <div class="section-head"><div><div class="kicker"><span class="slash sm"><i></i><i></i></span> ${t('safe_k')}</div><h2>${t('safe_t')}</h2></div></div>
+        ${D.safetyImg?`<img src="${D.safetyImg}" alt="" style="width:100%;aspect-ratio:16/6;object-fit:cover;border-radius:16px;margin-bottom:18px;border:1px solid var(--line)" onerror="this.remove()">`:''}
         <div class="grid g-4 safe-grid">
           ${[['🛡️','safe1'],['👥','safe2'],['🔔','safe3'],['✅','safe4']].map(([ic,k])=>`<div class="card"><div class="ico">${ic}</div><h3>${t(k+'_t')}</h3><p class="muted" style="margin:0">${t(k+'_d')}</p></div>`).join('')}
         </div>
@@ -964,7 +965,7 @@
       <h1 class="app-h">Trainingsmomente</h1>
       <div class="notice">📸 Trainer teilen kurze Fotos & Videos — nur mit deiner Einwilligung, privat für die Familie.</div>
       ${list.map(m=>`<div class="app-card" style="padding:0;overflow:hidden">
-        <div style="height:150px;background:linear-gradient(135deg,#20161b,#0c0c0e);display:flex;align-items:center;justify-content:center;font-size:52px;position:relative">${m.ico}
+        <div style="height:150px;background:linear-gradient(135deg,#20161b,#0c0c0e);display:flex;align-items:center;justify-content:center;font-size:52px;position:relative">${m.img?`<img src="${m.img}" alt="${m.cap}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.remove()">`:m.ico}
           <span class="tag" style="position:absolute;top:12px;left:12px">${m.type}</span></div>
         <div style="padding:14px"><b>${m.cap}</b><br><small class="muted">${m.kid} · ${m.time} · Trainer ${m.trainer}</small></div>
       </div>`).join('')}
@@ -1192,7 +1193,7 @@
       <div class="notice">Nach Gürtelstufe sortiert — perfekt zum Üben zuhause.</div>
       ${belts.map(b=>`<div style="margin-bottom:4px"><div style="font-family:var(--ff-head);text-transform:uppercase;color:var(--muted);font-size:15px;margin:10px 0 6px">${b}</div>
         ${D.videos.filter(v=>v.belt===b).map(v=>`<div class="app-card" style="display:flex;gap:12px;align-items:center;margin-bottom:8px">
-          <div class="thumb" style="font-size:20px">▶️</div><div class="meta" style="flex:1"><b>${v.title}</b><small>${v.dur} min</small></div>
+          ${D.videoThumb?`<div style="width:56px;height:42px;border-radius:9px;overflow:hidden;position:relative;flex-shrink:0"><img src="${D.videoThumb}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.innerHTML='▶️'"><span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;background:rgba(0,0,0,.28)">▶️</span></div>`:`<div class="thumb" style="font-size:20px">▶️</div>`}<div class="meta" style="flex:1"><b>${v.title}</b><small>${v.dur} min</small></div>
           <button class="btn btn-dark btn-sm" data-action="toast" data-msg="Video abspielen (Demo)">Ansehen</button></div>`).join('')}</div>`).join('')}
     `,'#/app/konto');
   }
@@ -1294,7 +1295,7 @@
           <div><b>${i} ${t}</b><small>${d}</small></div></div>`).join('')}
       </div></div>
       <div class="card" style="display:flex;gap:14px;align-items:center">
-        <div class="avatar" style="width:54px;height:54px;font-size:24px">M</div>
+        ${D.coachImg?`<img src="${D.coachImg}" alt="Head-Coach Mehmet" style="width:54px;height:54px;border-radius:50%;object-fit:cover;flex-shrink:0" onerror="this.remove()">`:'<div class="avatar" style="width:54px;height:54px;font-size:24px">M</div>'}
         <div style="flex:1"><b>Trainer Mehmet</b><br><small class="muted">Head-Coach Kids · seit 12 Jahren auf der Matte · „Bei mir traut sich jedes Kind was zu."</small></div>
       </div>
       <div class="card"><b>✔️ Checkliste</b>
