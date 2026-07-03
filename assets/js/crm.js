@@ -21,7 +21,7 @@
 
   const state = { role:"Geschäftsführung", standort:"Alle Standorte", leadView:"kanban", inboxSel:0, sideOpen:false, trainerAtt:null, trainerSkills:[],
     courseFilter:"Alle", kioskLast:null, vw:{step:0,kunde:null,standort:null,tarif:null,laufzeit:null,sepa:false},
-    supFilter:"Alle", supSel:"S1", sort:{}, kpiAll:false };
+    supFilter:"Alle", supSel:"S1", sort:{}, kpiAll:false, navSteuerung:false };
 
   // --- client-side sortable tables ---
   function sortRows(id, rows, cols){
@@ -48,7 +48,7 @@
     const perm = D.crm.permissions, mods = perm.modules, allow = perm.roles[state.role] || [];
     const can = m => { const i = mods.indexOf(m); return i<0 || allow[i]===1; };
     const I = window.ICON || (()=>'');
-    const openMsgs = D.crm.inbox.filter(m=>m.status!=='Beantwortet').length;
+    const openMsgs = C().support.items.filter(i=>i.status==='freigabe'||i.status==='mensch').length;
     const nav = [
       ['#/crm/dashboard','home','Dashboard','Dashboard','Überblick'],
       ['#/crm/leads','target','Leads & Probetraining','Leads','Vertrieb'],
@@ -60,8 +60,7 @@
       ['#/crm/auslastung','trending','Auslastung','Auslastung','Mitglieder'],
       ['#/crm/checkins','clock','Check-ins','Check-ins','Mitglieder'],
       ['#/crm/kiosk','monitor','Kiosk Check-in','Check-ins','Mitglieder'],
-      ['#/crm/support','headset','Support-Center','Kommunikation','Kommunikation'],
-      ['#/crm/kommunikation','mail','Kommunikation','Kommunikation','Kommunikation'],
+      ['#/crm/support','mail','Posteingang','Kommunikation','Kommunikation'],
       ['#/crm/aufgaben','file','Aufgaben','Kommunikation','Kommunikation'],
       ['#/crm/feedback','message','Feedback & Puls','Kommunikation','Kommunikation'],
       ['#/crm/team','shield','Trainer & Team','Verträge','Team'],
@@ -77,16 +76,35 @@
     const RECEPTION_NAV = ['#/crm/dashboard','#/crm/leads','#/crm/mitglieder','#/crm/checkins','#/crm/kiosk','#/crm/support','#/crm/zahlungen'];
     const navVisible = x => can(x[3]) && (state.role!=='Rezeption / Sales' || RECEPTION_NAV.includes(x[0]));
     const navItems = nav.filter(navVisible);
+    const linkA = ([h,i,l]) => `<a href="${h}" class="${active===h?'active':''}"${active===h?' aria-current="page"':''}><span class="ci">${I(i)}</span>${l}</a>`;
+    // ★ Häufig: 3-4 rollenabhängige Kern-Screens als Schnellzugriff oben
+    const FAV = {
+      'Geschäftsführung':  ['#/crm/dashboard','#/crm/leads','#/crm/zahlungen','#/crm/reports'],
+      'Standortleiter':    ['#/crm/dashboard','#/crm/leads','#/crm/retention','#/crm/auslastung'],
+      'Rezeption / Sales': ['#/crm/dashboard','#/crm/leads','#/crm/checkins','#/crm/zahlungen'],
+    };
+    const favH = (FAV[state.role]||[]).map(h=>navItems.find(x=>x[0]===h)).filter(Boolean);
+    const favSet = new Set(favH.map(x=>x[0]));
+    const favHtml = favH.length ? `<div class="crm-navsec">★ Häufig</div>${favH.map(linkA).join('')}` : '';
+    // restliche Sektionen; „Steuerung“ ist einklappbar (offen, wenn man drin ist)
+    const rest = navItems.filter(x=>!favSet.has(x[0]));
+    const steuerungOpen = state.navSteuerung || rest.some(x=>x[4]==='Steuerung' && x[0]===active);
     let lastG='';
-    const navHtml = navItems.map(([h,i,l,,g])=>{
-      const head = g!==lastG ? `<div class="crm-navsec">${g}</div>` : ''; lastG=g;
-      return head + `<a href="${h}" class="${active===h?'active':''}"${active===h?' aria-current="page"':''}><span class="ci">${I(i)}</span>${l}</a>`;
+    const navHtml = rest.map(it=>{
+      const g = it[4]; let head='';
+      if(g!==lastG){ lastG=g;
+        head = g==='Steuerung'
+          ? `<button type="button" class="crm-navsec crm-navsec-toggle" data-action="crm-navsec" aria-expanded="${steuerungOpen}">${g} ${steuerungOpen?'▾':'▸'}</button>`
+          : `<div class="crm-navsec">${g}</div>`;
+      }
+      const hidden = g==='Steuerung' && !steuerungOpen;
+      return head + (hidden ? '' : linkA(it));
     }).join('');
     return `<div class="crm">
       <aside class="crm-side ${state.sideOpen?'open':''}">
         <div class="brand"><span class="slash sm"><i></i><i></i></span><span class="badge">NFT</span>
           <b style="font-family:var(--ff-head);letter-spacing:1px;font-size:20px">CRM</b></div>
-        <nav class="crm-nav" aria-label="CRM-Navigation">${navHtml}</nav>
+        <nav class="crm-nav" aria-label="CRM-Navigation">${favHtml}${navHtml}</nav>
         <a href="#/trainer" class="crm-nav" style="color:var(--muted);padding:10px 12px;font-size:13px;display:flex;align-items:center;gap:10px"><span class="ci">${I('activity')}</span>Trainer-Ansicht →</a>
         <div class="role-note">Angemeldet als<br><b style="color:var(--text)">${state.role}</b><br><a href="#/crm" style="color:var(--red-ink)">Rolle wechseln →</a></div>
       </aside>
@@ -137,7 +155,7 @@
       <td><span class="badge ${c.status==='Check-out'?'b-gray':'b-green'}">${c.status}</span></td></tr>`).join('');
     // Eine priorisierte, deduplizierte „Heute zuerst“-Liste aus allen Aufgabenquellen
     const nLeads = byLoc(C().leads).filter(l=>l.stage==='Neu').length;
-    const nDrafts = C().inbox.filter(m=>m.status!=='Beantwortet').length;
+    const nDrafts = C().support.items.filter(i=>i.status==='freigabe').length;
     const nRet = C().retention.filter(r=>r.status==='offen').length;
     const todo = [
       C().paysummary.rueck>0 && ['💶', `${C().paysummary.rueck} Rücklastschriften bearbeiten`, '#/crm/zahlungen', true],
@@ -172,10 +190,10 @@
           <span class="badge ${x.sev==='red'?'b-red':'b-amber'}">${x.sev==='red'?'kritisch':'beobachten'}</span></div>`).join('')}
       </div>
       <div class="panel"><div class="panel-h"><b>📞 Verpasste Anrufe heute</b><span class="badge b-red">${byLoc(C().calls).filter(c=>c.status==='offen').length} offen</span></div>
-        <table class="tbl"><thead><tr><th>Zeit</th><th>Nummer</th><th>Standort</th><th>Automatik</th><th></th></tr></thead><tbody>
-        ${byLoc(C().calls).map(c=>`<tr style="${c.status!=='offen'?'opacity:.5':''}"><td>${c.time}</td><td><b>${c.num}</b></td><td>${c.loc}</td>
-          <td><span class="badge badge-label ${c.status==='offen'?'b-green':'b-gray'}">${c.auto}</span></td>
-          <td>${c.status==='offen'?`<button class="btn btn-dark btn-sm" data-action="crm-call-done" data-id="${c.id}">Rückruf erledigt</button>`:'<span class="badge b-green">✓</span>'}</td></tr>`).join('') || emptyRow(5)}
+        <table class="tbl cards"><thead><tr><th>Zeit</th><th>Nummer</th><th>Standort</th><th>Automatik</th><th></th></tr></thead><tbody>
+        ${byLoc(C().calls).map(c=>`<tr style="${c.status!=='offen'?'opacity:.5':''}"><td data-label="Zeit">${c.time}</td><td data-label="Nummer"><b>${c.num}</b></td><td data-label="Standort">${c.loc}</td>
+          <td data-label="Automatik"><span class="badge badge-label ${c.status==='offen'?'b-green':'b-gray'}">${c.auto}</span></td>
+          <td data-label="">${c.status==='offen'?`<button class="btn btn-dark btn-sm" data-action="crm-call-done" data-id="${c.id}">Rückruf erledigt</button>`:'<span class="badge b-green">✓</span>'}</td></tr>`).join('') || emptyRow(5)}
         </tbody></table>
         <div style="display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap">
           <button class="btn btn-primary btn-sm" data-action="crm-call-voice">🎤 Sprachnotiz → Lead anlegen</button>
@@ -416,8 +434,8 @@
     ];
     return shell(`
       ${crmHead('Verträge','Auszug: die 5 aktuellsten · franchiseweit 8 offene Verträge','<a class="btn btn-primary btn-sm" href="#/crm/vertraege/neu">+ Neuer Vertrag</a>')}
-      <div class="panel"><table class="tbl"><thead><tr><th>Mitglied</th><th>Tarif</th><th>Status</th><th>Laufzeit</th><th>Aktion</th></tr></thead><tbody>
-        ${rows.map(([k,t,s,l,b,a])=>`<tr><td><b>${k}</b></td><td>${t}</td><td><span class="badge ${b}">${s}</span></td><td>${l}</td><td>${actBtn(a)}</td></tr>`).join('')}
+      <div class="panel"><table class="tbl cards"><thead><tr><th>Mitglied</th><th>Tarif</th><th>Status</th><th>Laufzeit</th><th>Aktion</th></tr></thead><tbody>
+        ${rows.map(([k,t,s,l,b,a])=>`<tr><td data-label="Mitglied"><b>${k}</b></td><td data-label="Tarif">${t}</td><td data-label="Status"><span class="badge ${b}">${s}</span></td><td data-label="Laufzeit">${l}</td><td data-label="Aktion">${actBtn(a)}</td></tr>`).join('')}
       </tbody></table></div>
       <div class="notice">Rechtlich erzwungen: max. 24 Monate Erstlaufzeit · Verlängerung monatlich kündbar (§ 309 BGB) · digitales SEPA-Mandat · Widerruf · Kündigungsbutton (§ 312k).</div>`,'#/crm/vertraege');
   }
@@ -443,8 +461,8 @@
         : `<div style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap">
              ${armed?'':`<button class="btn btn-dark btn-sm" data-action="crm-toast" data-msg="${act} (Demo)">${act}</button>`}
              <button class="btn ${armed?'confirm-armed':'btn-primary'} btn-sm" data-action="crm-pay-paid" data-who="${p.who}">${armed?'Sicher? '+p.amount+' bestätigen':'✓ Bezahlt'}</button></div>`;
-      return `<tr><td><b>${p.who}</b><br><small class="muted">${p.loc}</small></td><td class="num"><b>${p.amount}</b></td><td>${p.reason}</td><td class="num">${p.age}</td>
-        <td><span class="badge ${pb[0]}">${pb[1]}</span></td><td>${actions}</td></tr>`; }).join('') || emptyRow(6);
+      return `<tr><td data-label="Mitglied"><b>${p.who}</b> <small class="muted">${p.loc}</small></td><td class="num" data-label="Betrag"><b>${p.amount}</b></td><td data-label="Grund">${p.reason}</td><td class="num" data-label="Alter">${p.age}</td>
+        <td data-label="Status"><span class="badge ${pb[0]}">${pb[1]}</span></td><td data-label="Aktion">${actions}</td></tr>`; }).join('') || emptyRow(6);
     return shell(`
       ${crmHead('Zahlungen','Zahlungslauf Juli 2026 · rote Fälle zuerst · Spalte klicken = sortieren')}
       <div class="kpi-grid">
@@ -454,7 +472,7 @@
         <div class="kpi green"><div class="n">${s.recovery}</div><div class="l">Recovery-Quote</div></div>
       </div>
       <div class="notice">🔴 Rote Fälle (Rücklastschriften) stehen immer ganz oben. Offener Betrag gesamt: <b style="color:var(--text)">${s.betrag}</b> · automatische Zahlungserinnerung-Journey aktiv, sensible Mahnstufe eskaliert an Mensch.</div>
-      <div class="panel"><table class="tbl"><thead>${sortHead('payments',cols)}</thead><tbody>${rows}</tbody></table></div>`,'#/crm/zahlungen');
+      <div class="panel"><table class="tbl cards"><thead>${sortHead('payments',cols)}</thead><tbody>${rows}</tbody></table></div>`,'#/crm/zahlungen');
   }
 
   /* ---------------- reports ---------------- */
@@ -812,19 +830,23 @@
   /* ---------------- support-center (WhatsApp + Telefon, KI beantwortet) ---------------- */
   function supportCenter(){
     const S = C().support;
-    const chips = ["Alle","WhatsApp","Telefon"];
-    const match = it => state.supFilter==='Alle' || (state.supFilter==='WhatsApp' ? it.ch==='whatsapp' : it.ch==='phone');
+    const CH = { whatsapp:['🟢','WhatsApp Business · 24h-Fenster aktiv'], phone:['☎️','Telefon · KI-Assistent / Transkript'], email:['✉️','E-Mail'], web:['🌐','Website-Formular'] };
+    const chips = ["Alle","WhatsApp","Telefon","E-Mail"];
+    const match = it => state.supFilter==='Alle' ? true
+      : state.supFilter==='WhatsApp' ? it.ch==='whatsapp'
+      : state.supFilter==='Telefon' ? it.ch==='phone'
+      : (it.ch==='email' || it.ch==='web');
     const items = S.items.filter(match);
     if(!items.some(i=>i.id===state.supSel)) state.supSel = items.length ? items[0].id : null;
     const cur = S.items.find(i=>i.id===state.supSel);
-    const chIco = c => c==='whatsapp' ? '🟢' : '☎️';
+    const chIco = c => (CH[c]||['💬'])[0];
     const stBadge = s => s==='auto' ? '<span class="badge b-green">✓ KI hat geantwortet</span>'
       : s==='freigabe' ? '<span class="badge b-amber">Wartet auf Freigabe</span>'
       : s==='mensch' ? '<span class="badge b-red">An Mensch eskaliert</span>'
       : s==='done' ? '<span class="badge b-green">✓ Erledigt · Termin gebucht</span>'
       : '<span class="badge b-gray">Gesendet ✓</span>';
     return shell(`
-      ${crmHead('Support-Center','WhatsApp Business + Telefon in einer Inbox — die KI beantwortet Einfaches sofort, Sensibles geht mit Entwurf an euch.',`<div class="choices">${chips.map(c=>`<button type="button" class="chip ${state.supFilter===c?'sel':''}" data-action="crm-sup-filter" data-v="${c}">${c}</button>`).join('')}</div>`)}
+      ${crmHead('Posteingang','WhatsApp · Telefon · E-Mail · Website in einer Inbox — die KI beantwortet Einfaches sofort, Sensibles geht mit Entwurf an euch.',`<div class="choices">${chips.map(c=>`<button type="button" class="chip ${state.supFilter===c?'sel':''}" data-action="crm-sup-filter" data-v="${c}">${c}</button>`).join('')}</div>`)}
       <div class="kpi-grid cols-5">
         <div class="kpi"><div class="n">${S.stats.heute}</div><div class="l">Eingegangen heute</div></div>
         <div class="kpi green"><div class="n">${S.stats.autoKI}</div><div class="l">Von KI sofort beantwortet (${Math.round(S.stats.autoKI/S.stats.heute*100)} %)</div></div>
@@ -843,7 +865,7 @@
         ${cur ? `<div class="panel">
           <div class="panel-h"><b>${chIco(cur.ch)} ${cur.who} · ${cur.topic}</b>
             <div style="display:flex;gap:8px;align-items:center">${cur.who.includes('Nicole')?'<a class="btn btn-dark btn-sm" href="#/crm/kunde/A">👤 Kunden-360</a>':''}${stBadge(cur.status)}</div></div>
-          ${cur.ch==='whatsapp'?'<div style="margin-bottom:8px"><span class="badge badge-label b-green">🟢 WhatsApp Business · 24h-Fenster aktiv</span></div>':'<div style="margin-bottom:8px"><span class="badge badge-label b-gray">☎️ Telefon · KI-Assistent / Transkript</span></div>'}
+          <div style="margin-bottom:8px"><span class="badge badge-label ${cur.ch==='whatsapp'?'b-green':'b-gray'}">${CH[cur.ch]?CH[cur.ch][0]+' '+CH[cur.ch][1]:'💬 '+cur.ch}</span></div>
           ${cur.msgs.map(([dir,txt])=>`<div class="bubble ${dir==='out'?'me':''}" style="max-width:88%">${txt}</div>`).join('')}
           ${cur.ai ? `<div style="font-size:12px;color:var(--muted);margin:10px 0 4px;text-transform:uppercase;letter-spacing:1px">${cur.status==='auto'?'KI-Antwort (automatisch gesendet)':cur.status==='mensch'?'KI-Einordnung':'KI-Antwortentwurf'}</div>
           <div class="aibox" style="${cur.status==='mensch'?'border-left-color:var(--amber)':''}">${cur.ai}</div>` : ''}
@@ -1131,7 +1153,7 @@
     if(r==='kurse') return seg[2] ? courseDetail(seg[2]) : courses();
     if(r==='auslastung') return auslastung();
     if(r==='checkins') return checkins();
-    if(r==='kommunikation') return kommunikation();
+    if(r==='kommunikation') return supportCenter(); // zusammengeführt: Posteingang
     if(r==='vertraege') return seg[2]==='neu' ? vertragWizard() : contracts();
     if(r==='zahlungen') return payments();
     if(r==='reports') return reports();
@@ -1164,6 +1186,7 @@
     if(a==='crm-leadview'){ state.leadView = el.dataset.v; window.__render && window.__render(); return; }
     if(a==='crm-sort'){ const id=el.dataset.id, col=+el.dataset.col; const s=state.sort[id]; state.sort[id]=(s&&s.col===col)?{col,dir:-s.dir}:{col,dir:1}; window.__render && window.__render(); return; }
     if(a==='crm-kpi-all'){ state.kpiAll=!state.kpiAll; window.__render && window.__render(); return; }
+    if(a==='crm-navsec'){ state.navSteuerung=!state.navSteuerung; window.__render && window.__render(); return; }
     if(a==='crm-inbox'){ state.inboxSel = +el.dataset.i; window.__render && window.__render(); return; }
     if(a==='crm-menu'){ state.sideOpen = !state.sideOpen; window.__render && window.__render(); return; }
     if(a==='crm-toast'){ (window.__toast || alert)(el.dataset.msg||'Demo'); return; }

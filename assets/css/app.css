@@ -340,6 +340,8 @@ p{margin:0 0 14px}
 .crm-nav a.active{background:var(--red-050);color:var(--text)}
 .crm-navsec{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);opacity:.6;font-weight:700;margin:14px 12px 5px}
 .crm-nav > .crm-navsec:first-child{margin-top:2px}
+button.crm-navsec-toggle{background:none;border:0;width:calc(100% - 24px);cursor:pointer;font:inherit;display:flex;justify-content:space-between;align-items:center}
+button.crm-navsec-toggle:hover{opacity:.9;color:var(--text-dim)}
 .crm-side .role-note{margin-top:auto;padding:12px;background:var(--surface);border-radius:10px;font-size:12px;color:var(--muted);line-height:1.5}
 .crm-main{flex:1;min-width:0;display:flex;flex-direction:column}
 .crm-top{position:sticky;top:var(--ribbon);z-index:40;background:var(--glass);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:11px 22px;display:flex;align-items:center;gap:14px}
@@ -418,6 +420,14 @@ button.kcard{width:100%;text-align:left;font:inherit;color:inherit}
   .crm-scrim{display:block;position:fixed;inset:var(--ribbon) 0 0 0;background:rgba(0,0,0,.5);z-index:110}
   .crm-top .search{display:none}
   .crm-user .u-meta{display:none}
+  /* aktionslastige Tabellen als Karten — Aktion ohne Horizontal-Scroll erreichbar */
+  .tbl.cards{min-width:0;display:block}
+  .tbl.cards thead{display:none}
+  .tbl.cards tbody{display:block}
+  .tbl.cards tr{display:block;border:1px solid var(--line);border-radius:12px;margin-bottom:10px;padding:8px 12px;background:var(--surface)}
+  .tbl.cards td{display:flex;justify-content:space-between;align-items:center;gap:12px;border:0;padding:6px 0;text-align:right}
+  .tbl.cards td::before{content:attr(data-label);color:var(--muted);font-weight:600;text-align:left;white-space:nowrap}
+  .tbl.cards td:empty{display:none}
 }
 
 /* ============================================================
