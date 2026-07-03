@@ -280,7 +280,7 @@
         <a class="logo" href="#/"><span class="slash sm"><i></i><i></i></span> <span class="badge">NFT</span>
           <span style="display:flex;flex-direction:column;line-height:1"><span>ADMIN</span><small>BILD-STUDIO</small></span></a>
         <div class="spacer" style="flex:1"></div>
-        <div class="nav-cta">${window.__themeBtn?window.__themeBtn():''}<a class="btn btn-dark btn-sm" href="#/crm">Zum CRM</a><a class="btn btn-primary btn-sm" href="#/">Zur Website →</a></div>
+        <div class="nav-cta">${window.__langSelect?window.__langSelect('admin'):''}${window.__themeBtn?window.__themeBtn():''}<a class="btn btn-dark btn-sm" href="#/crm">Zum CRM</a><a class="btn btn-primary btn-sm" href="#/">Zur Website →</a></div>
       </div></div>
       <main id="main"><div class="section" style="padding-top:36px"><div class="container">
         <div class="kicker"><span class="slash sm"><i></i><i></i></span> Admin</div>

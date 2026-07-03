@@ -133,7 +133,18 @@
   let lang = 'de';
   try{ lang = localStorage.getItem('nftLang') || 'de'; }catch(e){}
   if(!T[lang]) lang = 'de';
-  const t = k => (T[lang] && T[lang][k] !== undefined ? T[lang][k] : T.de[k]) || k;
+  // t(key) — key can be a short id (nav_home) OR the German source string itself.
+  // For German, unknown keys fall through to the key (= the German text), so only
+  // ar/tr need entries. Optional {vars} replace {placeholders} in the result.
+  const t = (k, vars) => {
+    const d = T[lang];
+    let s = (d && d[k] !== undefined) ? d[k]
+          : (T.de[k] !== undefined ? T.de[k] : k);
+    if (vars) for (const p in vars) s = s.split('{'+p+'}').join(vars[p]);
+    return s;
+  };
+  // merge extra translations (used by app.js sections + crm.js/admin.js namespaces)
+  function addI18n(obj){ for(const l in obj){ T[l] = T[l] || {name:l}; Object.assign(T[l], obj[l]); } }
   function applyLangAttrs(){
     document.documentElement.lang = lang;
     document.documentElement.dir = lang==='ar' ? 'rtl' : 'ltr';
@@ -147,7 +158,59 @@
   }
   const langSelect = cls => `<select class="lang-select ${cls||''}" data-action="lang" aria-label="${t('lang_label')}">
     ${Object.keys(T).map(k=>`<option value="${k}"${k===lang?' selected':''}>${T[k].name}</option>`).join('')}</select>`;
-  const langNote = () => lang!=='de' ? `<div class="lang-note">${t('partialNote')}</div>` : '';
+  const langNote = () => (lang!=='de' && t('partialNote')) ? `<div class="lang-note">${t('partialNote')}</div>` : '';
+
+  // Merge translation namespaces registered by earlier-loaded scripts (crm.js, admin.js).
+  // Those files run before app.js, so they stash their dicts on window; we fold them in here.
+  if(window.__i18n_crm)   addI18n(window.__i18n_crm);
+  if(window.__i18n_admin) addI18n(window.__i18n_admin);
+  // Expose the i18n layer so crm.js / admin.js can translate at render time.
+  window.__t = t;
+  window.__lang = () => lang;
+  window.__setLang = setLang;
+  window.__addI18n = addI18n;
+  window.__langSelect = langSelect;
+
+  /* ===========================================================
+     I18N RENDER LAYER — translate finished DOM after each render.
+     All three surfaces (site/app/CRM/admin) funnel through render(),
+     so one pass over the rendered tree localizes everything whose
+     German source phrase exists in the dictionary (T[lang]). German
+     stays untouched; proper nouns/numbers (not in the dict) stay too.
+     =========================================================== */
+  const I18N_SKIP_TAGS = { SCRIPT:1, STYLE:1, NOSCRIPT:1, TEXTAREA:1 };
+  function i18nText(raw){
+    // translate a text node value, preserving leading/trailing whitespace
+    const key = raw.trim();
+    if(!key) return raw;
+    const tr = t(key);
+    return tr===key ? raw : raw.replace(key, tr);
+  }
+  function i18nTree(root){
+    if(lang==='de' || !root) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    const nodes = [];
+    let n; while((n = walker.nextNode())){
+      const p = n.parentNode;
+      if(p && !I18N_SKIP_TAGS[p.nodeName] && !(p.classList && p.classList.contains('lang-select'))) nodes.push(n);
+    }
+    for(const node of nodes){
+      const out = i18nText(node.nodeValue);
+      if(out !== node.nodeValue) node.nodeValue = out;
+    }
+    // translate common text-bearing attributes
+    const els = root.querySelectorAll('[placeholder],[title],[aria-label],[alt],[data-msg]');
+    els.forEach(el=>{
+      ['placeholder','title','aria-label','alt','data-msg'].forEach(a=>{
+        if(!el.hasAttribute(a)) return;
+        const v = el.getAttribute(a); const key = v.trim();
+        if(!key) return;
+        const tr = t(key);
+        if(tr!==key) el.setAttribute(a, v.replace(key, tr));
+      });
+    });
+  }
+  window.__i18nTree = i18nTree;   // so tour/overlay code outside render() can localize too
 
   /* ---------- theme: dark / light ---------- */
   let theme = 'dark';
@@ -198,19 +261,20 @@
 
   /* ---------- toast ---------- */
   function toast(msg, undo){
-    let t = document.createElement('div');
-    t.textContent = msg;
-    t.style.cssText = "position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:var(--inverse-bg);color:var(--inverse-ink);padding:12px 20px;border-radius:100px;font-weight:600;z-index:400;box-shadow:0 10px 30px rgba(0,0,0,.4);display:flex;align-items:center";
+    msg = t(msg);                       // translate static toast messages
+    let box = document.createElement('div');
+    box.textContent = msg;
+    box.style.cssText = "position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:var(--inverse-bg);color:var(--inverse-ink);padding:12px 20px;border-radius:100px;font-weight:600;z-index:400;box-shadow:0 10px 30px rgba(0,0,0,.4);display:flex;align-items:center";
     if(undo){
       const u=document.createElement('button');
-      u.className='toast-undo'; u.textContent='Rückgängig';
-      u.addEventListener('click',()=>{ try{undo();}finally{t.remove();} });
-      t.appendChild(u);
+      u.className='toast-undo'; u.textContent=t('Rückgängig');
+      u.addEventListener('click',()=>{ try{undo();}finally{box.remove();} });
+      box.appendChild(u);
     }
-    document.body.appendChild(t);
+    document.body.appendChild(box);
     const life = undo?4200:1400;
-    setTimeout(()=>{t.style.transition="opacity .3s";t.style.opacity="0";},life);
-    setTimeout(()=>t.remove(),life+400);
+    setTimeout(()=>{box.style.transition="opacity .3s";box.style.opacity="0";},life);
+    setTimeout(()=>box.remove(),life+400);
     const lr=document.getElementById('live-region'); if(lr) lr.textContent=msg;
   }
   const unreadCount = () => D.messages.filter((m,i)=>m.unread && !readMsgs.has(i)).length;
@@ -1509,6 +1573,7 @@
       else html=notFoundSite();
     }
     app.innerHTML=html;
+    i18nTree(document.body);        // localize the freshly rendered tree (+ demo ribbon)
     document.title = pageTitle(seg);
     window.scrollTo(0,0);
   }

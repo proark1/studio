@@ -118,6 +118,7 @@
           </select>
           <a class="search" href="#/crm/suche" style="text-decoration:none;display:flex;align-items:center;gap:8px">${I('search')} Mitglieder, Leads, Kurse suchen…</a>
           <div class="spacer"></div>
+          ${window.__langSelect ? window.__langSelect('crm') : ''}
           ${window.__themeBtn ? window.__themeBtn() : ''}
           <a class="icon-btn" href="#/crm/kommunikation" aria-label="Kommunikation${openMsgs?` (${openMsgs} offen)`:''}">${I('bell')}${openMsgs?`<span class="badge-dot">${openMsgs}</span>`:''}</a>
           <div class="crm-user"><div class="u-meta"><b>${state.role}</b><small>NFT Team</small></div>
