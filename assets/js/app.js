@@ -160,8 +160,9 @@
     ${Object.keys(T).map(k=>`<option value="${k}"${k===lang?' selected':''}>${T[k].name}</option>`).join('')}</select>`;
   const langNote = () => (lang!=='de' && t('partialNote')) ? `<div class="lang-note">${t('partialNote')}</div>` : '';
 
-  // Merge translation namespaces registered by earlier-loaded scripts (crm.js, admin.js).
+  // Merge translation namespaces registered by earlier-loaded scripts.
   // Those files run before app.js, so they stash their dicts on window; we fold them in here.
+  if(window.__i18n_site)  addI18n(window.__i18n_site);   // central dictionary (assets/js/i18n.js)
   if(window.__i18n_crm)   addI18n(window.__i18n_crm);
   if(window.__i18n_admin) addI18n(window.__i18n_admin);
   // Expose the i18n layer so crm.js / admin.js can translate at render time.
@@ -188,6 +189,11 @@
   }
   function i18nTree(root){
     if(lang==='de' || !root) return;
+    // Pin <option> values BEFORE translating their text: a <select> without explicit
+    // value attributes derives its value from the option text, and handlers read el.value
+    // for logic (e.g. Standort-Filter compares against the German string). Freezing the
+    // German source as the value keeps logic intact while the visible label gets localized.
+    root.querySelectorAll('option:not([value])').forEach(o=>{ o.value = o.textContent.trim(); });
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
     const nodes = [];
     let n; while((n = walker.nextNode())){
