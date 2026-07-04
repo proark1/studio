@@ -51,6 +51,7 @@
     const openMsgs = C().support.items.filter(i=>i.status==='freigabe'||i.status==='mensch').length;
     const nav = [
       ['#/crm/dashboard','home','Dashboard','Dashboard','Überblick'],
+      ['#/crm/mehrwert','target','Mehrwert OS','Dashboard','Überblick'],
       ['#/crm/leads','target','Leads & Probetraining','Leads','Vertrieb'],
       ['#/crm/upsell','trending','Upsell-Chancen','Mitglieder','Vertrieb'],
       ['#/crm/launch','zap','Launch-Cockpit','Reports','Vertrieb'],
@@ -64,7 +65,9 @@
       ['#/crm/aufgaben','file','Aufgaben','Kommunikation','Kommunikation'],
       ['#/crm/feedback','message','Feedback & Puls','Kommunikation','Kommunikation'],
       ['#/crm/team','shield','Trainer & Team','Verträge','Team'],
+      ['#/crm/curriculum','file','Curriculum','Kurse','Team'],
       ['#/crm/zeiten','clock','Arbeitszeiten','Verträge','Team'],
+      ['#/crm/sicherheit','shield','Sicherheit & Unfall','Dashboard','Team'],
       ['#/crm/vertraege','file','Verträge','Verträge','Finanzen'],
       ['#/crm/zahlungen','euro','Zahlungen','Zahlungen','Finanzen'],
       ['#/crm/automationen','zap','Automationen','Automationen','Steuerung'],
@@ -79,7 +82,7 @@
     const linkA = ([h,i,l]) => `<a href="${h}" class="${active===h?'active':''}"${active===h?' aria-current="page"':''}><span class="ci">${I(i)}</span>${l}</a>`;
     // ★ Häufig: 3-4 rollenabhängige Kern-Screens als Schnellzugriff oben
     const FAV = {
-      'Geschäftsführung':  ['#/crm/dashboard','#/crm/leads','#/crm/zahlungen','#/crm/reports'],
+      'Geschäftsführung':  ['#/crm/dashboard','#/crm/mehrwert','#/crm/reports','#/crm/sicherheit'],
       'Standortleiter':    ['#/crm/dashboard','#/crm/leads','#/crm/retention','#/crm/auslastung'],
       'Rezeption / Sales': ['#/crm/dashboard','#/crm/leads','#/crm/checkins','#/crm/zahlungen'],
     };
@@ -1124,11 +1127,131 @@
     `,'');
   }
 
+  /* ---------------- Mehrwert OS: top-10 report as executable cockpit ---------------- */
+  function mehrwertOS(){
+    const levers = C().valueLevers || [];
+    const live = levers.filter(x=>x.status==='live').length;
+    const neu = levers.filter(x=>x.status==='neu').length;
+    const routeIcon = r => r.includes('/app') ? 'App' : r.includes('/trainer') ? 'Trainer' : r.includes('/events') ? 'Website' : 'CRM';
+    return shell(`
+      ${crmHead('Mehrwert OS','Top-10-Plan als klickbarer Umsetzungsstand: Kundenwert, Mitarbeiterwert, Skalierung und Risiko in einem Board.',
+        '<a class="btn btn-dark btn-sm" href="#/crm/reports">Reports</a> <a class="btn btn-primary btn-sm" href="#/app/onboarding">90-Tage-Reise ansehen</a>')}
+      <div class="value-hero panel">
+        <div>
+          <div class="kicker"><span class="slash sm"><i></i><i></i></span> Kundennutzen + Betrieb</div>
+          <h2 style="font-size:36px;margin:0 0 8px">Neue Familie rein, Team entlastet, Qualitaet skaliert.</h2>
+          <p class="muted" style="max-width:720px;margin:0">Die Top-10-Hebel aus dem Report sind hier als Produkt-Cockpit umgesetzt. Jede Karte fuehrt zu einem existierenden Workflow oder zu einem neu ergaenzten Pflichtprozess.</p>
+        </div>
+        <div class="value-score">
+          <b>${live}/10</b><span>live im Prototyp</span>
+          <small>${neu} neue Pflichtmodule ergaenzt</small>
+        </div>
+      </div>
+      <div class="kpi-grid cols-5">
+        <div class="kpi green"><div class="n">${live}</div><div class="l">Hebel klickbar live</div></div>
+        <div class="kpi amber"><div class="n">${neu}</div><div class="l">Neu gebaut</div></div>
+        <div class="kpi"><div class="n">${C().selfservice.quote}%</div><div class="l">Selfservice-Quote</div></div>
+        <div class="kpi"><div class="n">${C().safety.coverage.avgParentContact}</div><div class="l">Elternkontakt Unfall</div></div>
+        <div class="kpi"><div class="n">${C().curriculum.stats.avgPrep}</div><div class="l">Trainer-Prep</div></div>
+      </div>
+      <div class="value-grid">
+        ${levers.map(x=>`<a class="value-card" href="${x.route}">
+          <div class="value-rank">${String(x.rank).padStart(2,'0')}</div>
+          <div class="value-main"><div class="value-top"><b>${x.name}</b><span class="badge ${x.status==='live'?'b-green':'b-amber'}">${x.status}</span></div>
+            <p>${x.value}</p><small>${x.user}</small></div>
+          <div class="value-foot"><span>${routeIcon(x.route)}</span><span>${x.kpi}</span></div>
+        </a>`).join('')}
+      </div>
+      <div class="split" style="grid-template-columns:1fr 1fr">
+        <div class="panel"><div class="panel-h"><b>Top-4 Story</b><span class="muted" style="font-size:12px">Demo-Erzaehlung</span></div>
+          ${[
+            ['1','90-Tage-Reise','Familie versteht jeden naechsten Schritt.'],
+            ['2','Mitarbeiter-Cockpit','Team sieht morgens sofort, was wichtig ist.'],
+            ['3','Wochenfortschritt','Eltern sehen den Wert des Trainings.'],
+            ['4','Kunden-360 + HITL','Jede Anfrage wird schnell und sicher beantwortet.']
+          ].map(x=>`<div class="list-item"><span class="li-ico">${x[0]}</span><div class="li-main"><b>${x[1]}</b><small>${x[2]}</small></div></div>`).join('')}
+        </div>
+        <div class="panel"><div class="panel-h"><b>Naechste harte Gates</b><span class="badge b-red">V1 Pflicht</span></div>
+          <div class="list-item"><span class="li-ico">1</span><div class="li-main"><b>Arbeitszeit + Quali</b><small>Recht, Kosten, Kinderkurs-Freigabe</small></div><a class="btn btn-dark btn-sm" href="#/crm/zeiten">Oeffnen</a></div>
+          <div class="list-item"><span class="li-ico">2</span><div class="li-main"><b>Sicherheit & Unfall</b><small>Haftung, Vertrauen, Playbooks</small></div><a class="btn btn-dark btn-sm" href="#/crm/sicherheit">Oeffnen</a></div>
+          <div class="list-item"><span class="li-ico">3</span><div class="li-main"><b>Curriculum</b><small>Qualitaet bei 10 -> 50 Standorten</small></div><a class="btn btn-dark btn-sm" href="#/crm/curriculum">Oeffnen</a></div>
+        </div>
+      </div>
+    `,'#/crm/mehrwert');
+  }
+
+  /* ---------------- safety / accident process ---------------- */
+  function sicherheit(){
+    const s = C().safety;
+    const badge = st => st==='ok' ? '<span class="badge b-green">ok</span>' : st==='warn' ? '<span class="badge b-amber">pruefen</span>' : '<span class="badge b-red">kritisch</span>';
+    return shell(`
+      ${crmHead('Sicherheit & Unfall','Notfallkontakte, Unfallprotokolle, Erste-Hilfe-Abdeckung und Kinderschutz-Playbooks.',
+        '<button class="btn btn-primary btn-sm" data-action="crm-toast" data-msg="Neues Unfallprotokoll gestartet (Demo)">+ Unfallprotokoll</button>')}
+      <div class="kpi-grid">
+        <div class="kpi green"><div class="n">${s.coverage.firstAid}</div><div class="l">Erste-Hilfe-Abdeckung</div></div>
+        <div class="kpi amber"><div class="n">${s.coverage.contacts}</div><div class="l">Notfallkontakte vollstaendig</div></div>
+        <div class="kpi red"><div class="n">${s.coverage.openIncidents}</div><div class="l">Offene Follow-ups</div></div>
+        <div class="kpi"><div class="n">${s.coverage.avgParentContact}</div><div class="l">Elternkontakt im Schnitt</div></div>
+      </div>
+      <div class="split">
+        <div class="panel"><div class="panel-h"><b>Aktuelle Vorfaelle</b><span class="muted" style="font-size:12px">niemals vollautomatisch</span></div>
+          ${s.incidents.map(i=>`<div class="incident-card ${i.status==='geschlossen'?'done':''}">
+            <div class="panel-h" style="margin-bottom:8px"><div><b>${i.child}</b><small class="muted"> · ${i.loc} · ${i.when}</small></div><span class="badge ${i.status==='geschlossen'?'b-green':'b-amber'}">${i.status}</span></div>
+            <p class="dim" style="margin:0 0 8px">${i.type}</p>
+            ${i.steps.map(st=>`<div class="list-item compact"><span class="li-ico">✓</span><div class="li-main"><small>${st}</small></div></div>`).join('')}
+            ${i.status!=='geschlossen'?`<button class="btn btn-primary btn-sm" data-action="crm-safety-close" data-id="${i.id}" style="margin-top:10px">Follow-up erledigen</button>`:''}
+          </div>`).join('')}
+        </div>
+        <div>
+          <div class="panel"><div class="panel-h"><b>Kontrollen heute</b></div>
+            ${s.checks.map(c=>`<div class="list-item"><div class="li-main"><b>${c.name}</b><small>${c.note}</small></div>${badge(c.status)}</div>`).join('')}
+          </div>
+          <div class="panel"><div class="panel-h"><b>Playbooks</b><span class="badge b-gray">manuell</span></div>
+            ${s.playbooks.map(p=>`<div class="list-item"><span class="li-ico">!</span><div class="li-main"><b>${p.name}</b><small>${p.owner} · SLA: ${p.sla}</small></div></div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="notice">Produktregel: Kamera-/Biometrie-Erkennung bleibt ausgeschlossen. Notfall- und Gesundheitsdaten werden minimal gehalten, rollenbeschraenkt angezeigt und nicht fuer Marketing genutzt.</div>
+    `,'#/crm/sicherheit');
+  }
+
+  /* ---------------- curriculum / trainer enablement ---------------- */
+  function curriculum(){
+    const c = C().curriculum, t = c.today;
+    return shell(`
+      ${crmHead('Curriculum & Stundenbilder','Zentraler Qualitaetsstandard fuer Trainer: gleiche Stunde, gleiche Sicherheitslinie, gleicher Fortschritt.',
+        '<button class="btn btn-primary btn-sm" data-action="crm-toast" data-msg="Stundenbild an Trainer-App gesendet (Demo)">Heute an Trainer senden</button>')}
+      <div class="kpi-grid">
+        <div class="kpi"><div class="n">${c.stats.modules}</div><div class="l">Curriculum-Module</div></div>
+        <div class="kpi"><div class="n">${c.stats.ageBands}</div><div class="l">Altersbaender</div></div>
+        <div class="kpi green"><div class="n">${c.stats.readyPlans}</div><div class="l">fertige Stundenbilder</div></div>
+        <div class="kpi green"><div class="n">${c.stats.avgPrep}</div><div class="l">Prep-Zeit Trainer</div></div>
+      </div>
+      <div class="split" style="grid-template-columns:1.2fr .8fr">
+        <div class="panel"><div class="panel-h"><b>Heutiges Stundenbild · ${t.course}</b><span class="badge b-amber">${t.belt}</span></div>
+          <div class="notice" style="margin-top:0"><b>Ziel:</b> ${t.goal}<br><b>Sicherheit:</b> ${t.safety}</div>
+          <table class="tbl"><thead><tr><th>Block</th><th>Inhalt</th><th>Dauer</th></tr></thead><tbody>
+            ${t.blocks.map(b=>`<tr><td><b>${b[0]}</b></td><td>${b[1]}</td><td>${b[2]}</td></tr>`).join('')}
+          </tbody></table>
+        </div>
+        <div class="panel"><div class="panel-h"><b>Trainer-Onboarding</b><span class="badge b-gray">Qualitaetsgate</span></div>
+          ${c.onboarding.map(o=>`<div class="list-item"><span class="li-ico">${o.done?'✓':'□'}</span><div class="li-main"><b>${o.step}</b><small>${o.text}</small></div></div>`).join('')}
+        </div>
+      </div>
+      <div class="grid g-4" style="margin-bottom:16px">
+        ${c.tracks.map(x=>`<div class="panel" style="margin:0"><div class="panel-h"><b>${x.name}</b><span class="badge b-green">${x.quality}</span></div>
+          <div class="kpi kpi-sm" style="padding:0;border:0;background:transparent"><div class="n">${x.modules}</div><div class="l">Module</div></div>
+          <p class="muted" style="font-size:13px;margin:8px 0 0">Naechster Fokus: ${x.next}</p></div>`).join('')}
+      </div>
+      <div class="notice">Curriculum speist Skill-Tags, Wochenreports und Pruefungschecklisten. Dadurch wird Fortschritt sichtbar, ohne dass Trainer doppelt dokumentieren.</div>
+    `,'#/crm/curriculum');
+  }
+
   /* ---------------- router (mit Rollen-Guard) ---------------- */
-  const ROUTE_MOD = { dashboard:'Dashboard', leads:'Leads', mitglieder:'Mitglieder', familie:'Mitglieder',
+  const ROUTE_MOD = { dashboard:'Dashboard', mehrwert:'Dashboard', sicherheit:'Dashboard', leads:'Leads', mitglieder:'Mitglieder', familie:'Mitglieder',
     retention:'Mitglieder', upsell:'Mitglieder', kurse:'Kurse', auslastung:'Auslastung', checkins:'Check-ins',
     kiosk:'Check-ins', kommunikation:'Kommunikation', feedback:'Kommunikation', vertraege:'Vertr\u00e4ge', team:'Vertr\u00e4ge',
-    zahlungen:'Zahlungen', automationen:'Automationen', reports:'Reports', rollen:'Rollen/Rechte',
+    curriculum:'Kurse', zahlungen:'Zahlungen', automationen:'Automationen', reports:'Reports', rollen:'Rollen/Rechte',
     entscheidungen:'Reports', launch:'Reports', kunde:'Mitglieder', aufgaben:'Kommunikation', zeiten:'Verträge',
     support:'Kommunikation' };
   function noAccess(mod){
@@ -1148,6 +1271,8 @@
     if(mod){ const perm=D.crm.permissions, i=perm.modules.indexOf(mod), allow=perm.roles[state.role]||[];
       if(i>=0 && allow[i]!==1) return noAccess(mod); }
     if(r==='dashboard') return dashboard();
+    if(r==='mehrwert') return mehrwertOS();
+    if(r==='sicherheit') return sicherheit();
     if(r==='leads') return seg[2] ? leadDetail(seg[2]) : leads();
     if(r==='mitglieder') return members();
     if(r==='familie') return family(seg[2]);
@@ -1162,6 +1287,7 @@
     if(r==='retention') return retention();
     if(r==='upsell') return upsell();
     if(r==='team') return team();
+    if(r==='curriculum') return curriculum();
     if(r==='feedback') return feedbackDash();
     if(r==='entscheidungen') return entscheidungen();
     if(r==='launch') return launchCockpit();
@@ -1247,6 +1373,7 @@
     if(a==='crm-fb-send'){ const d=C().feedback.detractors[+el.dataset.i]; if(d) d.status='beantwortet'; (window.__toast||alert)('Antwort gesendet ✓ — Fall im SLA erledigt'); window.__render && window.__render(); return; }
     if(a==='crm-fb-task'){ const d=C().feedback.detractors[+el.dataset.i]; if(d) d.status='Maßnahme erstellt'; (window.__toast||alert)('Maßnahme erstellt ✓ — Auslastung geöffnet'); return; }
     if(a==='crm-call-voice'){ C().leads.unshift({id:'L9',name:'Anruferin 16:42 (Sprachnotiz)',who:'Kind (6)',loc:'Krefeld',interest:'Mini-Kids',stage:'Neu',action:'KI-Mail senden',ageMin:0,src:'Telefon'}); (window.__toast||alert)('🎤 Transkribiert ✓ — Lead-Karte angelegt (Mini-Kids, Krefeld)'); location.hash='#/crm/leads'; return; }
+    if(a==='crm-safety-close'){ const s=C().safety, inc=s.incidents.find(x=>x.id===el.dataset.id); if(inc){ inc.status='geschlossen'; s.coverage.openIncidents=Math.max(0,s.coverage.openIncidents-1); } (window.__toast||alert)('Follow-up geschlossen ✓ — Elternkontakt im Protokoll dokumentiert'); window.__render && window.__render(); return; }
     if(a==='crm-trainer-save'){ const ta=document.getElementById('tfeedback'); const txt=ta?ta.value.trim():''; const k=D.kids&&D.kids[0]; if(k){ k.feedbackLog=k.feedbackLog||[]; k.feedbackLog.push({time:'gerade eben', skills:state.trainerSkills.slice(), text:txt}); } state.trainerSkills=[]; (window.__toast||alert)('Gespeichert ✓ — Eltern sehen das Update'); location.hash='#/trainer'; return; }
   });
   document.addEventListener('change', e=>{

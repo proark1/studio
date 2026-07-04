@@ -851,6 +851,11 @@
     const alerts = [bdayCard, careCard, transCard, ferienBanner, msCard, examCard, offerCard, wrCard].filter(Boolean).join('');
     return appShell(`
       <h1 class="app-h">${t('today')}</h1>
+      <a class="app-card" href="#/app/onboarding" style="display:flex;gap:12px;align-items:center;border-color:var(--green)">
+        <div class="thumb" style="background:rgba(39,194,102,.15);font-size:24px">90</div>
+        <div class="meta" style="flex:1"><b>90-Tage-Erfolgsreise</b><small>Naechster Schritt: Tag-7-Mini-Check-in · Ziel 8 Check-ins</small></div>
+        <span class="muted">›</span>
+      </a>
       <div class="app-sec">Nächstes Training</div>
       ${sessions}
       ${pulseCard}
@@ -1159,7 +1164,7 @@
         <a class="list-item" href="#/app/hilfe"><span class="li-ico">🤖</span><div class="li-main"><b>Hilfe & Fragen</b><small>Sofort-Antworten · oder Mensch</small></div><span class="muted">›</span></a>
         <a class="list-item" href="#/app/mitbestimmen"><span class="li-ico">🗳️</span><div class="li-main"><b>Mitbestimmen</b><small>Feature-Voting · Ihr habt gesagt → getan</small></div><span class="muted">›</span></a>
         <a class="list-item" href="#/app/community"><span class="li-ico">🎉</span><div class="li-main"><b>Events, Shop & Videos</b><small>Turniere, Pro-Shop, Technik-Videos, Party</small></div><span class="muted">›</span></a>
-        <a class="list-item" href="#/app/onboarding"><span class="li-ico">🚀</span><div class="li-main"><b>Meine ersten 30 Tage</b><small>Onboarding-Fortschritt</small></div><span class="muted">›</span></a>
+        <a class="list-item" href="#/app/onboarding"><span class="li-ico">🚀</span><div class="li-main"><b>90-Tage-Erfolgsreise</b><small>Onboarding, Buddy, Check-ins, Retention-Moment</small></div><span class="muted">›</span></a>
       </div>
       <div class="app-card"><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Rechtliches</b>
         <div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:12px">
@@ -1268,13 +1273,41 @@
     `,'#/app/konto');
   }
   function appOnboarding(){
+    const days = (D.crm && D.crm.ninetyDays) || [];
+    const done = days.filter(x=>x.done).length;
+    const pct = Math.round(done / Math.max(1, days.length) * 100);
     return appShell(`<a class="backlink" href="#/app">← Home</a>
-      <h1 class="app-h">Deine ersten 30 Tage</h1>
-      <div class="notice">Kinder, die im 1. Monat ≥ 8× trainieren, bleiben langfristig dabei. Wir begleiten euch Schritt für Schritt.</div>
-      <div class="app-card"><div class="belt-path">
-        ${D.onboarding.map(o=>`<div class="belt-step ${o.done?'done':''} ${o.cur?'cur':''}"><div class="bdot"></div>
-          <div><b>${o.day} · ${o.title}</b><small>${o.desc}</small></div></div>`).join('')}
-      </div></div>
+      <h1 class="app-h">90-Tage-Reise</h1>
+      <div class="notice">Aus Probetraining wird Gewohnheit: Wir begleiten euch bis Tag 90 mit klaren Schritten, Trainer-Feedback und kleinen Check-ins.</div>
+      <div class="app-card accent">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+          <div><b style="font-family:var(--ff-head);text-transform:uppercase;font-size:18px">Start stabilisieren</b>
+          <p class="muted" style="font-size:13px;margin:4px 0 0">${done} von ${days.length} Schritten erledigt · Ziel: 8 Check-ins im ersten Monat</p></div>
+          <span class="badge ${pct>=60?'b-green':'b-amber'}">${pct}%</span>
+        </div>
+        <div class="bar" style="height:10px;margin-top:12px"><span style="width:${pct}%;background:${pct>=60?'var(--green)':'var(--amber)'}"></span></div>
+      </div>
+      <div class="app-card">
+        <div class="belt-path">
+          ${days.map(o=>`<div class="belt-step ${o.done?'done':''} ${o.cur?'cur':''}"><div class="bdot"></div>
+            <div><b>${o.day} · ${o.title}</b><small>${o.owner} · ${o.metric}</small></div></div>`).join('')}
+        </div>
+      </div>
+      <div class="app-card">
+        <b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Diese Woche wichtig</b>
+        <div class="list-item"><span class="li-ico">1</span><div class="li-main"><b>Buddy bestaetigt</b><small>${D.kids[0].buddy||'Mia T.'} begruesst Emir beim Aufwaermen.</small></div><span class="badge b-green">aktiv</span></div>
+        <div class="list-item"><span class="li-ico">2</span><div class="li-main"><b>Zweiter Elternteil</b><small>Beide Eltern bekommen Check-in/out und Wochenreport.</small></div><a class="btn btn-dark btn-sm" href="#/app/konto">Einladen</a></div>
+        <div class="list-item"><span class="li-ico">3</span><div class="li-main"><b>Naechster Check-in</b><small>Tag-7-Frage: fuehlt sich Emir in der Gruppe wohl?</small></div><button class="btn btn-primary btn-sm" data-action="toast" data-msg="Mini-Check-in gespeichert (Demo)">Beantworten</button></div>
+      </div>
+      <div class="app-card" style="border-color:var(--green)">
+        <b style="font-family:var(--ff-head);text-transform:uppercase;font-size:16px">Was ihr bekommt</b>
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+          <div class="mini-metric"><b>8</b><span>Check-ins Ziel</span></div>
+          <div class="mini-metric"><b>3</b><span>Trainer-Reports</span></div>
+          <div class="mini-metric"><b>1</b><span>Buddy</span></div>
+          <div class="mini-metric"><b>90</b><span>Tage Begleitung</span></div>
+        </div>
+      </div>
     `,'#/app');
   }
 
@@ -1676,6 +1709,9 @@
     { h:'#/app/auslastung', t:'Auslastungs-Heatmap', d:'Wann ist es voll, wann ruhig? Die App empfiehlt den besten Slot fürs Kind.' },
     { h:'#/app/mitbestimmen', t:'Feedback & Mitbestimmen', d:'Familien voten über neue Features — und sehen: „Ihr habt gesagt → wir haben es getan."' },
     { h:'#/crm/dashboard', t:'Das CRM-Cockpit', d:'Eine priorisierte „Heute zuerst"-Liste, 4 Kern-KPIs und rollenscharfe Navigation — der Tag steuert sich von selbst.' },
+    { h:'#/crm/mehrwert', t:'Mehrwert OS', d:'Der Top-10-Plan ist jetzt ein klickbares Cockpit: Kundenwert, Mitarbeiterwert, Risiko und Skalierung auf einen Blick.' },
+    { h:'#/crm/sicherheit', t:'Sicherheit & Unfallprozess', d:'Notfallkontakte, Unfallprotokoll, Elternkontakt und Kinderschutz-Playbooks werden als Pflichtprozess sichtbar.' },
+    { h:'#/crm/curriculum', t:'Curriculum & Stundenbilder', d:'Trainer bekommen ein fertiges Stundenbild mit Ziel, Ablauf und Sicherheitslinie — Qualitaet skaliert.' },
     { h:'#/crm/leads/L1', t:'KI mit Freigabe', d:'Die KI schreibt Antwortentwürfe, der Mitarbeiter bestätigt nur — Human-in-the-Loop.' },
     { h:'#/crm/retention', t:'Retention-Inbox', d:'Kündigungsrisiken erkennen und handeln, bevor gekündigt wird.' },
     { h:'#/crm/feedback', t:'NFT Puls', d:'Stimmung je Kurs & Uhrzeit, Detraktor-Alarm mit 24h-SLA, Feature-Voting live.' },
