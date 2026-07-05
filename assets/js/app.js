@@ -255,6 +255,47 @@
   let saveFlow = { offer:null, done:false, showForm:false };
   let appKF = 'Alle';
   const waitset = {};
+  const lazyScripts = {
+    crm: { src:'/assets/js/crm.js?v=26', ready:()=>!!window.CRM, label:'CRM' },
+    admin: { src:'/assets/js/admin.js?v=26', ready:()=>!!window.ADMIN, label:'Bild-Studio' },
+  };
+  const lazyState = {};
+
+  function loadLazyScript(name){
+    const cfg = lazyScripts[name];
+    if(!cfg) return Promise.reject(new Error('unknown script'));
+    if(cfg.ready()) return Promise.resolve();
+    if(lazyState[name]) return lazyState[name];
+    lazyState[name] = new Promise((resolve, reject)=>{
+      const s = document.createElement('script');
+      s.src = cfg.src;
+      s.async = true;
+      s.onload = () => resolve();
+      s.onerror = () => {
+        lazyState[name] = null;
+        reject(new Error('Script konnte nicht geladen werden: '+cfg.src));
+      };
+      document.body.appendChild(s);
+    });
+    return lazyState[name];
+  }
+
+  function cleanRoute(){
+    if(location.hash) return location.hash.replace(/^#/,'') || '/';
+    let path = location.pathname.replace(/\/index\.html$/,'/').replace(/^\/+|\/+$/g,'');
+    return path ? '/'+path : '/';
+  }
+
+  function loadingSurface(name){
+    const cfg = lazyScripts[name];
+    loadLazyScript(name).then(()=>render()).catch(err=>{
+      app.innerHTML = `<div class="center" style="min-height:60vh;padding:48px 20px">
+        <h1 class="app-h">Ladefehler</h1><p class="muted">${err.message}</p>
+        <button class="btn btn-primary" type="button" data-action="reload">Neu laden</button></div>`;
+    });
+    return `<div class="center" style="min-height:60vh;padding:48px 20px">
+      <h1 class="app-h">${cfg.label} wird geladen</h1><p class="muted">Die Oberflaeche wird nur bei Bedarf geladen.</p></div>`;
+  }
 
   const OCC = {
     ruhig:{l:"Ruhig",c:"occ-ruhig",h:"h-ruhig"},
@@ -917,7 +958,7 @@
     }).join('');
     return appShell(`
       <h1 class="app-h">Kursplan</h1>
-      <div class="choices" style="margin-bottom:16px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px">
+      <div class="choices scroll-x" style="margin-bottom:16px">
         ${filters.map(f=>`<button type="button" class="chip ${appKF===f?'sel':''}" data-action="app-kfilter" data-v="${f}" style="white-space:nowrap">${f}</button>`).join('')}</div>
       ${days || '<p class="muted">Keine Kurse für diesen Filter.</p>'}
     `,'#/app/kurse');
@@ -1562,7 +1603,7 @@
     }catch(e){}
   }
   function render(){
-    const raw = (location.hash||'#/').replace(/^#/,'');
+    const raw = cleanRoute();
     const seg = raw.split('/').filter(Boolean); // e.g. ['app','kind','Emir']
     let html;
     if(seg[0]==='app'){
@@ -1586,9 +1627,9 @@
       else if(seg[1]==='hilfe') html=appHilfe();
       else html=appNotFound();
     } else if(seg[0]==='crm' || seg[0]==='trainer'){
-      html = window.CRM ? window.CRM.route(seg) : home();
+      html = window.CRM ? window.CRM.route(seg) : loadingSurface('crm');
     } else if(seg[0]==='admin'){
-      html = window.ADMIN ? window.ADMIN.route(seg) : home();
+      html = window.ADMIN ? window.ADMIN.route(seg) : loadingSurface('admin');
     } else {
       const r=seg[0];
       if(!r) html=home();
@@ -1622,6 +1663,7 @@
     const el = e.target.closest('[data-action]');
     if(!el) return;
     const a = el.dataset.action;
+    if(a==='reload'){ location.reload(); return; }
     if(a==='toast'){ toast(el.dataset.msg||'Demo'); return; }
     if(a==='goapp'){ go('#/app'); return; }
     if(a==='menu'){ menuOpen=!menuOpen; render(); return; }
@@ -1758,6 +1800,6 @@
     prevHash=location.hash;
     render();
   });
-  if(!location.hash) location.hash='#/';
-  render();
+  if(!location.hash && cleanRoute()==='/') location.hash='#/';
+  else render();
 })();

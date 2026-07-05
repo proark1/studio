@@ -11,6 +11,7 @@
    =========================================================== */
 const path = require('path');
 const express = require('express');
+const compression = require('compression');
 const { Pool } = require('pg');
 
 const app = express();
@@ -18,6 +19,8 @@ const PORT = process.env.PORT || 3000;
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
 const ROOT = __dirname;
 
+app.disable('x-powered-by');
+app.use(compression({ threshold: 1024 }));
 app.use(express.json({ limit: '16mb' })); // base64 images can be large
 
 /* ---------- Postgres ---------- */
@@ -99,8 +102,26 @@ app.delete('/api/images/:id', requireToken, async (req, res) => {
 app.use('/api', (req, res) => res.status(404).json({ error: 'not found' }));
 
 /* ---------- static SPA ---------- */
-app.use(express.static(ROOT, { extensions: ['html'] }));
-app.get('*', (req, res) => res.sendFile(path.join(ROOT, 'index.html')));
+function setStaticCache(res, filePath) {
+  const name = path.basename(filePath);
+  if (name === 'index.html') {
+    res.setHeader('Cache-Control', 'no-cache');
+    return;
+  }
+  if (filePath.startsWith(path.join(ROOT, 'assets'))) {
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    return;
+  }
+  if (name === 'manifest.json' || name === 'robots.txt' || name === 'sitemap.xml') {
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+  }
+}
+
+app.use(express.static(ROOT, { extensions: ['html'], setHeaders: setStaticCache }));
+app.get('*', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(ROOT, 'index.html'));
+});
 
 initDb()
   .catch(err => console.error('DB init failed (API will return 503):', err.message))

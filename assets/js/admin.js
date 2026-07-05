@@ -328,7 +328,8 @@
             <div class="adm-grid">${g.slots.map(slotCard).join('')}</div>`).join(''); })()}
       </div></div></main>
       <style>
-        .adm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px}
+        .adm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(340px,100%),1fr));gap:18px}
+        .adm-card{min-width:0;width:100%}
         .adm-prev{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:10px;border:1px solid var(--line);background:#101014;display:block}
         .adm-size{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--text-dim)}
         .adm-card .row{display:flex;justify-content:space-between;align-items:center;gap:10px}

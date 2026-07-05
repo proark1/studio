@@ -2,8 +2,8 @@
   "name": "NFT Gym — Kampfsport für die ganze Familie",
   "short_name": "NFT Gym",
   "description": "Kurse, Fortschritt, Check-in & Kommunikation — dein Studio in der Tasche.",
-  "start_url": "./index.html#/app",
-  "scope": "./",
+  "start_url": "/app",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0c0c0e",
@@ -18,8 +18,8 @@
     { "src": "assets/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "Kursplan", "short_name": "Kurse", "url": "./index.html#/app/kurse" },
-    { "name": "Auslastung", "short_name": "Auslastung", "url": "./index.html#/app/auslastung" },
-    { "name": "Nachrichten", "short_name": "Nachrichten", "url": "./index.html#/app/nachrichten" }
+    { "name": "Kursplan", "short_name": "Kurse", "url": "/app/kurse" },
+    { "name": "Auslastung", "short_name": "Auslastung", "url": "/app/auslastung" },
+    { "name": "Nachrichten", "short_name": "Nachrichten", "url": "/app/nachrichten" }
   ]
 }

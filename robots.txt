@@ -1,6 +1,8 @@
 User-agent: *
 Allow: /
-Disallow: /#/crm
-Disallow: /#/admin
+Disallow: /crm
+Disallow: /trainer
+Disallow: /admin
+Disallow: /api/
 
 Sitemap: https://nft-gym.de/sitemap.xml
