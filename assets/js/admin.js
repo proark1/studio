@@ -251,7 +251,7 @@
       : `<span class="muted">Noch nicht generiert — aktuell ${s.def?'Standard-Bild (extern, Unsplash)':'Emoji/Gradient-Platzhalter'}</span>`;
     return `<div class="card adm-card">
       ${cur
-        ? `<img class="adm-prev" src="${cur}" alt="" loading="lazy" onerror="this.style.opacity=.2">`
+        ? `<img class="adm-prev" src="${cur}" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'adm-prev adm-fallback',innerHTML:'<b>Vorschau nicht verfügbar</b><small>Externes Standardbild blockiert. Generiere oder setze ein lokales Bild.</small>'}))">`
         : `<div class="adm-prev" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px">Noch kein Bild — Website zeigt Platzhalter</div>`}
       <div class="row" style="margin-top:12px">
         <h3 style="font-size:17px;margin:0">${s.name}</h3>
@@ -276,15 +276,15 @@
     const used = storageUsed();
     const genCount = SLOTS.filter(s=>hasOverride(s.id)).length;
     return `<div class="site">
-      <div class="nav"><div class="container nav-inner">
+      <header class="nav"><div class="container nav-inner">
         <a class="logo" href="#/"><span class="slash sm"><i></i><i></i></span> <span class="badge">NFT</span>
           <span style="display:flex;flex-direction:column;line-height:1"><span>ADMIN</span><small>BILD-STUDIO</small></span></a>
         <div class="spacer" style="flex:1"></div>
         <div class="nav-cta">${window.__langSelect?window.__langSelect('admin'):''}${window.__themeBtn?window.__themeBtn():''}<a class="btn btn-dark btn-sm" href="#/crm">Zum CRM</a><a class="btn btn-primary btn-sm" href="#/">Zur Website →</a></div>
-      </div></div>
+      </div></header>
       <main id="main"><div class="section" style="padding-top:36px"><div class="container">
         <div class="kicker"><span class="slash sm"><i></i><i></i></span> Admin</div>
-        <h2 style="margin-bottom:6px">Bild-Studio</h2>
+        <h1 style="margin-bottom:6px">Bild-Studio</h1>
         <p class="muted" style="max-width:720px;margin-bottom:22px">Alle Bilder der Website an einem Ort — per Gemini generieren, automatisch komprimieren und direkt live sehen. Die Bilder werden lokal im Browser gespeichert (Prototyp, kein Backend).</p>
 
         <div class="grid g-2" style="align-items:start;margin-bottom:22px">
@@ -297,7 +297,7 @@
               </div></div>
             <div class="field" style="margin-bottom:8px"><label for="adm-model">Modell</label>
               <select id="adm-model" data-admin="adm-model">
-                <option value="gemini-2.5-flash-image" ${st.model==='gemini-2.5-flash-image'?'selected':''}>Gemini 2.5 Flash Image — schnell & günstig</option>
+                <option value="gemini-2.5-flash-image" ${st.model==='gemini-2.5-flash-image'?'selected':''}>Gemini 2.5 Flash Image — schnell</option>
                 <option value="gemini-3-pro-image-preview" ${st.model==='gemini-3-pro-image-preview'?'selected':''}>Gemini 3 Pro Image — höchste Qualität</option>
               </select></div>
             <div class="field" style="margin-bottom:8px"><label for="adm-token">Admin-Token <span class="muted" style="text-transform:none;letter-spacing:0">(optional — nur wenn der Server ADMIN_TOKEN gesetzt hat)</span></label>
@@ -331,6 +331,9 @@
         .adm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(340px,100%),1fr));gap:18px}
         .adm-card{min-width:0;width:100%}
         .adm-prev{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:10px;border:1px solid var(--line);background:#101014;display:block}
+        .adm-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--muted);gap:4px;padding:16px}
+        .adm-fallback b{color:var(--text);font-size:14px}
+        .adm-fallback small{font-size:12px;line-height:1.35;max-width:260px}
         .adm-size{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--text-dim)}
         .adm-card .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
         #adm-quality{accent-color:var(--red)}

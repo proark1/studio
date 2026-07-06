@@ -246,6 +246,7 @@
   let campBooked = false;
   let siteBotOpen = false;
   let siteBotChat = [];
+  let actionSheet = null;
   const setup = { push:true, foto:true, kalender:false, partner:false };
   let finder = { who:null, age:null, goal:null, loc:null, shy:false, searched:false };
   let wiz = { step:0, who:null, age:null, loc:null, goal:null, slot:null, name:"", email:"" };
@@ -256,8 +257,8 @@
   let appKF = 'Alle';
   const waitset = {};
   const lazyScripts = {
-    crm: { src:'/assets/js/crm.js?v=26', ready:()=>!!window.CRM, label:'CRM' },
-    admin: { src:'/assets/js/admin.js?v=26', ready:()=>!!window.ADMIN, label:'Bild-Studio' },
+    crm: { src:'/assets/js/crm.js?v=27', ready:()=>!!window.CRM, label:'CRM' },
+    admin: { src:'/assets/js/admin.js?v=27', ready:()=>!!window.ADMIN, label:'Bild-Studio' },
   };
   const lazyState = {};
 
@@ -334,15 +335,15 @@
 
   function siteShell(content, active){
     const link = (h,tx)=>`<a href="${h}" class="${active===h?'active':''}">${tx}</a>`;
-    const H1 = {'#/kursfinder':'Kursfinder','#/probetraining':'Probetraining','#/preise':'Preise & Tarife','#/faq':'Häufige Fragen','#/events':'Events & Camps','#/shop':'Pro-Shop','#/empfehlen':'Freund werben','#/gutscheine':'Geschenk-Gutscheine','#/camp':'Feriencamp','#/kuendigen':'Vertrag kündigen','#/login':'Mitglieder-Login','#/impressum':'Impressum','#/datenschutz':'Datenschutz','#/agb':'AGB'};
+    const H1 = {'#/kursfinder':'Kursfinder','#/probetraining':'Probetraining','#/preise':'Preise & Tarife','#/faq':'Häufige Fragen','#/events':'Events & Camps','#/shop':'Pro-Shop','#/empfehlen':'Freund werben','#/gutscheine':'Geschenk-Gutscheine','#/camp':'Feriencamp','#/kuendigen':'Vertrag kündigen','#/impressum':'Impressum','#/datenschutz':'Datenschutz','#/agb':'AGB'};
     const srH1 = H1[active] ? `<h1 class="sr-only">${H1[active]} — NFT Gym</h1>` : '';
     return `<div class="site">
-      <div class="nav"><div class="container nav-inner">
+      <header class="nav"><div class="container nav-inner">
         ${logo}
-        <div class="nav-links">
+        <nav class="nav-links" aria-label="Website">
           ${link('#/',t('nav_home'))} ${link('#/standorte',t('nav_loc'))} ${link('#/kinder',t('nav_kids'))}
           ${link('#/erwachsene',t('nav_adults'))} ${link('#/preise',t('nav_prices'))} ${link('#/kursfinder',t('nav_finder'))} ${link('#/faq',t('nav_faq'))}
-        </div>
+        </nav>
         <div class="nav-cta">
           ${themeToggle()}
           ${langSelect('')}
@@ -350,15 +351,16 @@
           <a class="btn btn-primary btn-sm" href="#/probetraining">${t('cta_trial')}</a>
         </div>
         <button class="hamburger" data-action="menu" aria-expanded="${menuOpen}" aria-label="Menü">☰</button>
-      </div></div>
+      </div></header>
       ${langNote()}
-      ${menuOpen?`<div class="mnav" role="dialog" aria-label="Menü">
+      ${menuOpen?`<nav class="mnav" aria-label="Mobile Navigation">
         <a href="#/">Home</a><a href="#/standorte">Standorte</a><a href="#/kinder">Kinder</a>
         <a href="#/erwachsene">Erwachsene</a><a href="#/preise">Preise</a><a href="#/kursfinder">Kursfinder</a><a href="#/events">Events</a>
         <a href="#/shop">Shop</a><a href="#/faq">FAQ</a>
         <div class="mnav-cta"><a class="btn btn-primary btn-block" href="#/probetraining">Probetraining buchen</a>
-        <a class="btn btn-dark btn-block" href="#/login">Login</a></div>
-      </div>`:''}
+        <a class="btn btn-dark btn-block" href="#/login">Login</a>
+        <button type="button" class="btn btn-ghost btn-block" data-action="menu">Menü schließen</button></div>
+      </nav>`:''}
       <main id="main">${srH1}${content}</main>
       ${siteFooter()}
     </div>
@@ -372,7 +374,8 @@
           ${D.siteBot[i].cta?`<a class="btn btn-primary btn-sm" href="#/probetraining" style="margin:4px 0 8px">Kostenloses Probetraining buchen</a>`:''}`).join('')}
         <div class="choices" style="margin-top:8px">${D.siteBot.map((f,i)=>siteBotChat.includes(i)?'':`<button type="button" class="chip" data-action="sitebot-ask" data-i="${i}" style="font-size:13px;padding:8px 13px">${f.q}</button>`).join('')}</div>
       </div>
-    </div>`:''}`;
+    </div>`:''}
+    ${actionSheetHtml()}`;
   }
 
   function siteFooter(){
@@ -385,7 +388,7 @@
         <div><h4>${t('f_training')}</h4>
           <a href="#/kinder">Kinder</a><a href="#/erwachsene">Erwachsene</a><a href="#/kursfinder">Kursfinder</a><a href="#/standorte">Standorte</a><a href="#/events">Events & Camps</a><a href="#/camp">Feriencamp</a><a href="#/shop">Pro-Shop</a><a href="#/gutscheine">Gutscheine</a></div>
         <div><h4>${t('f_service')}</h4>
-          <a href="#/probetraining">Probetraining</a><a href="#/preise">Preise</a><a href="#/faq">FAQ</a><a href="#/empfehlen">Freund werben</a><a href="#/app">Mitglieder-Login</a><a href="#/kuendigen">Vertrag kündigen</a></div>
+          <a href="#/probetraining">Probetraining</a><a href="#/preise">Preise</a><a href="#/faq">FAQ</a><a href="#/empfehlen">Freund werben</a><a href="#/login">Mitglieder-Login</a><a href="#/kuendigen">Vertrag kündigen</a></div>
         <div><h4>${t('f_legal')}</h4>
           <a href="#/kuendigen">Kündigung</a><a href="#/impressum">Impressum</a><a href="#/datenschutz">Datenschutz</a><a href="#/agb">AGB</a></div>
       </div>
@@ -512,7 +515,7 @@
     return siteShell(`<div class="section" style="padding-top:36px"><div class="container">
       <div class="section-head"><div>
         <div class="kicker"><span class="slash sm"><i></i><i></i></span> Standorte</div>
-        <h2>10 × NFT Gym</h2>
+        <h1>10 × NFT Gym</h1>
         <p>Wähle deinen Standort — mit aktueller Auslastung und beliebtesten Kursen.</p></div>
       </div>
       <div class="field" style="max-width:420px"><label for="loc-q">Standort suchen</label>
@@ -814,6 +817,7 @@
         ${tb('#/app','home',t('tab_home'))} ${tb('#/app/kurse','calendar',t('tab_courses'))} ${tb('#/app/fortschritt','trending',t('tab_progress'))}
         ${tb('#/app/nachrichten','message',t('tab_msgs'))} ${tb('#/app/konto','user',t('tab_account'))}
       </nav>
+      ${actionSheetHtml()}
     </div>`;
   }
 
@@ -894,9 +898,14 @@
       <h1 class="app-h">${t('today')}</h1>
       <a class="app-card" href="#/app/onboarding" style="display:flex;gap:12px;align-items:center;border-color:var(--green)">
         <div class="thumb" style="background:rgba(39,194,102,.15);font-size:24px">90</div>
-        <div class="meta" style="flex:1"><b>90-Tage-Erfolgsreise</b><small>Naechster Schritt: Tag-7-Mini-Check-in · Ziel 8 Check-ins</small></div>
+        <div class="meta stack-meta" style="flex:1"><b>90-Tage-Erfolgsreise</b><small>Naechster Schritt: Tag-7-Mini-Check-in · Ziel 8 Check-ins</small></div>
         <span class="muted">›</span>
       </a>
+      <div class="quick-grid" aria-label="Schnellzugriff">
+        <a href="#/app/shop">${ICON('cart')}<span>Shop</span></a>
+        <a href="#/app/hilfe">${ICON('headset')}<span>Hilfe</span></a>
+        <a href="#/app/auslastung">${ICON('calendar')}<span>Ruhige Zeiten</span></a>
+      </div>
       <div class="app-sec">Nächstes Training</div>
       ${sessions}
       ${pulseCard}
@@ -1355,12 +1364,12 @@
   /* ---------- Auth / 404 / Warenkorb / Nachrichten-Thread ---------- */
   function loginPage(){
     return siteShell(`<div class="authwrap"><div class="authcard card">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px"><span class="slash"><i></i><i></i></span><h2 style="margin:0">Mitglieder-Login</h2></div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px"><span class="slash"><i></i><i></i></span><h1 style="margin:0;font-size:42px">Mitglieder-Login</h1></div>
       <p class="muted" style="margin-bottom:18px">Melde dich an, um Kurse, Fortschritt & Zahlungen zu verwalten.</p>
       <div class="field"><label for="lg-mail">E-Mail</label><input id="lg-mail" type="email" value="nicole.a@mail.de" autocomplete="username"></div>
       <div class="field"><label for="lg-pw">Passwort</label><input id="lg-pw" type="password" value="demo1234" autocomplete="current-password"></div>
       <button class="btn btn-primary btn-block" data-action="login">Anmelden</button>
-      <div style="display:flex;justify-content:space-between;margin-top:14px;font-size:14px">
+      <div class="login-links" style="display:flex;justify-content:space-between;margin-top:14px;font-size:14px">
         <a href="#/kuendigen" class="muted" style="text-decoration:underline">Passwort vergessen?</a>
         <a href="#/probetraining" style="color:var(--red-ink);font-weight:600">Noch kein Mitglied?</a>
       </div>
@@ -1658,14 +1667,74 @@
     window.scrollTo(0,0);
   }
 
+  function escapeHtml(v){
+    return String(v ?? '').replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+  function actionSheetHtml(){
+    if(!actionSheet) return '';
+    const title = escapeHtml(actionSheet.title || 'Aktion');
+    const body = escapeHtml(actionSheet.body || 'Dieser Schritt ist vorbereitet.');
+    const primary = escapeHtml(actionSheet.primary || 'Bestätigen');
+    const secondary = escapeHtml(actionSheet.secondary || 'Schließen');
+    return `<div class="action-scrim" data-action="sheet-close" role="presentation">
+      <section class="action-sheet" role="dialog" aria-modal="true" aria-label="${title}" data-action="sheet-stay">
+        <button type="button" class="sheet-x" data-action="sheet-close" aria-label="Schließen">${ICON('x')}</button>
+        <div class="sheet-kicker">Nächster Schritt</div>
+        <h2>${title}</h2>
+        <p>${body}</p>
+        <div class="sheet-actions">
+          <button type="button" class="btn btn-primary" data-action="sheet-confirm">${primary}</button>
+          <button type="button" class="btn btn-dark" data-action="sheet-close">${secondary}</button>
+        </div>
+      </section>
+    </div>`;
+  }
+  function openActionSheet(el){
+    const label = (el.textContent || 'Aktion').replace(/\s+/g,' ').trim();
+    const raw = (el.dataset.msg || label || 'Aktion vorbereitet').replace(/\s+/g,' ').trim();
+    const clean = raw.replace(/\s*\(Demo\)\s*/i,'').trim();
+    const context = `${label} ${raw}`.toLowerCase();
+    let title = label && label.length < 48 ? label : 'Aktion bestätigen';
+    let body = clean || 'Der nächste Schritt wird vorbereitet.';
+    let primary = 'OK, verstanden';
+    if(context.includes('buch')){
+      title = title || 'Buchung bestätigen';
+      primary = 'Buchung bestätigen';
+      body = `${clean || 'Die Buchung ist vorbereitet.'} Du bleibst hier im Flow und bekommst direkt eine Bestätigung.`;
+    } else if(context.includes('umbuch')){
+      title = title || 'Umbuchung starten';
+      primary = 'Umbuchung starten';
+      body = `${clean || 'Die Umbuchung ist vorbereitet.'} Im nächsten Schritt wählst du den passenden Ersatztermin.`;
+    } else if(context.includes('trainer') || context.includes('slot') || context.includes('vormerken')){
+      primary = 'Vormerken';
+      body = `${clean || 'Wir merken diese Information vor.'} Das Team sieht es sofort im CRM.`;
+    } else if(context.includes('angebot') || context.includes('später')){
+      primary = 'Später erinnern';
+      body = `${clean || 'Das Angebot bleibt gespeichert.'} Du kannst es jederzeit wieder öffnen.`;
+    } else if(context.includes('pdf') || context.includes('download')){
+      primary = 'Download öffnen';
+      body = `${clean || 'Das Dokument wird vorbereitet.'} Der Download startet direkt nach der Bestätigung.`;
+    } else if(/\bdemo\b/i.test(raw)){
+      body = `${clean || 'Aktion vorbereitet.'} Im echten Betrieb würde hier direkt der passende Schritt geöffnet.`;
+    }
+    actionSheet = { title, body, primary, secondary:'Abbrechen' };
+    render();
+  }
+
   /* ---------- global click actions ---------- */
   document.addEventListener('click', e=>{
     const el = e.target.closest('[data-action]');
     if(!el) return;
     const a = el.dataset.action;
     if(a==='reload'){ location.reload(); return; }
-    if(a==='toast'){ toast(el.dataset.msg||'Demo'); return; }
-    if(a==='goapp'){ go('#/app'); return; }
+    if(a==='toast'){ openActionSheet(el); return; }
+    if(a==='sheet-stay'){ return; }
+    if(a==='sheet-close'){ actionSheet=null; render(); return; }
+    if(a==='sheet-confirm'){
+      const msg = actionSheet && actionSheet.body ? actionSheet.body.split('.')[0] : 'Erledigt';
+      actionSheet=null; toast(msg); render(); return;
+    }
+    if(a==='goapp'){ go('#/login'); return; }
     if(a==='menu'){ menuOpen=!menuOpen; render(); return; }
     if(a==='theme'){ setTheme(theme==='light'?'dark':'light'); return; }
     if(a==='theme-set'){ setTheme(el.dataset.v); return; }
@@ -1794,6 +1863,7 @@
   injectJsonLd();
   window.addEventListener('hashchange', ()=>{
     menuOpen=false;
+    actionSheet=null;
     if(prevHash.startsWith('#/probetraining/bestaetigung') && !location.hash.startsWith('#/probetraining')){
       wiz={step:0,who:null,age:null,loc:null,goal:null,slot:null,name:"",email:""};
     }
